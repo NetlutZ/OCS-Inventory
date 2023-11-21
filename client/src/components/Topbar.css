@@ -1,0 +1,49 @@
+.Topbar {
+    background-color: white;
+    border-bottom: 1px solid black;
+    /* display: flex;
+    align-items: center; */
+}
+
+
+.topbarContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.imageStyle {
+    width: 50px;
+    height: auto;
+    padding: 10px;
+}
+
+.imageContainer {
+    display: flex;
+    /*justify-content: center;*/
+    /*Horizontally center children*/
+    align-items: center;
+    /*Vertically center children*/
+    /* Additional styles for container if needed */
+}
+
+.brandName {
+    font-weight: bold;
+    /* Other styles for the brand name */
+}
+
+.rightIcons {
+    display: flex;
+    align-items: center;
+}
+
+
+.userIcon {
+    font-size: 24px;
+    margin: 10px;
+}
+
+.notificationIcon{
+    font-size: 30px;
+    margin: 10px;
+}

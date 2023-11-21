@@ -1,0 +1,132 @@
+#container {
+    display: flex;
+    flex-direction: column;
+    /* height: 100vh; */
+    /* width: 100vw; */
+    /* align-items: center; */
+    /* justify-content: center; */
+}
+
+/* Sum Status */
+.status-sum {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.status-sum-item {
+    width: 17rem;
+    height: 8rem;
+    position: relative;
+    background: white;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    margin: 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.status-sum-text {
+    color: #A9A8A8;
+    font-size: 2em;
+    font-weight: 400;
+    word-wrap: break-word;
+    margin: 0.5rem 0.7rem;
+}
+
+.status-sum-number {
+    color: black;
+    font-size: 2em;
+    font-weight: 400;
+    word-wrap: break-word;
+    margin: 0.5rem 0.7rem;
+}
+
+#inStorage {
+    border-top: 4px #32D583 solid;
+}
+
+#borrowed {
+    border-top: 4px #FEB273 solid;
+}
+
+#loss {
+    border-top: 4px #FF5252 solid;
+}
+
+/* Table */
+.dashboard-table-header {
+    border-bottom: 1px solid #EAECF0;
+    background-color: #F9FAFB;
+    height: 3rem;
+    text-align: left;
+}
+
+.dashboard-row {
+    border-bottom: 1px solid #EAECF0;
+}
+
+.table-cell-wrap {
+    white-space: pre-line;
+}
+
+.status-data {
+    display: flex;
+    width: 100%;
+    /* height: 100%;
+    position: relative; */
+}
+
+.right-line {
+    border-right: 2px solid #D0D5DD;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding-left: 0.8rem;
+    /* Adjust padding as needed */
+}
+
+.status-text {
+    /* width: 73px;
+        height: 22px; */
+    padding: 0.2rem 0.8rem;
+    margin-right: 0.4rem;
+    border-radius: 1rem;
+    /* display: flex; */
+    /* justify-content: center; */
+    /* align-items: center; */
+    /* gap: 4px; */
+    font-size: 0.8rem;
+    font-family: 'Inter';
+    font-weight: 500;
+    line-height: 1.5rem;
+    /* word-wrap: break-word; */
+}
+
+.count-status-text {
+    text-align: right;
+    margin-right: 0.5rem;
+    /* Adjust padding as needed */
+}
+
+#statusInStorage {
+    background: #ECFDF3;
+    color: #027A48;
+}
+
+#statusBorrowed {
+    background: #FFF6ED;
+    color: #FD853A;
+}
+
+#statusLoss {
+    background: #FEF3F2;
+    color: #B42318;
+}
+
+table {
+    border-spacing: 0 3em;
+    border-collapse: collapse;
+}

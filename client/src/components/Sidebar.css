@@ -1,0 +1,56 @@
+.sidenav {
+  height: 100%;
+  width: 15rem;
+  background-color: #F2F4F7;
+  border-right: 1px solid black;
+  overflow-y: auto; /* Enable scrollnav if content exceeds height */
+}
+
+.sidenav-list {
+  height: auto;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.sidenav-list .sidenav-item {
+  width: 100%;
+  height: 3rem;
+  /* border: 1px solid black; */
+  border-bottom: 1px solid black;
+  margin: 0%;
+  list-style-type: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+/* cursor ชี้ */
+.sidenav-list .sidenav-item:hover {
+  cursor: pointer;
+  background-color: #B9E6FE;
+}
+
+.sidenav-list #active {
+  background-color: #B9E6FE;
+}
+
+.sidenav-item #icon {
+  flex: 30%;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+}
+
+.sidenav-item #title {
+  flex: 100%;
+  font-size: 1.5rem;
+}
+
+.content {
+  flex: 1; /* Allow the content div to take remaining space */
+  /* Other content styles */
+}
+
+

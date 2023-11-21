@@ -1,0 +1,11 @@
+.expandable_input {
+    min-width: 100px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#calendar-icon,
+#clear-icon{
+    color: #ccc;
+}

@@ -1,0 +1,114 @@
+.option{
+    background-color: #F9FAFB;
+    border-bottom: 1px solid #EAECF0;
+}
+
+.input-wrapper {
+    background-color: white;
+    width: 15%;
+    border-radius: 5px;
+    height: 2em;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+    border: 2px solid #EAECF0;
+    margin: 10px;
+}
+
+#search-icon {
+    overflow: visible;
+    color: #53B1FD;
+}
+
+input {
+    background-color: transparent;
+    border: none;
+    height: 100%;
+}
+
+input:focus {
+    outline: none;
+}
+
+.second-row,
+.first-row {
+    display: flex;
+    align-items: center;
+    /* Align items vertically in the center */
+}
+
+.add-button {
+    margin-left: 10px;
+    /* Add some space between input-wrapper and add-button */
+}
+/* move add-device-button to right end */
+#add-device-button {
+    margin-left: auto;
+    margin-right: 10px;
+}
+
+.addDevice {
+    display: flex;
+    align-items: center;
+    width: 150%;
+    height: 2.5em;
+    border-radius: 5px;
+    background-color: white;
+    border: 2px solid #EAECF0;
+}
+.filterOption:hover,
+.addDevice:hover {
+    background-color: #EAECF0;
+    cursor: pointer;
+}
+
+.filterOption:active,
+.addDevice:active {
+    background-color: #CDD2D4;
+}
+
+#add-icon {
+    margin-right: 10px;
+    color: #53B1FD;
+}
+
+.filterOption{
+    height: 2em;
+    border-radius: 5px;
+    background-color: white;
+    border: 2px solid #EAECF0;
+    margin: 10px;
+}
+
+  
+.filter-select{
+    max-width: 300px;
+    margin: 10px;
+}
+
+
+
+
+/* Calendar */
+input.inputBox {
+    font-size: 22px;
+    padding: 5px 8px 4px 8px;
+    border-radius: 3px;
+    border: 1px solid #666;
+  }
+  
+  .calendarWrap {
+    display: inline-block;
+    position: relative;
+  }
+  
+  .calendarElement {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 40px;
+    border: 1px solid #ccc;
+    z-index: 999;
+  }
+
+
