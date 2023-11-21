@@ -20,3 +20,5 @@ db.sequelize.sync({ force: false }).then((req) => {
         console.log(`start server in port ${PORT}`);
     })
 });
+
+//test
