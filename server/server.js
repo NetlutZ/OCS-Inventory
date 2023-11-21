@@ -10,6 +10,9 @@ app.use(cors());
 const apiDevice = require('./routes/Device');
 app.use('/device', apiDevice);
 
+const apiUser = require('./routes/Users');
+app.use('/user', apiUser);
+
 app.get('/', (req, res) => {
     res.send('Hello World');
 });
@@ -20,5 +23,3 @@ db.sequelize.sync({ force: false }).then((req) => {
         console.log(`start server in port ${PORT}`);
     })
 });
-
-//test
