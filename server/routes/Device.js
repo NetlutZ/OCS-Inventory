@@ -48,4 +48,15 @@ router.delete('/:id', (req, res) => {
     });
 });
 
+// get device by id 
+router.get('/:id', (req, res) => {
+    Device.findOne({
+        where: {
+            id: req.params.id
+        }
+    }).then((result) => {
+        res.json(result);
+    });
+});
+
 module.exports = router;

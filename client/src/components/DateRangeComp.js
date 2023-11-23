@@ -64,6 +64,7 @@ class DateRangeComp extends React.Component {
 
   render() {
     const { range, isFilter, open } = this.state;
+    const { placeholder } = this.props;
 
     return (
       <div className="calendarWrap">
@@ -75,7 +76,8 @@ class DateRangeComp extends React.Component {
                   range[0].endDate,
                   'dd/MM/yyyy'
                 )}`
-                : 'Purchase Date '
+                : placeholder
+
             }
             readOnly
             className="expandable_input"

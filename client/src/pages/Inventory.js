@@ -14,7 +14,8 @@ import { useState, useEffect } from 'react';
 
 import DateRangeComp from '../components/DateRangeComp';
 import { is } from 'date-fns/locale';
-
+import Swal from "sweetalert2";
+import InventoryPopup from '../components/InventoryPopup';
 
 class Inventory extends React.Component {
   constructor(props) {
@@ -40,6 +41,9 @@ class Inventory extends React.Component {
       warrantyExpEndDate: "",
 
       isFilter: false,
+      modal: false,
+
+      deviceIdSelected: null,
     };
   }
 
@@ -138,6 +142,64 @@ class Inventory extends React.Component {
     });
   };
 
+  deleteDevice = (row) => {
+    const id = row.id;
+    Swal.fire({
+      title: `Are you sure to delete ${row.name}?`,
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      width: '50rem',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios.delete(`http://localhost:8080/device/${id}`)
+          .then(response => {
+            // Remove deleted device from state
+
+            const updatedInventoryData = this.state.inventoryData.filter(item => item.id !== id);
+            console.log(updatedInventoryData)
+            this.setState({ inventoryData: updatedInventoryData });
+            this.setState({ filterInventoryData: updatedInventoryData });
+          })
+          .catch(error => {
+            // Handle error deleting device
+            console.error('Error deleting device:', error);
+          });
+
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your file has been deleted.",
+          icon: "success"
+        });
+      }
+    })
+  }
+
+  searchFilter = (e) => {
+    const searchData = this.state.inventoryData.filter((row) =>
+      row.name.toLowerCase().includes(e.target.value.toLowerCase()) ||
+      row.status.toLowerCase().includes(e.target.value.toLowerCase()) ||
+      row.rfid.toLowerCase().includes(e.target.value.toLowerCase()) ||
+      row.purchaseDate.toLowerCase().includes(e.target.value.toLowerCase()) ||
+      row.warrantyExpirationDate.toLowerCase().includes(e.target.value.toLowerCase()) ||
+      row.location.toLowerCase().includes(e.target.value.toLowerCase()) ||
+      row.serialNumber.toLowerCase().includes(e.target.value.toLowerCase())
+    );
+    this.setState({
+      filterInventoryData: searchData,
+    });
+  };
+
+  handleRowClick = (row) => {
+    // Handle row click here, you can access the clicked row data using the 'row' parameter
+    console.log('Clicked row:', row);
+    this.setState({ modal: true, deviceIdSelected: row.id });
+    // Perform any other actions you want when a row is clicked
+  };
+
   limitText = (text, limit) => {
     if (text.length > limit) {
       const chunks = [];
@@ -216,10 +278,10 @@ class Inventory extends React.Component {
       },
       {
         name: 'Action',
-        cell: () => (
+        selector: (row) => (
           <>
-            <FaRegEdit color="#667085" fontSize="1em" style={{ paddingRight: '5px' }} />
-            <RiDeleteBinLine color="#f97066" fontSize="1em" />
+            <FaRegEdit color="#667085" fontSize="1em" style={{ paddingRight: '5px', cursor: 'pointer' }} />
+            <RiDeleteBinLine color="#f97066" fontSize="1em" onClick={() => this.deleteDevice(row)} style={{ cursor: 'pointer' }} />
           </>
         ),
       },
@@ -243,6 +305,7 @@ class Inventory extends React.Component {
           fontSize: '18px',
         },
       },
+
     };
 
     return (
@@ -253,7 +316,7 @@ class Inventory extends React.Component {
           <div className='first-row'>
             <div className="input-wrapper">
               <CiSearch id="search-icon" />
-              <input type="text" placeholder="Search" />
+              <input type="text" placeholder="Search" onChange={this.searchFilter} />
             </div>
             <div className="filter-button">
               <button className="filter" onClick={this.click}>Filter</button>
@@ -305,10 +368,10 @@ class Inventory extends React.Component {
               noOptionsMessage={() => "not found"}></Select>
 
             <div className='filter-select'> {/* Wrap DateRangeComp in a div */}
-              <DateRangeComp parentCallback={this.setPurchaseFilter} />
+              <DateRangeComp parentCallback={this.setPurchaseFilter} placeholder="Purchase Date" />
             </div>
             <div className='filter-select'> {/* Wrap DateRangeComp in a div */}
-              <DateRangeComp parentCallback={this.setWarrantyExpFilter} />
+              <DateRangeComp parentCallback={this.setWarrantyExpFilter} placeholder="Warranty Expiration Date" />
             </div>
           </div>
 
@@ -322,7 +385,17 @@ class Inventory extends React.Component {
           // responsive
           // striped
           customStyles={customStyles}
+          onRowClicked={this.handleRowClick}
         />
+
+        <div>
+          <InventoryPopup
+            trigger={this.state.modal}
+            setTrigger={(value) => this.setState({ modal: value })}
+            deviceID={this.state.deviceIdSelected}
+          >
+          </InventoryPopup>
+        </div>
 
       </div>
     )

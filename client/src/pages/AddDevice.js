@@ -1,104 +1,161 @@
-import React, { Component } from 'react';
-import DataTable from 'react-data-table-component';
+import React, {useState, useEffect} from 'react'
+import "./AddDevice.css"
+import CreatableSelect from 'react-select/creatable';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2';
 
-class AddDevice extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      records: [],
-      filterRecords: [],
-    };
-    this.columns = [
-      {
-        name: 'ID',
-        selector: (row) => row.id,
-        sortable: true,
-      },
-      {
-        name: 'Name',
-        selector: (row) => <div id={'statusInStorage'}>{row.name}</div>,
-        sortable: true,
-      },
-      {
-        name: 'Email',
-        selector: (row) => row.email,
-        sortable: true,
-      },
-      {
-        name: 'City',
-        selector: (row) => row.address.city,
-        sortable: true,
-      },
-    ];
-    this.customStyles = {
-      headRow: {
-        style: {
-          backgroundColor: 'blue',
-          color: 'white',
-        },
-      },
-      headCells: {
-        style: {
-          fontSize: '20px',
-          fontWeight: '600',
-          textTransform: 'uppercase',
-        },
-      },
-      cells: {
-        style: {
-          fontSize: '18px',
-        },
-      },
-    };
-  }
+function AddDevice() {
+  let navigate  = useNavigate();
+  const initialFormData = {
+    name: '',
+    purchaseDate: '',
+    warrantyExpirationDate: '',
+    serialNumber: '',
+    rfid: '',
+    location: '',
+    status: ''
+  };
 
-  componentDidMount() {
-    this.fetchData();
-  }
+  const [formData, setFormData] = useState({ ...initialFormData });
 
-  fetchData = async () => {
-    try {
-      const res = await axios.get('https://jsonplaceholder.typicode.com/users');
-      this.setState({
-        records: res.data,
-        filterRecords: res.data,
+  const [selectedOption, setSelectedOption] = useState(null);
+  const formatCreateLabel = (inputValue) => `Create "${inputValue}"`
+
+  const handleChange = (newValue, actionMeta) => {
+    if (actionMeta.name === 'name' || actionMeta.name === 'location' || actionMeta.name === 'status') {
+      setFormData({
+        ...formData,
+        [actionMeta.name]: newValue.value || '' // Assuming 'name', 'location', 'status' are the field names
       });
-    } catch (err) {
-      console.log(err);
+    } else {
+      const { name, value } = actionMeta;
+      setFormData({
+        ...formData,
+        [actionMeta.name]: newValue.target.value
+      });
     }
   };
 
-  handleFilter = (e) => {
-    const newData = this.state.filterRecords.filter((row) =>
-      row.name.toLowerCase().includes("Lean".toLowerCase()) ||
-      row.email.toLowerCase().includes(e.target.value.toLowerCase()) ||
-      row.address.city.toLowerCase().includes(e.target.value.toLowerCase())
-    );
-    this.setState({
-      records: newData,
-    });
-    console.log(newData);
-    
+  const [statusOptions, setStatusOptions] = useState([]);
+  const [nameOptions, setNameOptions] = useState([]);
+  const [locationOptions, setLocationOptions] = useState([]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log('Form data:', formData);
+    try {
+      const response = await axios.post('http://localhost:8080/device', formData);
+
+      setFormData({ ...initialFormData });
+      Swal.fire({
+        title: "Good job!",
+        text: "You clicked the button!",
+        icon: "success"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.reload(true); // Reload the page after user acknowledges the success message
+        }
+      });
+      
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      // Handle errors if the submission fails
+    }
   };
 
-  render() {
-    return (
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'right' }}>
-          <input type='text' placeholder='search' onChange={this.handleFilter}></input>
+  useEffect(() => {
+    axios.get('http://localhost:8080/device')
+      .then(response => {
+        const data = response.data;
+        // Extract unique options for status, name, and location
+        const uniqueStatusOptions = [...new Set(data.map(item => item.status))];
+        const uniqueNameOptions = [...new Set(data.map(item => item.name))];
+        const uniqueLocationOptions = [...new Set(data.map(item => item.location))];
+        setStatusOptions(uniqueStatusOptions);
+        setNameOptions(uniqueNameOptions);
+        setLocationOptions(uniqueLocationOptions);
+      })
+      .catch(error => {
+        console.error('Error fetching device data:', error);
+      });
+  }, []);
+
+  return (
+    <form onSubmit={handleSubmit} className="two-column-form">
+      <div className="column">
+        {/* Purchase Date */}
+        <div className="input-container">
+          <label>Purchase Date:</label>
+          <input
+            type="date"
+            name="purchaseDate"
+            onChange={(newValue, actionMeta) => handleChange(newValue, { ...actionMeta, name: 'purchaseDate' })}
+          />
         </div>
-        <DataTable
-          columns={this.columns}
-          data={this.state.records}
-          customStyles={this.customStyles}
-          pagination
-          paginationRowsPerPageOptions={[5, 10, 15, 20, 25, 30]}
-          paginationPerPage={5}
-        />
+        {/* Warranty Expiration Date */}
+        <div className="input-container">
+          <label>Warranty Expiration Date:</label>
+          <input
+            type="date"
+            name="warrantyExpirationDate"
+            onChange={(newValue, actionMeta) => handleChange(newValue, { ...actionMeta, name: 'warrantyExpirationDate' })}
+          />
+        </div>
       </div>
-    );
-  }
+      <div className="column">
+        {/* Serial Number */}
+        <div className="input-container">
+          <label>Serial Number:</label>
+          <input
+            type="text"
+            name="serialNumber"
+            onChange={(newValue, actionMeta) => handleChange(newValue, { ...actionMeta, name: 'serialNumber' })}
+          />
+        </div>
+        {/* RFID */}
+        <div className="input-container">
+          <label>RFID:</label>
+          <input
+            type="text"
+            name="rfid"
+            onChange={(newValue, actionMeta) => handleChange(newValue, { ...actionMeta, name: 'rfid' })}
+          />
+        </div>
+        {/* Device Name CreatableSelect */}
+        <div className="input-container">
+          <label>Device Name:</label>
+          <CreatableSelect
+            isClearable
+            onChange={(newValue, actionMeta) => handleChange(newValue, { ...actionMeta, name: 'name' })}
+            options={nameOptions.map(option => ({ value: option, label: option }))}
+            value={formData.name ? { label: formData.name, value: formData.name } : null}
+          />
+        </div>
+        {/* Location CreatableSelect */}
+        <div className="input-container">
+          <label>Location:</label>
+          <CreatableSelect
+            isClearable
+            onChange={(newValue, actionMeta) => handleChange(newValue, { ...actionMeta, name: 'location' })}
+            options={locationOptions.map(option => ({ value: option, label: option }))}
+            value={formData.location ? { label: formData.location, value: formData.location } : null}
+          />
+        </div>
+        {/* Status CreatableSelect */}
+        <div className="input-container">
+          <label>Status:</label>
+          <CreatableSelect
+            isClearable
+            onChange={(newValue, actionMeta) => handleChange(newValue, { ...actionMeta, name: 'status' })}
+            options={statusOptions.map(option => ({ value: option, label: option }))}
+            value={formData.status ? { label: formData.status, value: formData.status } : null}
+          />
+        </div>
+      </div>
+      <button type="submit" >Submit</button>
+    </form>
+  );
 }
 
-export default AddDevice;
+export default AddDevice
