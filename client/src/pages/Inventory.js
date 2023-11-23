@@ -5,9 +5,11 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { IconContext } from "react-icons";
 import { CiSearch } from "react-icons/ci";
 import { IoIosAdd } from "react-icons/io";
+import axios from "axios";
+import DataTable from 'react-data-table-component';
 
 import Select from "react-select"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 
 import DateRangeComp from '../components/DateRangeComp';
@@ -20,34 +22,121 @@ class Inventory extends React.Component {
 
     this.state = {
       value: null,
-      inventoryData: [
-        { id: 1, name: 'Product A', status: "InStorage", purchaseDate: 20.99 },
-        { id: 2, name: 'Product B', status: "Borrowed", purchaseDate: 15.49 },
-        { id: 3, name: 'Product C', status: "Loss", purchaseDate: 25.99 },
-        // Add more inventory items as needed
-      ],
+      inventoryData: [],
+      filterInventoryData: [],
       count: 0,
-      options: [
-        // Your options array...
-      ],
-      stDate: "",
-      endDate: "",
+      selectedStatusOptions: [],
+      selectedNameOptions: [],
+      selectedLocationOptions: [],
+
+      statusOptions: [],
+      nameOptions: [],
+      locationOptions: [],
+
+      purchaseStDate: "",
+      purchaseEndDate: "",
+
+      warrantyExpStDate: "",
+      warrantyExpEndDate: "",
+
       isFilter: false,
     };
   }
 
+  componentDidMount() {
+    this.fetchInventoryData();
+  }
 
-  handleCallback = (startDate, endDate, isFilter) => {
-    this.setState({ stDate: startDate, endDate: endDate, isFilter: isFilter });
-    console.log("isFilter:" + isFilter)
+  fetchInventoryData = () => {
+    // Fetch inventory data from API and set in state
+    axios.get('http://localhost:8080/device')
+      .then(response => {
+        // Assuming response.data contains inventory items
+        this.setState({ inventoryData: response.data });
+        this.setState({ filterInventoryData: response.data });
+
+        // Extract unique status options from inventoryData
+        const statusOptions = [...new Set(response.data.map(item => item.status))];
+        const nameOptions = [...new Set(response.data.map(item => item.name))];
+        const locationOptions = [...new Set(response.data.map(item => item.location))];
+
+        // Map statusOptions to the format required by Select component
+        const formattedStatusOptions = statusOptions.map(option => ({
+          value: option,
+          label: option,
+        }));
+        const formattedNameOptions = nameOptions.map(option => ({
+          value: option,
+          label: option,
+        }));
+        const formattedLocationOptions = locationOptions.map(option => ({
+          value: option,
+          label: option,
+        }));
+
+        // Set formatted status options in state
+        this.setState({
+          statusOptions: formattedStatusOptions,
+          nameOptions: formattedNameOptions,
+          locationOptions: formattedLocationOptions,
+        });
+      })
+      .catch(error => {
+        // Handle error fetching inventory data
+        console.error('Error fetching inventory data:', error);
+      });
   };
 
-  // print every 1 second
-  // componentDidMount() {
-  //   this.interval = setInterval(() => {
-  //     console.log("isFilter:" + this.state.isFilter)
-  //   }, 1000);
-  // }
+  filterInventory = () => {
+    if (this.state.selectedStatusOptions.length === 0 && this.state.selectedNameOptions.length === 0 && this.state.selectedLocationOptions.length === 0 && !this.state.purchaseStDate && !this.state.warrantyExpStDate) {
+      this.setState({ filterInventoryData: this.state.inventoryData });
+    }
+    else {
+      const statusSelected = this.state.selectedStatusOptions.map(option => option.value);
+      const nameSelected = this.state.selectedNameOptions.map(option => option.value);
+      const locationSelected = this.state.selectedLocationOptions.map(option => option.value);
+
+      console.log("statusSelected:" + statusSelected)
+      const filteredData = this.state.inventoryData.filter(item => {
+        const statusMatch =
+          statusSelected.length === 0 ||
+          statusSelected.some(status => item.status.includes(status));
+
+        const nameMatch =
+          nameSelected.length === 0 ||
+          nameSelected.some(name => item.name.includes(name));
+
+        const locationMatch =
+          locationSelected.length === 0 ||
+          locationSelected.some(location => item.location.includes(location));
+
+        const purchasedateMatch =
+          (!this.state.purchaseStDate || item.purchaseDate >= this.state.purchaseStDate) &&
+          (!this.state.purchaseEndDate || item.purchaseDate <= this.state.purchaseEndDate);
+
+        const warrantyExpMatch =
+          (!this.state.warrantyExpStDate || item.warrantyExpirationDate >= this.state.warrantyExpStDate) &&
+          (!this.state.warrantyExpEndDate || item.warrantyExpirationDate <= this.state.warrantyExpEndDate);
+
+        return statusMatch && nameMatch && locationMatch && purchasedateMatch && warrantyExpMatch;
+      });
+
+      // Update state with filtered data
+      this.setState({ filterInventoryData: filteredData });
+    }
+  }
+
+  setPurchaseFilter = (startDate, purchaseEndDate, isFilter) => {
+    this.setState({ purchaseStDate: startDate, purchaseEndDate: purchaseEndDate, isFilter: isFilter }, () => {
+      this.filterInventory()
+    });
+  };
+  setWarrantyExpFilter = (startDate, purchaseEndDate, isFilter) => {
+    console.log("setWarrantyExpFilter")
+    this.setState({ warrantyExpStDate: startDate, warrantyExpEndDate: purchaseEndDate, isFilter: isFilter }, () => {
+      this.filterInventory()
+    });
+  };
 
   limitText = (text, limit) => {
     if (text.length > limit) {
@@ -75,25 +164,92 @@ class Inventory extends React.Component {
     this.setState({ count: this.state.count + 1 });
   };
 
-  options = [
-    { value: 'InStorage', label: 'InStorage' },
-    { value: 'Borrowed', label: 'Borrowed' },
-    { value: 'Loss', label: 'Loss' },
-    { value: 'Loss', label: 'Loss' },
-    { value: 'Lossss', label: 'Lossssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss' },
-    { value: 'Lossssss', label: 'Lossssssssssssssssssssssssssssss' },
-    { value: 'Lossssss', label: 'Lossssssssssssssssssssssssssssss' },
-    { value: 'Lossssss', label: 'Lossssssssssssssssssssssssssssss' },
-    { value: 'Lossssss', label: 'Lossssssssssssssssssssssssssssss' },
-    { value: 'Lossssss', label: 'Lossssssssssssssssssssssssssssss' },
-  ];
-
   render() {
-    const isFilter = this.state.isFilter;
+    const columns = [
+      {
+        name: 'Image',
+        selector: (row) => <img src={row.id} alt="Image" style={{ width: '50px', height: '50px' }} />,
+        sortable: true,
+      },
+      {
+        name: 'Name',
+        selector: (row) => this.limitText(row.name, 20),
+        sortable: true,
+      },
+      {
+        name: 'Status',
+        selector: (row) => (
+          <div style={{ width: '100%', height: '100%', display: 'flex' }}>
+            <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+              <div className="status" id={'status' + row.status}>{row.status}</div>
+            </div>
+          </div>
+        ),
+        sortable: true,
+      },
+      {
+        name: 'RFID',
+        selector: (row) => row.rfid,
+        sortable: true,
+      },
+      {
+        name: 'Purchase Date',
+        selector: (row) => this.changeDateFormat(row.purchaseDate),
+        sortable: true,
+      },
+      {
+        name: 'Warranty Expire',
+        selector: (row) => this.changeDateFormat(row.warrantyExpirationDate),
+        sortable: true,
+      },
+      {
+        name: 'Location',
+        selector: (row) => row.location,
+        sortable: true,
+
+      },
+      {
+        name: 'Serial Number',
+        selector: (row) => row.serialNumber,
+        sortable: true,
+
+      },
+      {
+        name: 'Action',
+        cell: () => (
+          <>
+            <FaRegEdit color="#667085" fontSize="1em" style={{ paddingRight: '5px' }} />
+            <RiDeleteBinLine color="#f97066" fontSize="1em" />
+          </>
+        ),
+      },
+    ];
+
+    const customStyles = {
+      headRow: {
+        style: {
+          backgroundColor: '#F9FAFB',
+          color: 'black',
+        },
+      },
+      headCells: {
+        style: {
+          fontWeight: '600',
+          fontSize: '1rem'
+        },
+      },
+      cells: {
+        style: {
+          fontSize: '18px',
+        },
+      },
+    };
+
     return (
       <div>
         {/* create search box */}
         <div className='option'>
+
           <div className='first-row'>
             <div className="input-wrapper">
               <CiSearch id="search-icon" />
@@ -104,86 +260,69 @@ class Inventory extends React.Component {
             </div>
             <div className='add-device-button' >
               <button className="addDevice" onClick={this.click}> <IoIosAdd id="add-icon" /> Add Device</button>
-
             </div>
           </div>
 
           <div className='second-row'>
             <Select className='filter-select'
               placeholder="Name"
-              options={this.options}
+              options={this.state.nameOptions}
               defaultValue={this.value}
-              onChange={(optionSelected) => { console.log(optionSelected) }}
+              onChange={(optionSelected) => {
+                // use await to wait for state to be updated
+                this.setState({ selectedNameOptions: optionSelected }, () => {
+                  this.filterInventory()
+                });
+              }}
               isMulti
               isSearchable
               noOptionsMessage={() => "not found"}></Select>
             <Select className='filter-select'
               placeholder="Status"
-              options={this.options}
-              defaultValue={this.value}
-              onChange={(optionSelected) => { console.log(optionSelected) }}
+              options={this.state.statusOptions}
+              // defaultValue={selectedStatusOptions}
+              onChange={(optionSelected) => {
+                // use await to wait for state to be updated
+                this.setState({ selectedStatusOptions: optionSelected }, () => {
+                  this.filterInventory()
+                });
+              }}
               isMulti
               isSearchable
               noOptionsMessage={() => "not found"}></Select>
             <Select className='filter-select'
-              placeholder="Provider"
-              options={this.options}
+              placeholder="Location"
+              options={this.state.locationOptions}
               defaultValue={this.value}
-              onChange={(optionSelected) => { console.log(optionSelected) }}
+              onChange={(optionSelected) => {
+                // use await to wait for state to be updated
+                this.setState({ selectedLocationOptions: optionSelected }, () => {
+                  this.filterInventory()
+                });
+              }}
               isMulti
               isSearchable
               noOptionsMessage={() => "not found"}></Select>
 
             <div className='filter-select'> {/* Wrap DateRangeComp in a div */}
-              <DateRangeComp parentCallback={this.handleCallback} />
+              <DateRangeComp parentCallback={this.setPurchaseFilter} />
             </div>
             <div className='filter-select'> {/* Wrap DateRangeComp in a div */}
-              <DateRangeComp />
+              <DateRangeComp parentCallback={this.setWarrantyExpFilter} />
             </div>
           </div>
 
         </div>
 
-        <div className="table">
-          <table style={{ width: '100%' }}>
-            <thead className='dashboard-table-header'>
-              <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Status</th>
-                <th>Provider</th>
-                <th>Purchase Date</th>
-                <th>Warranty Expire</th>
-                <th>Location</th>
-                <th>Serial Number</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.state.inventoryData.map((item) => (
-                <tr key={item.id} className='dashboard-row'>
-                  <td style={{ width: '10%' }}>{item.id}</td>
-                  <td >{this.limitText(item.name, 20)}</td>
-                  <td style={{ width: '10%' }}>
-                    <div style={{ width: '100%', height: '100%', display: 'flex' }}>
-                      <div >
-                        <div className="status" id={'status' + item.status}>{item.status}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>${item.purchaseDate}</td>
-                  <td>${item.purchaseDate}</td>
-                  <td>${item.purchaseDate}</td>
-                  <td>${item.purchaseDate}</td>
-                  <td>${item.purchaseDate}</td>
-                  <td>{<FaRegEdit color="#667085" fontSize="1em" style={{ paddingRight: '5px' }} />}{<RiDeleteBinLine color="#f97066" fontSize="1em" />}</td>
-
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
+        <DataTable
+          columns={columns}
+          data={this.state.filterInventoryData}
+          pagination
+          highlightOnHover
+          // responsive
+          // striped
+          customStyles={customStyles}
+        />
 
       </div>
     )

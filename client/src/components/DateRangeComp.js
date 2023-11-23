@@ -57,9 +57,6 @@ class DateRangeComp extends React.Component {
     this.props.parentCallback(selectedStartDate, selectedEndDate, this.state.isFilter);
   };
 
-
-
-
   clearDateRange = () => {
     this.setState({ isFilter: false });
     this.props.parentCallback('', '', this.state.isFilter);
