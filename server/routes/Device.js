@@ -1,9 +1,14 @@
 const {Device} = require('../models');
 const express = require('express');
 const router = express.Router();
+const { Activitys } = require('../models');
 
 router.get('/', (req, res) => {
-    Device.findAll().then((result) => {
+    Device.findAll(
+        {
+            include: [Activitys]
+        })
+    .then((result) => {
         res.json(result);
     });
 });
@@ -16,7 +21,8 @@ router.post('/', (req, res) => {
         status: req.body.status,
         purchaseDate: req.body.purchaseDate,
         warrantyExpirationDate: req.body.warrantyExpirationDate,
-        location: req.body.location
+        location: req.body.location,
+        activityId: req.body.activityId
     }).then((result) => {
         res.json(result);
     });
@@ -28,7 +34,8 @@ router.put('/:id', (req, res) => {
         type: req.body.type,
         status: req.body.status,
         room: req.body.room,
-        description: req.body.description
+        description: req.body.description,
+        activityId: req.body.activityId
     }, {
         where: {
             id: req.params.id
@@ -53,6 +60,17 @@ router.get('/:id', (req, res) => {
     Device.findOne({
         where: {
             id: req.params.id
+        }
+    }).then((result) => {
+        res.json(result);
+    });
+});
+
+// get device by activityId
+router.get('/activity/:id', (req, res) => {
+    Device.findAll({
+        where: {
+            activityId: req.params.id
         }
     }).then((result) => {
         res.json(result);

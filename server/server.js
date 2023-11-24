@@ -13,6 +13,9 @@ app.use('/device', apiDevice);
 const apiUser = require('./routes/Users');
 app.use('/user', apiUser);
 
+const apiActivity = require('./routes/Activitys');
+app.use('/activity', apiActivity);
+
 app.get('/', (req, res) => {
     res.send('Hello World');
 });

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import "./Activity.css";
 import ActivityPopup from '../components/ActivityPopup';
 import DateRangePickerComp from '../components/DateRangePickerComp';
+import axios from 'axios';
 
 class Activity extends Component {
   constructor(props) {
@@ -13,6 +14,14 @@ class Activity extends Component {
       date: null,
       userAction: null,
       time: null,
+
+      activityCode: null,
+      activityDate: null,
+      activityTime: null,
+      userId: null,
+
+      dynamicDataArray: [],
+      
     };
   }
 
@@ -26,27 +35,50 @@ class Activity extends Component {
     });
   };
 
-  dynamicDataArray = [
-    {
-      date: '20-10-2023',
-      activityID: 'R123',
-      userAction: 'User A Return Device',
-      time: '17:30',
-    },
-    {
-      date: '21-10-2023',
-      activityID: 'B124',
-      userAction: 'User B Borrowed Service',
-      time: '10:45',
-    },
-    {
-      date: '21-10-2023',
-      activityID: 'L124',
-      userAction: 'Device A (ID) Loss',
-      time: '10:45',
-    },
-    // Add more data objects as needed
-  ];
+  // dynamicDataArray = [
+  //   {
+  //     date: '20-10-2023',
+  //     activityID: 'R123',
+  //     userAction: 'User A Return Device',
+  //     time: '17:30',
+  //   },
+  //   {
+  //     date: '21-10-2023',
+  //     activityID: 'B124',
+  //     userAction: 'User B Borrowed Service',
+  //     time: '10:45',
+  //   },
+  //   {
+  //     date: '21-10-2023',
+  //     activityID: 'L124',
+  //     userAction: 'Device A (ID) Loss',
+  //     time: '10:45',
+  //   },
+  //   // Add more data objects as needed
+  // ];
+
+
+  // dynamicDataArray = []
+
+  componentDidMount() {
+    axios.get('http://localhost:8080/activity/')
+      .then(response => {
+        if (response.data.length > 0) {
+          this.setState({
+            dynamicDataArray: response.data,
+          }, () =>{
+            console.log(this.state.dynamicDataArray)
+            this.state.dynamicDataArray.map((dynamicData, index) => (
+              console.log(dynamicData)
+            ))
+          })
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+  }
+
 
   render() {
     const { modal, selectedActivityID, date, userAction, time } = this.state;
@@ -56,6 +88,23 @@ class Activity extends Component {
         <div className='filter-range' style={{ margin: 30 }}><DateRangePickerComp /></div>
 
         <div className='activity-list'>
+          {this.state.dynamicDataArray.map((dynamicData, index) => (
+            <div key={index} className={`activity-item border-${dynamicData.activityCode.charAt(0)}`} onClick={() => this.handleActivityClick(dynamicData)}>
+              <div style={{ borderRight: '2px solid #D0D5DD', margin: 4, padding: 10 }}>
+                <h2 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, marginBottom: 5 }}>{dynamicData.activityDate}</h2>
+                <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, color: '#667085' }}>{dynamicData.activityTime}</h3>
+              </div>
+
+              <div style={{ margin: 4, padding: 10 }}>
+                <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, color: '#667085', marginBottom: 5 }}>Activity ID : {dynamicData.activityCode}</h3>
+                <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400 }}>{dynamicData.userId}</h3>
+              </div>
+
+            </div>
+          ))}
+        </div>
+
+        {/* <div className='activity-list'>
           {this.dynamicDataArray.map((dynamicData, index) => (
             <div key={index} className={`activity-item border-${dynamicData.activityID.charAt(0)}`} onClick={() => this.handleActivityClick(dynamicData)}>
               <div style={{ borderRight: '2px solid #D0D5DD', margin: 4, padding: 10 }}>
@@ -70,7 +119,7 @@ class Activity extends Component {
 
             </div>
           ))}
-        </div>
+        </div> */}
 
         <div>
           <ActivityPopup

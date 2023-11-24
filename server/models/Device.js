@@ -28,7 +28,19 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        activityId: {
+            type: DataTypes.INTEGER,
+            // allowNull: false,
+        },
 
     });
+
+    Device.associate = (models) => {
+        Device.belongsTo(models.Activitys, {
+            foreignKey: 'activityId',
+            onDelete: 'CASCADE',
+        });
+    };
+
     return Device;
 }
