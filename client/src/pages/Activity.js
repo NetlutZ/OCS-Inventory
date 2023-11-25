@@ -3,6 +3,7 @@ import "./Activity.css";
 import ActivityPopup from '../components/ActivityPopup';
 import DateRangePickerComp from '../components/DateRangePickerComp';
 import axios from 'axios';
+import { th } from 'date-fns/locale';
 
 class Activity extends Component {
   constructor(props) {
@@ -12,114 +13,115 @@ class Activity extends Component {
       modal: false,
       selectedActivityID: null,
       date: null,
-      userAction: null,
       time: null,
-
-      activityCode: null,
-      activityDate: null,
-      activityTime: null,
-      userId: null,
+      activityText: null,
 
       dynamicDataArray: [],
-      
     };
   }
 
   handleActivityClick = (dynamicData) => {
     this.setState({
-      selectedActivityID: dynamicData.activityID,
-      date: dynamicData.date,
-      userAction: dynamicData.userAction,
-      time: dynamicData.time,
+      selectedActivityID: dynamicData.id,
+      date: dynamicData.activityDate,
+      time: dynamicData.activityTime,
+      activityText: dynamicData.activityText,
+      activityCode: dynamicData.activityCode,
       modal: true,
     });
   };
 
-  // dynamicDataArray = [
-  //   {
-  //     date: '20-10-2023',
-  //     activityID: 'R123',
-  //     userAction: 'User A Return Device',
-  //     time: '17:30',
-  //   },
-  //   {
-  //     date: '21-10-2023',
-  //     activityID: 'B124',
-  //     userAction: 'User B Borrowed Service',
-  //     time: '10:45',
-  //   },
-  //   {
-  //     date: '21-10-2023',
-  //     activityID: 'L124',
-  //     userAction: 'Device A (ID) Loss',
-  //     time: '10:45',
-  //   },
-  //   // Add more data objects as needed
-  // ];
-
-
-  // dynamicDataArray = []
-
-  componentDidMount() {
-    axios.get('http://localhost:8080/activity/')
+  async componentDidMount() {
+    await axios.get('http://localhost:8080/activity/')
       .then(response => {
         if (response.data.length > 0) {
           this.setState({
             dynamicDataArray: response.data,
-          }, () =>{
-            console.log(this.state.dynamicDataArray)
-            this.state.dynamicDataArray.map((dynamicData, index) => (
-              console.log(dynamicData)
-            ))
-          })
+          });
         }
       })
       .catch((error) => {
         console.log(error);
       })
+
+    const updatedDynamicDataArray = [];
+    let lossDeviceName = '';
+    let lossDeviceId = '';
+    for (const dynamicData of this.state.dynamicDataArray) {
+      // await axios.get(`http://localhost:8080/device/activity/${dynamicData.id}`)
+      //   .then(response => {
+      //     if (response.data.length > 0) {
+      //       lossDeviceName = response.data[0].name;
+      //       lossDeviceId = response.data[0].id;
+      //     }
+      //   })
+      //   .catch((error) => {
+      //     console.log(error);
+      //   })
+
+      const deviceData = await axios.get(`http://localhost:8080/device/activity/${dynamicData.id}`);
+      if (deviceData.data.length > 0) {
+        lossDeviceName = deviceData.data[0].name;
+        lossDeviceId = deviceData.data[0].id;
+      }
+
+      let activityText = '';
+      switch (dynamicData.activityCode.charAt(0)) {
+        case 'R':
+          activityText = `${dynamicData.User.username} Return Device`;
+          break;
+        case 'B':
+          activityText = `${dynamicData.User.username} Borrow Device`;
+          break;
+        case 'L':
+          activityText = `${lossDeviceName} (${lossDeviceId}) Loss`;
+          break;
+        default:
+          activityText = 'Unknown Activity';
+          break;
+      }
+
+      updatedDynamicDataArray.push({
+        ...dynamicData,
+        activityText: activityText,
+      });
+      this.setState({
+        dynamicDataArray: updatedDynamicDataArray,
+      });
+    }
   }
 
+  changeDateFormat = (dateString) => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const [year, month, day] = dateString.split('-');
+    const monthIndex = parseInt(month, 10) - 1;
+    const formattedDate = `${parseInt(day, 10)} ${months[monthIndex]} ${year}`;
+    return formattedDate;
+  };
 
   render() {
-    const { modal, selectedActivityID, date, userAction, time } = this.state;
-
+    const { modal, selectedActivityID, date, activityText, time, activityCode } = this.state;
     return (
       <div>
         <div className='filter-range' style={{ margin: 30 }}><DateRangePickerComp /></div>
 
         <div className='activity-list'>
+
           {this.state.dynamicDataArray.map((dynamicData, index) => (
             <div key={index} className={`activity-item border-${dynamicData.activityCode.charAt(0)}`} onClick={() => this.handleActivityClick(dynamicData)}>
               <div style={{ borderRight: '2px solid #D0D5DD', margin: 4, padding: 10 }}>
-                <h2 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, marginBottom: 5 }}>{dynamicData.activityDate}</h2>
+                <h2 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, marginBottom: 5 }}>{this.changeDateFormat(dynamicData.activityDate)}</h2>
                 <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, color: '#667085' }}>{dynamicData.activityTime}</h3>
               </div>
 
               <div style={{ margin: 4, padding: 10 }}>
                 <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, color: '#667085', marginBottom: 5 }}>Activity ID : {dynamicData.activityCode}</h3>
-                <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400 }}>{dynamicData.userId}</h3>
+                <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400 }}> {dynamicData.activityText}</h3>
               </div>
 
             </div>
           ))}
         </div>
-
-        {/* <div className='activity-list'>
-          {this.dynamicDataArray.map((dynamicData, index) => (
-            <div key={index} className={`activity-item border-${dynamicData.activityID.charAt(0)}`} onClick={() => this.handleActivityClick(dynamicData)}>
-              <div style={{ borderRight: '2px solid #D0D5DD', margin: 4, padding: 10 }}>
-                <h2 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, marginBottom: 5 }}>{dynamicData.date}</h2>
-                <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, color: '#667085' }}>{dynamicData.time}</h3>
-              </div>
-
-              <div style={{ margin: 4, padding: 10 }}>
-                <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, color: '#667085', marginBottom: 5 }}>Activity ID : {dynamicData.activityID}</h3>
-                <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400 }}>{dynamicData.userAction}</h3>
-              </div>
-
-            </div>
-          ))}
-        </div> */}
 
         <div>
           <ActivityPopup
@@ -127,8 +129,9 @@ class Activity extends Component {
             setTrigger={(value) => this.setState({ modal: value })}
             activityID={selectedActivityID}
             date={date}
-            userAction={userAction}
-            time={time}>
+            time={time}
+            activityText={activityText}
+            activityCode={activityCode}>
           </ActivityPopup>
         </div>
       </div>

@@ -87,7 +87,7 @@ function AddDevice() {
         {/* Purchase Date */}
         <div className="input-container">
           <label>Purchase Date:</label>
-          <input
+          <input className='device-data-input'
             type="date"
             name="purchaseDate"
             onChange={(newValue, actionMeta) => handleChange(newValue, { ...actionMeta, name: 'purchaseDate' })}
@@ -96,7 +96,7 @@ function AddDevice() {
         {/* Warranty Expiration Date */}
         <div className="input-container">
           <label>Warranty Expiration Date:</label>
-          <input
+          <input className='device-data-input'
             type="date"
             name="warrantyExpirationDate"
             onChange={(newValue, actionMeta) => handleChange(newValue, { ...actionMeta, name: 'warrantyExpirationDate' })}
@@ -107,7 +107,7 @@ function AddDevice() {
         {/* Serial Number */}
         <div className="input-container">
           <label>Serial Number:</label>
-          <input
+          <input className='device-data-input'
             type="text"
             name="serialNumber"
             onChange={(newValue, actionMeta) => handleChange(newValue, { ...actionMeta, name: 'serialNumber' })}
@@ -116,7 +116,7 @@ function AddDevice() {
         {/* RFID */}
         <div className="input-container">
           <label>RFID:</label>
-          <input
+          <input className='device-data-input'
             type="text"
             name="rfid"
             onChange={(newValue, actionMeta) => handleChange(newValue, { ...actionMeta, name: 'rfid' })}
@@ -153,7 +153,7 @@ function AddDevice() {
           />
         </div>
       </div>
-      <button type="submit" >Submit</button>
+      <button className='submit-add-device' type="submit" >Submit</button>
     </form>
   );
 }

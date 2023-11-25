@@ -1,16 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import "./ActivityPopup.css"
+import axios from 'axios';
 
 function ActivityPopup(props) {
     const toggleModal = () => {
         props.setTrigger(!props.trigger);
+        setLoadData(false);
     };
 
-    const tableData = [
-        { image: 'image1.jpg', name: 'John Doe', id: '123' },
-        { image: 'image2.jpg', name: 'Jane Smith', id: '456' }
-    ];
+    // const tableData = [
+    //     { image: 'image1.jpg', name: 'John Doe', id: '123' },
+    //     { image: 'image2.jpg', name: 'Jane Smith', id: '456' }
+    // ];
+
+    // get device data from database from '/activity/:id'
+    const [tableData, setTableData] = useState([]);
+    const [loadData, setLoadData] = useState(false);
+
+    const fetchData = async () => {
+        try {
+            await axios.get(`http://localhost:8080/device/activity/${props.activityID}`)
+                .then(response => {
+                    if (response.data.length > 0) {
+                        setTableData(response.data);
+                    }
+                    else {
+                        setTableData(
+                            [{ image: '-', name: '-', id: '-' }]
+                        )
+                    }
+                    // console.log(response.data);
+                })
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    if (props.trigger && !loadData) {
+        setLoadData(true);
+        fetchData();
+    }
+
+    const changeDateFormat = (dateString) => {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const [year, month, day] = dateString.split('-');
+        const monthIndex = parseInt(month, 10) - 1;
+        const formattedDate = `${parseInt(day, 10)} ${months[monthIndex]} ${year}`;
+        return formattedDate;
+    };
 
     return (props.trigger) ? (
         <div>
@@ -20,13 +58,12 @@ function ActivityPopup(props) {
                     <div onClick={toggleModal} className="overlay"></div>
                     <div className="modal-content">
                         <div>
-
-                            <h3>Activity ID : {props.activityID}</h3>
-                            <h3>Date : {props.date}</h3>
+                            <h3>Activity ID : {props.activityCode}</h3>
+                            <h3>Date : {changeDateFormat(props.date)}</h3>
                             <h3>Time : {props.time}</h3>
-                            <h3>Activity ID : {props.userAction}</h3>
+                            <h3>{props.activityText}</h3>
                         </div>
-                        
+
                         <table >
                             <thead className='dashboard-table-header'>
                                 <tr>
@@ -35,13 +72,15 @@ function ActivityPopup(props) {
                                     <th>ID</th>
                                 </tr>
                             </thead>
-                            {tableData.map((row, index) => (
-                                <tr className='dashboard-row' key={index}>
-                                    <td style={{ width: '10%' }}>{row.image}</td>
-                                    <td style={{ width: '10%' }}>{row.name}</td>
-                                    <td style={{ width: '10%' }}>{row.id}</td>
-                                </tr>
-                            ))}
+                            <tbody>
+                                {tableData.map((row, index) => (
+                                    <tr className='dashboard-row' key={index}>
+                                        <td style={{ width: '10%' }}>{row.image}</td>
+                                        <td style={{ width: '10%' }}>{row.name}</td>
+                                        <td style={{ width: '10%' }}>{row.id}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
                         </table>
                         <button className="close-modal" onClick={() => props.setTrigger(false)}>
                             CLOSE
