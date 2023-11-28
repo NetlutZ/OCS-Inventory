@@ -3,17 +3,10 @@ import "./Dashboard.css"
 import styled from '@emotion/styled';
 import axios from 'axios';
 import DataTable from 'react-data-table-component';
+import { useNavigate } from 'react-router-dom';
 
 
 function Dashboard() {
-
-  // const inventoryData = [
-  //   { id: 1, name: 'Product A', quantity: 10, price: 20.99 },
-  //   { id: 2, name: 'Product B', quantity: 15, price: 15.49 },
-  //   { id: 3, name: 'Product C', quantity: 20, price: 25.99 },
-  //   // Add more inventory items as needed
-  // ];
-
   const [allDevice, setAllDevice] = useState([]);
   const [overallStatusCount, setOverallStatusCount] = useState({
     InStorage: 0,
@@ -33,29 +26,65 @@ function Dashboard() {
     return text;
   };
 
+  useEffect(() => {
+    fecthData()
+  }, [])
+
   const fecthData = async () => {
-    await axios.get('http://localhost:8080/device/')
-      .then(respone => {
-        setAllDevice(respone.data)
-      })
-    console.log(groupByName(allDevice))
+    try {
+      const response = await axios.get('http://localhost:8080/device/');
+      const fetchedData = response.data;
+  
+      setAllDevice(fetchedData);
+  
+      const counts = calculateOverallStatusCount(groupByName(fetchedData));
+      setOverallStatusCount(counts);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    }
+  };
+
+  const calculateOverallStatusCount = (data) => {
     let totalInStorage = 0;
     let totalLoss = 0;
     let totalBorrow = 0;
-
-    groupByName(allDevice).forEach(item => {
+  
+    data.forEach(item => {
       const counts = getStatusCounts(item.status);
       totalInStorage += counts.InStorage;
       totalLoss += counts.Loss;
       totalBorrow += counts.Borrow;
     });
-
-    setOverallStatusCount({
+  
+    return {
       InStorage: totalInStorage,
       Loss: totalLoss,
       Borrow: totalBorrow
-    });
-  }
+    };
+  };
+
+  // const fecthData = async () => {
+  //   await axios.get('http://localhost:8080/device/')
+  //     .then(respone => {
+  //       setAllDevice(respone.data)
+  //     })
+  //   let totalInStorage = 0;
+  //   let totalLoss = 0;
+  //   let totalBorrow = 0;
+
+  //   groupByName(allDevice).forEach(item => {
+  //     const counts = getStatusCounts(item.status);
+  //     totalInStorage += counts.InStorage;
+  //     totalLoss += counts.Loss;
+  //     totalBorrow += counts.Borrow;
+  //   });
+
+  //   setOverallStatusCount({
+  //     InStorage: totalInStorage,
+  //     Loss: totalLoss,
+  //     Borrow: totalBorrow
+  //   });
+  // }
 
   function countStatuses(devices) {
     const result = {};
@@ -91,32 +120,27 @@ function Dashboard() {
     return groupByName1;
   };
 
-  useEffect(() => {
-    fecthData()
-  }, [])
-
   const columns = [
     {
       name: 'Name',
-      selector: 'name',
+      selector: row => row.name,
       sortable: true
     },
     {
       name: 'InStorage',
-      selector: 'InStorage',
+      selector: row => row['InStorage'],
       sortable: true
     },
     {
       name: 'Borrow',
-      selector: 'Borrow',
+      selector: row => row['Borrow'],
       sortable: true
     },
     {
       name: 'Loss',
-      selector: 'Loss',
+      selector: row => row['Loss'],
       sortable: true
-    },
-    
+    }
   ];
 
   const getStatusCounts = (statusArray) => {
@@ -179,11 +203,18 @@ function Dashboard() {
     },
 
   };
+  const navigate = useNavigate();
+
+  const handleStatusClick = (selectedStatus) => {
+    // navigate('/Inventory', { state: [{ value: selectedStatus, label: selectedStatus }] });    {/* sidebar ไม่เปลี่ยนไปเป็น Inventory */}
+    localStorage.setItem('selectedStatus', JSON.stringify([{ value: selectedStatus, label: selectedStatus }]));
+  navigate('/Inventory');
+  };
 
   return (
     <div id='container'>
       <div className='status-sum'>
-        <div className='status-sum-item' id='inStorage'>
+        <div className='status-sum-item' id='inStorage' onClick={() => handleStatusClick('InStorage')}>
           <div className='status-sum-text'>In Storage</div>
           <div className='status-sum-number'>{overallStatusCount.InStorage}</div>
         </div>
@@ -205,50 +236,6 @@ function Dashboard() {
         customStyles={customStyles}
       />
 
-      {/* <table style={{ width: '100%' }}>
-        <thead className='dashboard-table-header'>
-          <tr>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Provider</th>
-          </tr>
-        </thead>
-        <tbody>
-          {inventoryData.map((item) => (
-            <tr key={item.id} className='dashboard-row'>
-              <td style={{ width: '10%' }}>{item.id}</td>
-              <td className='table-cell-wrap'>{limitText(item.name, 20)}</td>
-              <td style={{ width: '40%' }}>
-                <div style={{ width: '100%', height: '100%', display: 'flex' }}>
-                  <div className="status-data">
-                    <div className="right-line">
-                      <div className="status-text" id='statusInStorage'>In Storage</div>
-                      <div className="count-status-text">22</div>
-                    </div>
-                  </div>
-
-                  <div className="status-data">
-                    <div className="right-line">
-                      <div className="status-text" id='statusBorrowed'>Borrowed</div>
-                      <div className="count-status-text">22</div>
-                    </div>
-                  </div>
-
-                  <div className="status-data">
-                    <div className="right-line">
-                      <div className="status-text" id='statusLoss'>Loss</div>
-                      <div className="count-status-text">22</div>
-                    </div>
-                  </div>
-
-                </div>
-              </td>
-              <td>${item.price.toFixed(2)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table> */}
     </div>
   );
 }

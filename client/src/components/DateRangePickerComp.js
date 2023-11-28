@@ -7,7 +7,7 @@ import { addDays } from 'date-fns'
 import 'react-date-range/dist/styles.css'
 import 'react-date-range/dist/theme/default.css'
 import './DateRangePickerComp.css'
-const DateRangePickerComp = () => {
+function DateRangePickerComp () {
 
   // date state
   const [range, setRange] = useState([

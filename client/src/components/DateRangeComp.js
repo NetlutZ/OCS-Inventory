@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useRef, useState, useEffect } from 'react';
 import { DateRange } from 'react-date-range';
 import format from 'date-fns/format';
 import { addDays } from 'date-fns';
@@ -8,63 +8,65 @@ import './DateRangeComp.css';
 import { MdClear } from 'react-icons/md';
 import { FaCalendarAlt } from 'react-icons/fa';
 
-class DateRangeComp extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      range: [
-        {
-          startDate: new Date(),
-          endDate: addDays(new Date(), 7),
-          key: 'selection',
-        },
-      ],
-      isFilter: false,
-      open: false,
+function DateRangeComp (props) {
+  const [range, setRange] = useState([
+    {
+      startDate: new Date(),
+      endDate: addDays(new Date(), 7),
+      key: 'selection',
+    },
+  ]);
+  const [isFilter, setIsFilter] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const refOne = useRef();
+
+  // componentDidMount() {
+  //   document.addEventListener('keydown', this.hideOnEscape, true);
+  //   document.addEventListener('click', this.hideOnClickOutside, true);
+  // }
+
+  // componentWillUnmount() {
+  //   document.removeEventListener('keydown', this.hideOnEscape, true);
+  //   document.removeEventListener('click', this.hideOnClickOutside, true);
+  // }
+
+  useEffect(() => {
+    document.addEventListener('keydown', hideOnEscape, true);
+    document.addEventListener('click', hideOnClickOutside, true);
+
+    return () => {
+      document.removeEventListener('keydown', hideOnEscape, true);
+      document.removeEventListener('click', hideOnClickOutside, true);
     };
+  }, []);
 
-    this.refOne = React.createRef();
-  }
-
-  componentDidMount() {
-    document.addEventListener('keydown', this.hideOnEscape, true);
-    document.addEventListener('click', this.hideOnClickOutside, true);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.hideOnEscape, true);
-    document.removeEventListener('click', this.hideOnClickOutside, true);
-  }
-
-  hideOnEscape = (e) => {
+  const hideOnEscape = (e) => {
     if (e.key === 'Escape') {
-      this.setState({ open: false });
+      setOpen(false);
     }
   };
 
-  hideOnClickOutside = (e) => {
-    if (this.refOne.current && !this.refOne.current.contains(e.target)) {
-      this.setState({ open: false });
+  const hideOnClickOutside = (e) => {
+    if (refOne.current && !refOne.current.contains(e.target)) {
+      setOpen(false);
     }
   };
 
-  handleDateRangeChange = (item) => {
+  const handleDateRangeChange = (item) => {
     const selectedStartDate = format(item.selection.startDate, 'yyyy-MM-dd');
     const selectedEndDate = format(item.selection.endDate, 'yyyy-MM-dd');
-    this.setState({ range: [item.selection], isFilter: true });
-    console.log(this.state.isFilter);
+    setRange([item.selection]);
+    setIsFilter(true);
+    // console.log(isFilter);
     console.log('Selected Dates:', selectedStartDate, 'to', selectedEndDate);
-    this.props.parentCallback(selectedStartDate, selectedEndDate, this.state.isFilter);
+    props.parentCallback(selectedStartDate, selectedEndDate, isFilter);
   };
 
-  clearDateRange = () => {
-    this.setState({ isFilter: false });
-    this.props.parentCallback('', '', this.state.isFilter);
+  const clearDateRange = () => {
+    setIsFilter(false);
+    props.parentCallback('', '', isFilter);
   };
-
-  render() {
-    const { range, isFilter, open } = this.state;
-    const { placeholder } = this.props;
 
     return (
       <div className="calendarWrap">
@@ -76,17 +78,17 @@ class DateRangeComp extends React.Component {
                   range[0].endDate,
                   'dd/MM/yyyy'
                 )}`
-                : placeholder
+                : props.placeholder
 
             }
             readOnly
             className="expandable_input"
-            onClick={() => this.setState((prevState) => ({ open: !prevState.open }))}
+            onClick={() => setOpen(prevState => !prevState)}
           />
           {isFilter && (
             <MdClear
               id="clear-icon"
-              onClick={this.clearDateRange}
+              onClick={clearDateRange}
               size={20}
               style={{ position: 'absolute', right: '3px', height: '100%' }}
             />
@@ -94,17 +96,17 @@ class DateRangeComp extends React.Component {
           {!isFilter && (
             <FaCalendarAlt
               id="calendar-icon"
-              onClick={() => this.setState((prevState) => ({ open: !prevState.open }))}
+              onClick={() => setOpen(prevState => !prevState)}
               size={15}
               style={{ position: 'absolute', right: '5px', height: '100%' }}
             />
           )}
         </div>
 
-        <div ref={this.refOne}>
+        <div ref={refOne}>
           {open && (
             <DateRange
-              onChange={this.handleDateRangeChange}
+              onChange={handleDateRangeChange}
               editableDateInputs={true}
               moveRangeOnFirstSelection={false}
               ranges={range}
@@ -116,7 +118,7 @@ class DateRangeComp extends React.Component {
         </div>
       </div>
     );
-  }
+  
 }
 
 export default DateRangeComp;

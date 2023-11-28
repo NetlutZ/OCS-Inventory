@@ -8,9 +8,23 @@ body {
 
 .layout {
   display: flex;
-  min-height: 100vh;
+  /* min-height: 100vh; */
 }
 
 body {
   font-family: 'Prompt', sans-serif;
+}
+
+.content {
+  display: flex;
+  
+}
+
+.container {
+  width: 100%;
+
+}
+
+.sidebar{
+  min-height: 100vh;
 }

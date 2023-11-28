@@ -16,13 +16,16 @@ function App() {
         <Topbar />
       </div>
       <div className="layout">
-        <div className="sidebar">
-          {/* Sidebar content goes here */}
+        {/* <div className="sidebar">
           <Sidebar />
-        </div>
+        </div> */}
         <div className="content">
           {/* Content for the right div goes here */}
           <Router>
+            <div className="sidebar">
+              <Sidebar />
+            </div>
+            <div className="container">
             <Routes>
               <Route path="/" exact element={<Home />} />
               <Route path="/dashboard" exact element={<Dashboard />} />
@@ -31,12 +34,14 @@ function App() {
               <Route path="/addDevice" exact element={<AddDevice />} />
               <Route path="/settings" exact element={<Settings />} />
             </Routes>
+            </div>
 
           </Router>
         </div>
       </div>
     </div>
   );
+
 }
 
 export default App;
