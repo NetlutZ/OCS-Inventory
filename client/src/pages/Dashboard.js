@@ -11,7 +11,7 @@ function Dashboard() {
   const [overallStatusCount, setOverallStatusCount] = useState({
     InStorage: 0,
     Loss: 0,
-    Borrow: 0
+    Borrowed: 0
   });
 
   const limitText = (text, limit) => {
@@ -34,9 +34,9 @@ function Dashboard() {
     try {
       const response = await axios.get('http://localhost:8080/device/');
       const fetchedData = response.data;
-  
+
       setAllDevice(fetchedData);
-  
+
       const counts = calculateOverallStatusCount(groupByName(fetchedData));
       setOverallStatusCount(counts);
     } catch (error) {
@@ -47,19 +47,19 @@ function Dashboard() {
   const calculateOverallStatusCount = (data) => {
     let totalInStorage = 0;
     let totalLoss = 0;
-    let totalBorrow = 0;
-  
+    let totalBorrowed = 0;
+
     data.forEach(item => {
       const counts = getStatusCounts(item.status);
       totalInStorage += counts.InStorage;
       totalLoss += counts.Loss;
-      totalBorrow += counts.Borrow;
+      totalBorrowed += counts.Borrowed;
     });
-  
+
     return {
       InStorage: totalInStorage,
       Loss: totalLoss,
-      Borrow: totalBorrow
+      Borrowed: totalBorrowed
     };
   };
 
@@ -122,6 +122,11 @@ function Dashboard() {
 
   const columns = [
     {
+      name: 'Image',
+      selector: row => <img src={row.id} alt="Image" style={{ width: '50px', height: '50px' }} />,
+      // sortable: true
+    },
+    {
       name: 'Name',
       selector: row => row.name,
       sortable: true
@@ -132,8 +137,8 @@ function Dashboard() {
       sortable: true
     },
     {
-      name: 'Borrow',
-      selector: row => row['Borrow'],
+      name: 'Borrowed',
+      selector: row => row['Borrowed'],
       sortable: true
     },
     {
@@ -147,7 +152,7 @@ function Dashboard() {
     const counts = {
       InStorage: 0,
       Loss: 0,
-      Borrow: 0
+      Borrowed: 0
     };
 
     statusArray.forEach(status => {
@@ -158,8 +163,8 @@ function Dashboard() {
         case 'Loss':
           counts.Loss++;
           break;
-        case 'Borrow':
-          counts.Borrow++;
+        case 'Borrowed':
+          counts.Borrowed++;
           break;
         default:
           break;
@@ -176,7 +181,7 @@ function Dashboard() {
         name: item.name,
         'InStorage': counts.InStorage,
         'Loss': counts.Loss,
-        'Borrow': counts.Borrow
+        'Borrowed': counts.Borrowed
       };
     });
   };
@@ -205,24 +210,29 @@ function Dashboard() {
   };
   const navigate = useNavigate();
 
-  const handleStatusClick = (selectedStatus) => {
+  const sendSelectedStatus = (selectedStatus) => {
     // navigate('/Inventory', { state: [{ value: selectedStatus, label: selectedStatus }] });    {/* sidebar ไม่เปลี่ยนไปเป็น Inventory */}
     localStorage.setItem('selectedStatus', JSON.stringify([{ value: selectedStatus, label: selectedStatus }]));
-  navigate('/Inventory');
+    navigate('/Inventory');
   };
+
+  const sendSelectedName = (row) => {
+    localStorage.setItem('selectedName',JSON.stringify([{value: row.name, label: row.name}]));
+    navigate('/Inventory');
+  }
 
   return (
     <div id='container'>
       <div className='status-sum'>
-        <div className='status-sum-item' id='inStorage' onClick={() => handleStatusClick('InStorage')}>
+        <div className='status-sum-item' id='inStorage' onClick={() => sendSelectedStatus('InStorage')}>
           <div className='status-sum-text'>In Storage</div>
           <div className='status-sum-number'>{overallStatusCount.InStorage}</div>
         </div>
-        <div className='status-sum-item' id='borrowed'>
+        <div className='status-sum-item' id='borrowed' onClick={() => sendSelectedStatus('Borrowed')}>
           <div className='status-sum-text'>Borrowed</div>
-          <div className='status-sum-number'>{overallStatusCount.Borrow}</div>
+          <div className='status-sum-number'>{overallStatusCount.Borrowed}</div>
         </div>
-        <div className='status-sum-item' id='loss'>
+        <div className='status-sum-item' id='loss' onClick={() => sendSelectedStatus('Loss')}>
           <div className='status-sum-text'>Loss</div>
           <div className='status-sum-number'>{overallStatusCount.Loss}</div>
         </div>
@@ -234,6 +244,7 @@ function Dashboard() {
         pagination
         highlightOnHover
         customStyles={customStyles}
+        onRowClicked={sendSelectedName}
       />
 
     </div>

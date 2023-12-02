@@ -16,8 +16,9 @@ import DateRangeComp from '../components/DateRangeComp';
 import { is } from 'date-fns/locale';
 import Swal from "sweetalert2";
 import InventoryPopup from '../components/InventoryPopup';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { set } from 'date-fns';
+
 
 
 function Inventory() {
@@ -38,44 +39,32 @@ function Inventory() {
     const [isFilter, setIsFilter] = useState(false);
     const [modal, setModal] = useState(false);
     const [deviceIdSelected, setDeviceIdSelected] = useState(null);
-    // const [defaultValue, setDefaultValue] = useState(null);
-    const defaultValue = JSON.parse(localStorage.getItem('selectedStatus'));
-    // let { state } = useLocation();
 
-    // let defaultValue = (state) ? state[0] : null;
+    const defaultStatus = JSON.parse(localStorage.getItem('selectedStatus'));
+    const defaultName = JSON.parse(localStorage.getItem('selectedName'));
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         fetchInventoryData();
     }, []);
 
-    // useEffect(()=>{
-    //     if (state !== null && inventoryData.length > 0) {
-    //         setSelectedStatusOptions(state);
-    //         console.log(selectedStatusOptions);
-    //         state = null;
-    //         console.log("state "+state);
-    //     }
-    //     else {
-    //         console.log("state nulllllllll")
-    //         setSelectedStatusOptions([]);
-    //     }
-    // },[state, inventoryData])
 
     useEffect(() => {
-        const storedState = localStorage.getItem('selectedStatus');
-        // console.log(storedState);
-        if (storedState && inventoryData.length > 0) {
-          // Use the stored state from localStorage
-          // Handle the state logic here
-          const parsedState = JSON.parse(storedState);
-        //   console.log(parsedState);
-            setSelectedStatusOptions(parsedState);
+        const storedStatusState = localStorage.getItem('selectedStatus');
+        const storedNameState = localStorage.getItem('selectedName');
 
-          // ... your logic to handle parsedState
-          // Clear the stored state after using it
-          localStorage.removeItem('selectedStatus');
+        if (storedStatusState && inventoryData.length > 0) {
+            const parsedState = JSON.parse(storedStatusState);
+            setSelectedStatusOptions(parsedState);
+            localStorage.removeItem('selectedStatus');
         }
-      }, [inventoryData]);
+        else if(storedNameState && inventoryData.length > 0){
+            const parsedState = JSON.parse(storedNameState);
+            setSelectedNameOptions(parsedState);
+            localStorage.removeItem('selectedName');
+        }
+    }, [inventoryData]);
 
     useEffect(() => {
         filterInventory();
@@ -331,6 +320,10 @@ function Inventory() {
         },
     };
 
+    const gotoAddDevice = () =>{
+        navigate("/AddDevice")
+    }
+
     return (
         <div>
             {/* create search box */}
@@ -341,12 +334,10 @@ function Inventory() {
                         <CiSearch id="search-icon" />
                         <input type="text" placeholder="Search" onChange={searchFilter} />
                     </div>
-                    <div className="filter-button">
-                        <button className="filter" onClick={click}>Filter</button>
-                    </div>
-                    <div className='add-device-button' >
-                        <button className="addDevice" onClick={click}> <IoIosAdd id="add-icon" /> Add Device</button>
-                    </div>
+
+                    {/* <div className='add-device-button' > */}
+                        <button className="addDevice" onClick={gotoAddDevice}> <IoIosAdd id="add-icon" /> Add Device</button>
+                    {/* </div> */}
                 </div>
 
                 <div className='second-row'>
@@ -374,7 +365,7 @@ function Inventory() {
                         isMulti
                         isSearchable
                         noOptionsMessage={() => "not found"}
-                        defaultValue={defaultValue}></Select>
+                        defaultValue={defaultStatus}></Select>
                     <Select className='filter-select'
                         placeholder="Location"
                         options={locationOptions}

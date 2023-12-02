@@ -33,27 +33,22 @@ input:focus {
 .first-row {
     display: flex;
     align-items: center;
-    /* Align items vertically in the center */
 }
 
 .add-button {
     margin-left: 10px;
-    /* Add some space between input-wrapper and add-button */
-}
-/* move add-device-button to right end */
-#add-device-button {
-    margin-left: auto;
-    margin-right: 10px;
 }
 
 .addDevice {
+    margin-left: auto;
     display: flex;
     align-items: center;
-    width: 150%;
+    width: 10%;
     height: 2.5em;
     border-radius: 5px;
     background-color: white;
     border: 2px solid #EAECF0;
+    margin-right: 10px;
 }
 .filterOption:hover,
 .addDevice:hover {

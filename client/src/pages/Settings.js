@@ -1,47 +1,93 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
+import ReactPaginate from 'react-paginate';
 
 import axios from 'axios'
-import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom';
 
 
 function Settings() {
-  // need to console log activity
 
-  useEffect(() => {
-    fetchInventoryData()
-  }, [])
+  // useEffect(() => {
+  //   fetchData();
+  // })
 
-  // const {state} = useLocation();
-  // console.log(state)
+  // const fetchData = () => {
+  //   axios.get("https://dummyjson.com/products")
+  //     .then(result => {
+  //     console.log(result)
+  //   })
+  // }
 
-  const fetchInventoryData = () => {
-    axios.get('http://localhost:8080/activity/3')
-      .then((response) => {
-        // console.log(response.data)
-      }
-      )
+  const items = [1,2,3,4,5,6,7,8,9,10
+  ];
 
-    // this activity have userId that is foreign key to user table and need to access user table to get user name
-    axios.get('http://localhost:8080/activity/3/user')
-      .then((response) => {
-        // console.log(response.data.User)
-      }
-      )
-
-      // need to get all device that have activityId = 3
-      axios.get('http://localhost:8080/device/activity/3')
-      .then((response) => {
-        // console.log(response.data)
-      }
-      )
-    
-      
-
+  function Items({ currentItems }) {
+    return (
+      <>
+        {currentItems &&
+          currentItems.map((item) => (
+            <div>
+              <h3>Item #{item}</h3>
+            </div>
+          ))}
+      </>
+    );
   }
+
+  function PaginatedItems({ itemsPerPage }) {
+    // Here we use item offsets; we could also use page offsets
+    // following the API or data you're working with.
+    const [itemOffset, setItemOffset] = useState(0);
+
+    // Simulate fetching items from another resources.
+    // (This could be items from props; or items loaded in a local state
+    // from an API endpoint with useEffect and useState)
+    const endOffset = itemOffset + itemsPerPage;
+    console.log(`Loading items from ${itemOffset} to ${endOffset}`);
+    const currentItems = items.slice(itemOffset, endOffset);
+    const pageCount = Math.ceil(items.length / itemsPerPage);
+
+    // Invoke when user click to request another page.
+    const handlePageClick = (event) => {
+      const newOffset = (event.selected * itemsPerPage) % items.length;
+      console.log(
+        `User requested page number ${event.selected}, which is offset ${newOffset}`
+      );
+      setItemOffset(newOffset);
+    };
+
+    return (
+      <>
+        <Items currentItems={currentItems} />
+        <ReactPaginate
+          breakLabel="..."
+          nextLabel="next >"
+          onPageChange={handlePageClick}
+          pageRangeDisplayed={2}
+          marginPagesDisplayed={1}
+          pageCount={pageCount}
+          previousLabel="< previous"
+          renderOnZeroPageCount={null}
+          containerClassName={'pagination'}
+          pageClassName={'page-item'}
+          pageLinkClassName={'page-link'}
+          previousClassName={'page-item'}
+          previousLinkClassName={'page-link'}
+          nextClassName={'page-item'}
+          nextLinkClassName={'page-link'}
+          breakClassName={'page-item'}
+          breakLinkClassName={'page-link'}
+          activeClassName={'active'}
+        />
+      </>
+    );
+  }
+
+
   return (
     <div>
-      Setting
+      <PaginatedItems itemsPerPage={1}/>,
     </div>
   )
 }

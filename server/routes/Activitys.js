@@ -2,16 +2,17 @@ const express = require('express');
 const router = express.Router();
 const { Activitys } = require('../models');
 const { Users } = require('../models');
+const { Op } = require("sequelize");
 
-router.get('/', (req, res) => {
-    Activitys.findAll(
-        {
-            include: [Users]
-        })
-        .then((result) => {
-            res.json(result);
-        });
-});
+// router.get('/', (req, res) => {
+//     Activitys.findAll(
+//         {
+//             // include: [Users]
+//         })
+//         .then((result) => {
+//             res.json(result);
+//         });
+// });
 
 router.post('/', (req, res) => {
     Activitys.create({
@@ -69,5 +70,22 @@ router.get('/:id/user', (req, res) => {
         res.json(result);
     });
 });
+
+router.get('/', (req, res) => {
+    const {stActivityDate, endActivityDate} = req.query;
+    Activitys.findAll({
+        // include: [Users],
+        where: {
+            activityDate: {
+                    [Op.gte]: stActivityDate+ ' 00:00:00',
+                    [Op.lte]: endActivityDate+' 23:59:59'
+                
+            }
+        }
+    })
+    .then((result)=>{
+        res.json(result)
+    })
+})
 
 module.exports = router;

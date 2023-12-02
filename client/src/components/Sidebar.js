@@ -7,10 +7,10 @@ function Sidebar() {
         <div className='sidenav'>
             <ul className='sidenav-list'>
                 {SidebarData.map((val, key) => (
-                    <nav id="sidebar">
-                        <NavLink to={val.link} activeClassName='active-link' >
+                    <nav key={key} id="sidebar">
+                        <NavLink to={val.link} style={{color:'black', textDecoration: 'none'}} >
                         {({ isActive }) => (
-                            <li key={key} className={isActive ? 'sidenav-item-active' : 'sidenav-item'}>
+                            <li className={isActive ? 'sidenav-item-active' : 'sidenav-item'}>
                                 <div id='icon'>{val.icon}</div>
                                 <div id='title'>{val.title}</div>
                             </li>

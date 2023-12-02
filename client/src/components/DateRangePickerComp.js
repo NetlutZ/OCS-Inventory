@@ -7,7 +7,10 @@ import { addDays } from 'date-fns'
 import 'react-date-range/dist/styles.css'
 import 'react-date-range/dist/theme/default.css'
 import './DateRangePickerComp.css'
-function DateRangePickerComp () {
+import { MdClear } from 'react-icons/md';
+import { FaCalendarAlt } from 'react-icons/fa';
+
+function DateRangePickerComp(props) {
 
   // date state
   const [range, setRange] = useState([
@@ -19,7 +22,8 @@ function DateRangePickerComp () {
   ])
 
   // open close
-  const [open, setOpen] = useState(false)
+  const [isFilter, setIsFilter] = useState(false);
+  const [open, setOpen] = useState(false);
 
   // get the target element to toggle 
   const refOne = useRef(null)
@@ -33,7 +37,7 @@ function DateRangePickerComp () {
   // hide dropdown on ESC press
   const hideOnEscape = (e) => {
     // console.log(e.key)
-    if( e.key === "Escape" ) {
+    if (e.key === "Escape") {
       setOpen(false)
     }
   }
@@ -42,10 +46,25 @@ function DateRangePickerComp () {
   const hideOnClickOutside = (e) => {
     // console.log(refOne.current)
     // console.log(e.target)
-    if( refOne.current && !refOne.current.contains(e.target) ) {
+    if (refOne.current && !refOne.current.contains(e.target)) {
       setOpen(false)
     }
   }
+
+  const handleDateRangeChange = (item) => {
+    const selectedStartDate = format(item.selection.startDate, 'yyyy-MM-dd');
+    const selectedEndDate = format(item.selection.endDate, 'yyyy-MM-dd');
+    setRange([item.selection]);
+    setIsFilter(true);
+    // console.log(isFilter);
+    console.log('Selected Dates:', selectedStartDate, 'to', selectedEndDate);
+    props.parentCallback(selectedStartDate, selectedEndDate, isFilter);
+  };
+
+  const clearDateRange = () => {
+    setIsFilter(false);
+    props.parentCallback('', '', isFilter);
+  };
 
   return (
     <div className="calendarWrap">
@@ -54,13 +73,30 @@ function DateRangePickerComp () {
         value={`${format(range[0].startDate, "MM/dd/yyyy")} to ${format(range[0].endDate, "MM/dd/yyyy")}`}
         readOnly
         className="inputBox"
-        onClick={ () => setOpen(open => !open) }
+        onClick={() => setOpen(open => !open)}
       />
 
+      {isFilter && (
+        <MdClear
+          id="clear-icon"
+          onClick={clearDateRange}
+          size={20}
+          style={{ position: 'absolute', right: '3px', height: '100%' }}
+        />
+      )}
+      {!isFilter && (
+        <FaCalendarAlt
+          id="calendar-icon"
+          onClick={() => setOpen(prevState => !prevState)}
+          size={15}
+          style={{ position: 'absolute', right: '5px', height: '100%' }}
+        />
+      )}
+
       <div ref={refOne}>
-        {open && 
+        {open &&
           <DateRangePicker
-            onChange={item => setRange([item.selection])}
+            onChange={handleDateRangeChange}
             editableDateInputs={true}
             moveRangeOnFirstSelection={false}
             ranges={range}

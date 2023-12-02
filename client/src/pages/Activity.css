@@ -48,3 +48,7 @@
 .popup-link {
   display: none;
 }
+
+.pagination {
+  margin-left: 30px;
+}

@@ -25,7 +25,7 @@ function App() {
             <div className="sidebar">
               <Sidebar />
             </div>
-            <div className="container">
+            <div className="container-edit">
             <Routes>
               <Route path="/" exact element={<Home />} />
               <Route path="/dashboard" exact element={<Dashboard />} />
