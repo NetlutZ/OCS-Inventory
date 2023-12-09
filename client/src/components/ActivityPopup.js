@@ -7,6 +7,7 @@ function ActivityPopup(props) {
     const toggleModal = () => {
         props.setTrigger(!props.trigger);
         setLoadData(false);
+        // props.setItemOffset(props.itemOffset); 
     };
 
     // const tableData = [
@@ -54,7 +55,7 @@ function ActivityPopup(props) {
         <div>
 
             {props.trigger && (
-                <div className="modal">
+                <div className="modal2">
                     <div onClick={toggleModal} className="overlay"></div>
                     <div className="modal-content">
                         <div>

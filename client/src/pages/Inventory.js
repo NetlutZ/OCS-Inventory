@@ -59,7 +59,7 @@ function Inventory() {
             setSelectedStatusOptions(parsedState);
             localStorage.removeItem('selectedStatus');
         }
-        else if(storedNameState && inventoryData.length > 0){
+        else if (storedNameState && inventoryData.length > 0) {
             const parsedState = JSON.parse(storedNameState);
             setSelectedNameOptions(parsedState);
             localStorage.removeItem('selectedName');
@@ -105,40 +105,61 @@ function Inventory() {
     };
 
     const filterInventory = () => {
-        if (selectedStatusOptions.length === 0 && selectedNameOptions.length === 0 && selectedLocationOptions.length === 0 && !purchaseStDate && !warrantyExpStDate) {
-            setFilterInventoryData(inventoryData);
+        console.log(statusOptions)
+        const params = {
+            name: selectedNameOptions.map(item => item.value),
+            status: selectedStatusOptions.map(item => item.value),
+            location: selectedLocationOptions.map(item => item.value),
+
         }
-        else {
-            const statusSelected = selectedStatusOptions.map(option => option.value);
-            const nameSelected = selectedNameOptions.map(option => option.value);
-            const locationSelected = selectedLocationOptions.map(option => option.value);
-
-            const filteredData = inventoryData.filter(item => {
-                const statusMatch =
-                    statusSelected.length === 0 ||
-                    statusSelected.some(status => item.status.includes(status));
-
-                const nameMatch =
-                    nameSelected.length === 0 ||
-                    nameSelected.some(name => item.name.includes(name));
-
-                const locationMatch =
-                    locationSelected.length === 0 ||
-                    locationSelected.some(location => item.location.includes(location));
-
-                const purchasedateMatch =
-                    (!purchaseStDate || item.purchaseDate.substring(0, 10) >= purchaseStDate) &&
-                    (!purchaseEndDate || item.purchaseDate.substring(0, 10) <= purchaseEndDate);
-
-                const warrantyExpMatch =
-                    (!warrantyExpStDate || item.warrantyExpirationDate.substring(0, 10) >= warrantyExpStDate) &&
-                    (!warrantyExpEndDate || item.warrantyExpirationDate.substring(0, 10) <= warrantyExpEndDate);
-                return statusMatch && nameMatch && locationMatch && purchasedateMatch && warrantyExpMatch;
-            });
-            console.log(filteredData)
-            // Update state with filtered data
-            setFilterInventoryData(filteredData);
+        if (purchaseStDate && purchaseEndDate) {
+            params.purchaseDate = purchaseStDate + "to" + purchaseEndDate
         }
+        if (warrantyExpStDate && warrantyExpEndDate) {
+            params.warrantyExpirationDate = warrantyExpStDate + "to" + warrantyExpEndDate
+        }
+        console.log(params)
+
+        axios.get("http://localhost:8080/device", { params }).then(result => {
+            setFilterInventoryData(result.data)
+        }).catch(error => {
+            console.error('Error fetching inventory data:', error);
+        });
+
+        // if (selectedStatusOptions.length === 0 && selectedNameOptions.length === 0 && selectedLocationOptions.length === 0 && !purchaseStDate && !warrantyExpStDate) {
+        //     setFilterInventoryData(inventoryData);
+        // }
+        // else {
+        //     const statusSelected = selectedStatusOptions.map(option => option.value);
+        //     const nameSelected = selectedNameOptions.map(option => option.value);
+        //     const locationSelected = selectedLocationOptions.map(option => option.value);
+
+        //     const filteredData = inventoryData.filter(item => {
+        //         const statusMatch =
+        //             statusSelected.length === 0 ||
+        //             statusSelected.some(status => item.status.includes(status));
+
+        //         const nameMatch =
+        //             nameSelected.length === 0 ||
+        //             nameSelected.some(name => item.name.includes(name));
+
+        //         const locationMatch =
+        //             locationSelected.length === 0 ||
+        //             locationSelected.some(location => item.location.includes(location));
+
+        //         const purchasedateMatch =
+        //             (!purchaseStDate || item.purchaseDate.substring(0, 10) >= purchaseStDate) &&
+        //             (!purchaseEndDate || item.purchaseDate.substring(0, 10) <= purchaseEndDate);
+
+        //         const warrantyExpMatch =
+        //             (!warrantyExpStDate || item.warrantyExpirationDate.substring(0, 10) >= warrantyExpStDate) &&
+        //             (!warrantyExpEndDate || item.warrantyExpirationDate.substring(0, 10) <= warrantyExpEndDate);
+        //         return statusMatch && nameMatch && locationMatch && purchasedateMatch && warrantyExpMatch;
+        //     });
+        //     // console.log(filteredData)
+        //     // Update state with filtered data
+        //     setFilterInventoryData(filteredData);
+        // }
     }
 
     const setPurchaseFilter = (stDate, endDate, isFilter) => {
@@ -235,11 +256,6 @@ function Inventory() {
         return formattedDate;
     };
 
-    const click = () => {
-        console.log(count);
-        setCount(count + 1);
-    };
-
     const columns = [
         {
             name: 'Image',
@@ -320,7 +336,7 @@ function Inventory() {
         },
     };
 
-    const gotoAddDevice = () =>{
+    const gotoAddDevice = () => {
         navigate("/AddDevice")
     }
 
@@ -336,7 +352,7 @@ function Inventory() {
                     </div>
 
                     {/* <div className='add-device-button' > */}
-                        <button className="addDevice" onClick={gotoAddDevice}> <IoIosAdd id="add-icon" /> Add Device</button>
+                    <button className="addDevice" onClick={gotoAddDevice}> <IoIosAdd id="add-icon" /> Add Device</button>
                     {/* </div> */}
                 </div>
 
@@ -344,7 +360,6 @@ function Inventory() {
                     <Select className='filter-select'
                         placeholder="Name"
                         options={nameOptions}
-                        defaultValue={value}
                         onChange={(optionSelected) => {
                             // use await to wait for state to be updated
 
@@ -353,7 +368,8 @@ function Inventory() {
                         }}
                         isMulti
                         isSearchable
-                        noOptionsMessage={() => "not found"}></Select>
+                        noOptionsMessage={() => "not found"}
+                        defaultValue={defaultName}></Select>
                     <Select className='filter-select'
                         placeholder="Status"
                         options={statusOptions}
@@ -399,6 +415,7 @@ function Inventory() {
                 // striped
                 customStyles={customStyles}
                 onRowClicked={handleRowClick}
+                paginationRowsPerPageOptions={[5, 10]}
             />
 
             <div>

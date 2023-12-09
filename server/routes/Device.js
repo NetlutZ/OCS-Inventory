@@ -1,16 +1,55 @@
-const {Device} = require('../models');
+const { Device } = require('../models');
 const express = require('express');
 const router = express.Router();
 const { Activitys } = require('../models');
+const { Op } = require("sequelize");
+const moment = require('moment');
 
 router.get('/', (req, res) => {
-    Device.findAll(
-        {
-            include: [Activitys]
-        })
-    .then((result) => {
-        res.json(result);
-    });
+
+    const { name, location, status, purchaseDate, warrantyExpirationDate } = req.query;
+    const filters = {};
+    console.log(name)
+    console.log(typeof(name))
+    if (name) {
+        // filters.name = name.split(',').map(str => str.trim());
+        filters.name = name;
+    }
+    if (location) {
+        // filters.location = location.split(',').map(str => str.trim());
+        filters.location = location;
+    }
+    if (status) {
+        // filters.status = status.split(',').map(str => str.trim());
+        filters.status = status;
+
+    }
+    if (purchaseDate) {
+        const startPurchaseDate = moment(purchaseDate.split('to')[0].trim()).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+        const endPurchaseDate = moment(purchaseDate.split('to')[1].trim()).endOf('day').format('YYYY-MM-DD HH:mm:ss')
+        filters.purchaseDate = {
+            [Op.between]: [startPurchaseDate, endPurchaseDate]
+        }
+    }
+    if (warrantyExpirationDate) {
+        const startWarrantyExpirationDate = moment(warrantyExpirationDate.split('to')[0].trim()).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+        const endWarrantyExpirationDate = moment(warrantyExpirationDate.split('to')[1].trim()).endOf('day').format('YYYY-MM-DD HH:mm:ss')
+        filters.warrantyExpirationDate = {
+            [Op.between]: [startWarrantyExpirationDate, endWarrantyExpirationDate]
+        }
+    }
+
+    // console.log(filters)
+    Device.findAll({
+        include: [Activitys],
+        where: filters
+
+    })
+        .then((result) => {
+            res.json(result);
+        }).catch((err) => {
+            res.json(err)
+        });
 });
 
 router.post('/', (req, res) => {

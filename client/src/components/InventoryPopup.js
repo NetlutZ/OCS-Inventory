@@ -35,7 +35,7 @@ function InventoryPopup(props) {
     return (props.trigger && isLoading) ? (
         <div>
             {props.trigger && (
-                <div className="modal">
+                <div className="modal2">
                     <div onClick={toggleModal} className="overlay"></div>
                     <div className="modal-content">
                         <div style={{ display: 'flex', borderBottom: "solid 5px #D0D5DD" }}>

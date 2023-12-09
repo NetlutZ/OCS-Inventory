@@ -3,16 +3,38 @@ const router = express.Router();
 const { Activitys } = require('../models');
 const { Users } = require('../models');
 const { Op } = require("sequelize");
+const moment = require('moment');
 
-// router.get('/', (req, res) => {
-//     Activitys.findAll(
-//         {
-//             // include: [Users]
-//         })
-//         .then((result) => {
-//             res.json(result);
-//         });
-// });
+router.get('/', (req, res) => {
+    if (Object.keys(req.query).length === 0) {
+        Activitys.findAll({
+            include: [Users]
+        })
+            .then((result) => {
+                res.json(result);
+            }).catch((err) => {
+                res.json(err)
+            });
+    }
+    else {
+        const {activityDate} = req.query;
+        const startActivityDate = moment(activityDate.split('to')[0].trim()).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+        const endActivityDate = moment(activityDate.split('to')[1].trim()).endOf('day').format('YYYY-MM-DD HH:mm:ss')
+        Activitys.findAll({
+            include: [Users],            
+            where: {
+                activityDate: {
+                    [Op.between]: [startActivityDate, endActivityDate]
+                }
+            }
+        })
+            .then((result) => {
+                res.json(result);
+            }).catch((err) => {
+                res.json(err)
+            });
+    }   
+});
 
 router.post('/', (req, res) => {
     Activitys.create({

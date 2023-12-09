@@ -5,6 +5,7 @@ import DateRangePickerComp from '../components/DateRangePickerComp';
 import axios from 'axios';
 import { th } from 'date-fns/locale';
 import ReactPaginate from 'react-paginate';
+import Select from 'react-select';
 
 function Activity(props) {
 
@@ -15,8 +16,8 @@ function Activity(props) {
   const [activityText, setActivityText] = useState(null);
   const [activityCode, setActivityCode] = useState(null);
   const [dynamicDataArray, setDynamicDataArray] = useState([]);
-  const [activityStDate, setActivityStDate] = useState([])
-  const [activityEndDate, setActivityEndDate] = useState([])
+  const [activityStDate, setActivityStDate] = useState([]);
+  const [activityEndDate, setActivityEndDate] = useState([]);
 
   const handleActivityClick = (dynamicData) => {
     setSelectedActivityID(dynamicData.id);
@@ -80,11 +81,12 @@ function Activity(props) {
             activityText: activityText,
           });
         }
+        setTotalPage(Math.ceil(updatedDynamicDataArray.length / itemPerPage));
         // setDynamicDataArray(updatedDynamicDataArray);
         const sorted = [...updatedDynamicDataArray].sort((a, b) => {
           const dateA = new Date(`${a.activityDate.substring(0, 10)}T${a.activityTime}`);
           const dateB = new Date(`${b.activityDate.substring(0, 10)}T${b.activityTime}`);
-          console.log(dateA)
+          // console.log(dateA)
           return dateB - dateA;
         });
         setDynamicDataArray(sorted);
@@ -129,6 +131,7 @@ function Activity(props) {
     );
   }
 
+  // const [itemOffset2, setItemOffset2] = useState(0);
   function PaginatedItems({ itemsPerPage }) {
     const [itemOffset, setItemOffset] = useState(0);
     const endOffset = itemOffset + itemsPerPage;
@@ -138,9 +141,9 @@ function Activity(props) {
     const handlePageClick = (event) => {
       const newOffset = (event.selected * itemsPerPage) % dynamicDataArray.length;
       console.log(
-        `User requested page number ${event.selected}, which is offset ${newOffset}`
+        `User requested page number ${event.selected}, which is offset ${newOffset}, `
       );
-      setItemOffset(newOffset);
+      setItemOffset(newOffset)
     };
 
     return (
@@ -171,39 +174,100 @@ function Activity(props) {
     );
   }
 
-  const setActivityTime = (stDate, endDate, isFilter) => {  
+  const setActivityTime = (stDate, endDate, isFilter) => {
     setActivityStDate(stDate);
     setActivityEndDate(endDate);
   };
 
-  const filterActivityDate = () =>{
-    
+  const filterActivityDate = () => {
+
   }
+
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(0);
+  const selectPageHandler = (selectedPage) => {
+    if (selectedPage >= 1 && selectedPage <= totalPage && selectedPage !== page) {
+      setPage(selectedPage)
+    }
+  }
+
+  const [itemPerPage, setItemPerPage] = useState(1);
+  const selectItemPerPageHandler = (selectedItemPerPage) => {
+    // if (selectedItemPerPage >= 1 && selectedItemPerPage <= totalPage && selectedItemPerPage !== itemPerPage) {
+    setItemPerPage(selectedItemPerPage)
+    setTotalPage(Math.ceil(dynamicDataArray.length / selectedItemPerPage));
+    // }
+  }
+
+  const itemPerPageOption = [
+    { value: 1, label: '1' },
+    { value: 10, label: '10' },
+    { value: 20, label: '20' },
+  ]
 
 
   return (
     <div>
       <div className='filter-range' style={{ margin: 30 }}><DateRangePickerComp parentCallback={setActivityTime} /></div>
 
-      {/* <div className='activity-list'>
+      <div className='activity-list'>
 
-        {dynamicDataArray.map((dynamicData, index) => (
+        {/* {dynamicDataArray.map((dynamicData, index) => (
           <div key={index} className={`activity-item border-${dynamicData.activityCode.charAt(0)}`} onClick={() => handleActivityClick(dynamicData)}>
             <div style={{ borderRight: '2px solid #D0D5DD', margin: 4, padding: 10 }}>
               <h2 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, marginBottom: 5 }}>{changeDateFormat(dynamicData.activityDate)}</h2>
               <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, color: '#667085' }}>{dynamicData.activityTime}</h3>
             </div>
 
-            <div style={{ margin: 4, padding: 10 }}>
+            <div style  ={{ margin: 4, padding: 10 }}>
               <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, color: '#667085', marginBottom: 5 }}>Activity ID : {dynamicData.activityCode}</h3>
               <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400 }}> {dynamicData.activityText}</h3>
             </div>
 
           </div>
-        ))}
-      </div> */}
+        ))} */}
+      </div>
 
-      <PaginatedItems itemsPerPage={2} />
+      {/* <PaginatedItems itemsPerPage={2} /> */}
+
+      <div className='activity-list'>
+        {dynamicDataArray &&
+          dynamicDataArray.slice(page * itemPerPage - itemPerPage, page * itemPerPage).map((dynamicData, index) => (
+            <div key={index} className={`activity-item border-${dynamicData.activityCode.charAt(0)}`} onClick={() => handleActivityClick(dynamicData)}>
+              <div style={{ borderRight: '2px solid #D0D5DD', margin: 4, padding: 10 }}>
+                <h2 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, marginBottom: 5 }}>{changeDateFormat(dynamicData.activityDate)}</h2>
+                <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, color: '#667085' }}>{dynamicData.activityTime}</h3>
+              </div>
+
+              <div style={{ margin: 4, padding: 10 }}>
+                <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, color: '#667085', marginBottom: 5 }}>Activity ID : {dynamicData.activityCode}</h3>
+                <h3 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400 }}> {dynamicData.activityText}</h3>
+              </div>
+
+            </div>
+          ))}
+      </div>
+      <div className='pagination'>
+        <Select
+          className='pagination-select'
+          defaultValue={itemPerPageOption[0]}
+          options={itemPerPageOption}
+          onChange={(e) => selectItemPerPageHandler(e.value)}
+        />
+        <span onClick={() => selectPageHandler(page - 1)} className={page > 1 ? "" : "pagination__disable"}>◀</span>
+        {
+          [...Array(totalPage)].map((_, i) => {
+            return <span
+              className={page === i + 1 ? 'pagination__selected' : 'pagination-item'}
+              key={i}
+              onClick={() => selectPageHandler(i + 1)}
+            >
+              {i + 1}
+            </span>
+          })
+        }
+        <span onClick={() => selectPageHandler(page + 1)} className={page < totalPage ? "" : "pagination__disable"}>▶</span>
+      </div>
 
       <div>
         <ActivityPopup
@@ -213,7 +277,10 @@ function Activity(props) {
           date={date}
           time={time}
           activityText={activityText}
-          activityCode={activityCode}>
+          activityCode={activityCode}
+        // itemOffset={itemOffset}
+        // setItemOffset={(itemOffset) => setItemOffset(itemOffset)}
+        >
         </ActivityPopup>
       </div>
     </div>
@@ -227,3 +294,6 @@ export default Activity;
 // 1. Add date range filter
 // 2. sort activity by date&time
 // 3. Pagination
+
+// Problem
+// after cancel popup it back to first page
