@@ -9,8 +9,6 @@ router.get('/', (req, res) => {
 
     const { name, location, status, purchaseDate, warrantyExpirationDate } = req.query;
     const filters = {};
-    console.log(name)
-    console.log(typeof(name))
     if (name) {
         // filters.name = name.split(',').map(str => str.trim());
         filters.name = name;

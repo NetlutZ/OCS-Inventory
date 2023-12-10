@@ -23,7 +23,8 @@
     "react-select": "^5.8.0",
     "styled-components": "^5.3.3",
     "sweetalert2": "^11.10.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",

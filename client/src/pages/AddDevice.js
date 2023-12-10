@@ -26,13 +26,13 @@ function AddDevice() {
     if (actionMeta.name === 'name' || actionMeta.name === 'location' || actionMeta.name === 'status') {
       setFormData({
         ...formData,
-        [actionMeta.name]: newValue.value || '' // Assuming 'name', 'location', 'status' are the field names
+        [actionMeta.name]: newValue ? (newValue.value || '') : '' // Assuming 'name', 'location', 'status' are the field names
       });
     } else {
       const { name, value } = actionMeta;
       setFormData({
         ...formData,
-        [actionMeta.name]: newValue.target.value
+        [actionMeta.name]: newValue ? newValue.target.value : ''
       });
     }
   };

@@ -70,7 +70,10 @@ function DateRangePickerComp(props) {
     <div className="calendarWrap">
 
       <input
-        value={`${format(range[0].startDate, "MM/dd/yyyy")} to ${format(range[0].endDate, "MM/dd/yyyy")}`}
+        value={
+          isFilter ? `${format(range[0].startDate, "dd/MM/yyyy")} to ${format(range[0].endDate, "dd/MM/yyyy")}`
+            : `Activity Date`
+        }
         readOnly
         className="inputBox"
         onClick={() => setOpen(open => !open)}
