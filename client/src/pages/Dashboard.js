@@ -113,17 +113,19 @@ function Dashboard() {
         acc.push({
           name: cur.name,
           status: [cur.status],
+          image: cur.image
         });
       }
       return acc;
     }, []);
+    // ======================== หากชื่อเหมือนแต่รูปต่างกัน จะเลือกมาแค่รูปเดียว ======================== //
     return groupByName1;
   };
 
   const columns = [
     {
       name: 'Image',
-      selector: row => <img src={row.id} alt="Image" style={{ width: '50px', height: '50px' }} />,
+      selector: row => <img src={`http://localhost:8080/device/image/${row.image}`} alt="Image" style={{ width: 'auto', height: '50px' }} />,
       // sortable: true
     },
     {
@@ -181,7 +183,8 @@ function Dashboard() {
         name: item.name,
         'InStorage': counts.InStorage,
         'Loss': counts.Loss,
-        'Borrowed': counts.Borrowed
+        'Borrowed': counts.Borrowed,
+        image: item.image
       };
     });
   };

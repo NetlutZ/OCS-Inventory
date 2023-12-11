@@ -4,6 +4,21 @@ const router = express.Router();
 const { Activitys } = require('../models');
 const { Op } = require("sequelize");
 const moment = require('moment');
+const multer = require('multer');
+const {fileURLToPath} = require('url');
+
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/images/')
+    }
+    ,
+    filename: function (req, file, cb) {
+        cb(null, `${Date.now()}_${file.originalname}`)
+    }
+})  
+
+const upload = multer({ storage })
 
 router.get('/', (req, res) => {
 
@@ -50,7 +65,9 @@ router.get('/', (req, res) => {
         });
 });
 
-router.post('/', (req, res) => {
+router.post('/',  upload.single('image'), (req, res) => {
+    let imageData = req.file ? req.file.filename : null;
+
     Device.create({
         name: req.body.name,
         serialNumber: req.body.serialNumber,
@@ -59,7 +76,8 @@ router.post('/', (req, res) => {
         purchaseDate: req.body.purchaseDate,
         warrantyExpirationDate: req.body.warrantyExpirationDate,
         location: req.body.location,
-        activityId: req.body.activityId
+        activityId: req.body.activityId,
+        image: imageData
     }).then((result) => {
         res.json(result);
     });
@@ -112,6 +130,11 @@ router.get('/activity/:id', (req, res) => {
     }).then((result) => {
         res.json(result);
     });
+});
+
+router.get('/image/:name', (req, res) => {
+    // console.log(__dirname);
+    res.sendFile(fileURLToPath(`file:///${__dirname}/../public/images/${req.params.name}`));
 });
 
 module.exports = router;

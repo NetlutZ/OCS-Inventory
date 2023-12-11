@@ -16,6 +16,9 @@ app.use('/user', apiUser);
 const apiActivity = require('./routes/Activitys');
 app.use('/activity', apiActivity);
 
+const apiImage = require('./routes/Images');
+app.use('/image', apiImage);
+
 app.get('/', (req, res) => {
     res.send('Hello World');
 });

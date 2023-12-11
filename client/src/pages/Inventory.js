@@ -105,7 +105,7 @@ function Inventory() {
     };
 
     const filterInventory = () => {
-        console.log(statusOptions)
+        // console.log(statusOptions)
         const params = {
             name: selectedNameOptions.map(item => item.value),
             status: selectedStatusOptions.map(item => item.value),
@@ -118,7 +118,7 @@ function Inventory() {
         if (warrantyExpStDate && warrantyExpEndDate) {
             params.warrantyExpirationDate = warrantyExpStDate + "to" + warrantyExpEndDate
         }
-        console.log(params)
+        // console.log(params)
 
         axios.get("http://localhost:8080/device", { params }).then(result => {
             setFilterInventoryData(result.data)
@@ -259,7 +259,7 @@ function Inventory() {
     const columns = [
         {
             name: 'Image',
-            selector: (row) => <img src={row.id} alt="Image" style={{ width: '50px', height: '50px' }} />,
+            selector: (row) => <img src={`http://localhost:8080/device/image/${row.image}`} alt="Image" style={{ width: 'auto', height: '50px' }} />,
             sortable: true,
         },
         {

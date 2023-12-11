@@ -76,7 +76,7 @@ function ActivityPopup(props) {
                             <tbody>
                                 {tableData.map((row, index) => (
                                     <tr className='dashboard-row' key={index}>
-                                        <td style={{ width: '10%' }}>{row.image}</td>
+                                        <td style={{ width: '10%' }}>{<img src={`http://localhost:8080/device/image/${row.image}`} alt="Image" style={{ width: 'auto', height: '50px' }} />}</td>
                                         <td style={{ width: '10%' }}>{row.name}</td>
                                         <td style={{ width: '10%' }}>{row.id}</td>
                                     </tr>
