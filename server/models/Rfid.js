@@ -1,12 +1,21 @@
 module.exports = (sequelize, DataTypes) => {
     const Rfid = sequelize.define("Rfid", {
-        tag: {
+        rfid: {
             type: DataTypes.STRING,
         },
-        lastEdit: {
+        lastScan: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW
-        }
+        },
+        count: {
+            type: DataTypes.INTEGER,
+        },
+        status: {
+            type: DataTypes.STRING,
+        },
+    }, {
+        timestamps: false
+
     });
 
     return Rfid;
