@@ -51,16 +51,15 @@ function Activity(props) {
       params.activityDate = `${activityStDate} to ${activityEndDate}`;
     }
     try {
-      const response = await axios.get('http://localhost:8080/activity/', { params });
+      const response = await axios.get(`${process.env.REACT_APP_API}/activity/`, { params });
       if (response.data.length > 0) {
         setDynamicDataArray(response.data);
       }
-
       const updatedDynamicDataArray = [];
       let lossDeviceName = '';
       let lossDeviceId = '';
       for (const dynamicData of response.data) {
-        const deviceData = await axios.get(`http://localhost:8080/device/activity/${dynamicData.id}`);
+        const deviceData = await axios.get(`${process.env.REACT_APP_API}/device/activity/${dynamicData.id}`);
         if (deviceData.data.length > 0) {
           lossDeviceName = deviceData.data[0].name;
           lossDeviceId = deviceData.data[0].id;

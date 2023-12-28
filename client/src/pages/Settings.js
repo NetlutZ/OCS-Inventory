@@ -8,7 +8,7 @@ function Settings() {
   const [imageData, setImageData] = useState(null);
 
   useEffect(() => {
-    axios.get('http://localhost:8080/image/1')
+    axios.get(`${process.env.REACT_APP_API}/image/1`)
       .then((res) => {
         console.log(res);
         setImageData(res.data.name);
@@ -26,7 +26,7 @@ function Settings() {
     e.preventDefault();
     const formData = new FormData();
     formData.append('image', selectedFile);
-    axios.post('http://localhost:8080/image', formData)
+    axios.post(`${process.env.REACT_APP_API}/image`, formData)
       .then((res) => {
         console.log(res);
       }).catch((err) => {
@@ -44,7 +44,7 @@ function Settings() {
       </div>
       <div>
         {imageData ? (
-          <img src={`http://localhost:8080/image/display/${imageData}`} alt="" width={100} height={'auto'}/>) : (<p>No image</p>)}
+          <img src={`${process.env.REACT_APP_API}/image/display/${imageData}`} alt="" width={100} height={'auto'}/>) : (<p>No image</p>)}
 
       </div>
     </div>

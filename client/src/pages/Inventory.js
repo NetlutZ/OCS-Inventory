@@ -71,7 +71,7 @@ function Inventory() {
     }, [purchaseStDate, purchaseEndDate, warrantyExpStDate, warrantyExpEndDate, isFilter, selectedNameOptions, selectedStatusOptions, selectedLocationOptions]);
 
     const fetchInventoryData = () => {
-        axios.get('http://localhost:8080/device')
+        axios.get(`${process.env.REACT_APP_API}/device`)
             .then(response => {
                 setInventoryData(response.data);
                 setFilterInventoryData(response.data);
@@ -120,7 +120,7 @@ function Inventory() {
         }
         // console.log(params)
 
-        axios.get("http://localhost:8080/device", { params }).then(result => {
+        axios.get(`${process.env.REACT_APP_API}/device`, { params }).then(result => {
             setFilterInventoryData(result.data)
         }).catch(error => {
             console.error('Error fetching inventory data:', error);
@@ -191,7 +191,7 @@ function Inventory() {
             width: '50rem',
         }).then((result) => {
             if (result.isConfirmed) {
-                axios.delete(`http://localhost:8080/device/${id}`)
+                axios.delete(`${process.env.REACT_APP_API}/device/${id}`)
                     .then(response => {
                         // Remove deleted device from state
 
@@ -259,7 +259,7 @@ function Inventory() {
     const columns = [
         {
             name: 'Image',
-            selector: (row) => <img src={`http://localhost:8080/device/image/${row.image}`} alt="Image" style={{ width: 'auto', height: '50px' }} />,
+            selector: (row) => <img src={`${process.env.REACT_APP_API}/device/image/${row.image}`} alt="Image" style={{ width: 'auto', height: '50px' }} />,
             sortable: true,
         },
         {

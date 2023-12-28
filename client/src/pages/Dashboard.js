@@ -32,7 +32,7 @@ function Dashboard() {
 
   const fecthData = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/device/');
+      const response = await axios.get(`${process.env.REACT_APP_API}/device`);
       const fetchedData = response.data;
 
       setAllDevice(fetchedData);
@@ -125,7 +125,7 @@ function Dashboard() {
   const columns = [
     {
       name: 'Image',
-      selector: row => <img src={`http://localhost:8080/device/image/${row.image}`} alt="Image" style={{ width: 'auto', height: '50px' }} />,
+      selector: row => <img src={`${process.env.REACT_APP_API}/device/image/${row.image}`} alt="Image" style={{ width: 'auto', height: '50px' }} />,
       // sortable: true
     },
     {

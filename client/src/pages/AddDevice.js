@@ -46,7 +46,7 @@ function AddDevice() {
     e.preventDefault();
     console.log('Form data:', formData);
     try {
-      const response = await axios.post('http://localhost:8080/device', formData);
+      const response = await axios.post(`${process.env.REACT_APP_API}/device`, formData);
 
       setFormData({ ...initialFormData });
       Swal.fire({
@@ -66,7 +66,7 @@ function AddDevice() {
   };
 
   useEffect(() => {
-    axios.get('http://localhost:8080/device')
+    axios.get(`${process.env.REACT_APP_API}/device`)
       .then(response => {
         const data = response.data;
         // Extract unique options for status, name, and location
@@ -123,7 +123,7 @@ function AddDevice() {
       });
 
       parsedData.forEach((item) => {
-        axios.post('http://localhost:8080/device/', item)
+        axios.post(`${process.env.REACT_APP_API}/device/`, item)
           .then((response) => {
             console.log('Data posted successfully:', response.data);
             // Perform any additional actions after successful posting
@@ -147,7 +147,7 @@ function AddDevice() {
     e.preventDefault();
     const formData = new FormData();
     formData.append('image', selectedFile);
-    axios.post('http://localhost:8080/image', formData)
+    axios.post(`${process.env.REACT_APP_API}/image`, formData)
       .then((res) => {
         console.log(res);
       }).catch((err) => {
