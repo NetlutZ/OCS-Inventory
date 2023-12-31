@@ -1,0 +1,93 @@
+.tabs {
+    display: flex;
+    justify-content: space-between;
+}
+
+.tab {
+    background: #ccc;
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid grey;
+    border-top: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.active-tab {
+    border: none;
+    background: #fff;
+
+}
+
+.active-tab::after {
+    border-top: 2px solid gray;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    background: initial;
+}
+
+.device-contents {
+    position: relative;
+}
+
+.device-content {
+    display: none;
+    position: relative;
+}
+
+.active-content {
+    display: block;
+    margin-left: 10px;
+    margin-right: 10px;
+    transition: all 1s ease-in-out;
+}
+
+
+
+
+.form-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.column-left,
+.column-right {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+
+
+.formfield {
+    display: table;
+    width: 100%;
+    padding-bottom: 5px;
+    padding-left: 20px;
+}
+
+.formfield label,
+.formfield .input-wrapper {
+    display: table-cell;
+    vertical-align: top;
+}
+
+.formfield label {
+    width: 150px;
+}
+
+.formfield .input-wrapper .table-form {
+    width: 100%;
+}
+
+.apply-button {
+    float: right;
+    margin-top: 1rem;
+}

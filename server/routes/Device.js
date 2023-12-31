@@ -5,7 +5,7 @@ const { Activitys } = require('../models');
 const { Op } = require("sequelize");
 const moment = require('moment');
 const multer = require('multer');
-const {fileURLToPath} = require('url');
+const { fileURLToPath } = require('url');
 
 
 const storage = multer.diskStorage({
@@ -16,13 +16,13 @@ const storage = multer.diskStorage({
     filename: function (req, file, cb) {
         cb(null, `${Date.now()}_${file.originalname}`)
     }
-})  
+})
 
 const upload = multer({ storage })
 
 router.get('/', (req, res) => {
 
-    const { name, location, status, purchaseDate, warrantyExpirationDate } = req.query;
+    const { name, location, rfidStatus, purchaseDate, warrantyExpirationDate, rfid } = req.query;
     const filters = {};
     if (name) {
         // filters.name = name.split(',').map(str => str.trim());
@@ -32,10 +32,12 @@ router.get('/', (req, res) => {
         // filters.location = location.split(',').map(str => str.trim());
         filters.location = location;
     }
-    if (status) {
+    if (rfidStatus) {
         // filters.status = status.split(',').map(str => str.trim());
-        filters.status = status;
-
+        filters.rfidStatus = rfidStatus;
+    }
+    if (rfid) {
+        filters.rfid = rfid;
     }
     if (purchaseDate) {
         const startPurchaseDate = moment(purchaseDate.split('to')[0].trim()).startOf('day').format('YYYY-MM-DD HH:mm:ss')
@@ -65,14 +67,15 @@ router.get('/', (req, res) => {
         });
 });
 
-router.post('/',  upload.single('image'), (req, res) => {
+router.post('/', upload.single('image'), (req, res) => {
     let imageData = req.file ? req.file.filename : null;
 
     Device.create({
         name: req.body.name,
         serialNumber: req.body.serialNumber,
         rfid: req.body.rfid,
-        status: req.body.status,
+        rfidStatus: req.body.rfidStatus,
+        lastScan: req.body.lastScan,
         purchaseDate: req.body.purchaseDate,
         warrantyExpirationDate: req.body.warrantyExpirationDate,
         location: req.body.location,
@@ -86,11 +89,15 @@ router.post('/',  upload.single('image'), (req, res) => {
 router.put('/:id', (req, res) => {
     Device.update({
         name: req.body.name,
-        type: req.body.type,
-        status: req.body.status,
-        room: req.body.room,
-        description: req.body.description,
-        activityId: req.body.activityId
+        serialNumber: req.body.serialNumber,
+        rfid: req.body.rfid,
+        rfidStatus: req.body.rfidStatus,
+        lastScan: req.body.lastScan,
+        purchaseDate: req.body.purchaseDate,
+        warrantyExpirationDate: req.body.warrantyExpirationDate,
+        location: req.body.location,
+        activityId: req.body.activityId,
+
     }, {
         where: {
             id: req.params.id
@@ -135,6 +142,27 @@ router.get('/activity/:id', (req, res) => {
 router.get('/image/:name', (req, res) => {
     // console.log(__dirname);
     res.sendFile(fileURLToPath(`file:///${__dirname}/../public/images/${req.params.name}`));
+});
+
+router.get('/check/loss', (req, res) => {
+    const sec = 20000; // 20 sec
+    const timeDiff = new Date - sec;
+
+    Device.findAll({
+        where: {
+            lastScan: {
+                [Op.lt]: timeDiff
+            },
+            rfidStatus: {
+                [Op.notIn]: ['Loss', 'Borrowed']
+            }
+        }
+    })
+        .then((result) => {
+            res.json(result);
+        }).catch((err) => {
+            res.json(err)
+        });
 });
 
 module.exports = router;

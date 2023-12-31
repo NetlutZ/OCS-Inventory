@@ -1,0 +1,150 @@
+import React from 'react'
+
+function TechnicalDetailsTab({ formData, setFormData, handleInputChange, handleSubmit }) {
+  return (
+    <div>
+      <div className="form-container">
+                <div className="column-left">
+                    <h5>โมเดล</h5>
+                    <div className='formfield'>
+                        <label htmlFor="createdBy">จัดทำ:</label>
+                        <input className='device-data-input'
+                            type="text"
+                            id="createdBy"
+                            name="createdBy"
+                            value={formData.createdBy}
+                            onChange={(e) => handleInputChange(e)}
+                        />
+                    </div>
+                    <div className='formfield'>
+                        <label htmlFor="model">โมเดล:</label>
+                        <input className='device-data-input'
+                            type="text"
+                            id="model"
+                            name="model"
+                            value={formData.model}
+                            onChange={(e) => handleInputChange(e)}
+                        />
+                    </div>
+                    <div className='formfield'>
+                        <label htmlFor="modelYear">ปีของรุ่น:</label>
+                        <input className='device-data-input'
+                            type="text"
+                            id="modelYear"
+                            name="modelYear"
+                            value={formData.modelYear}
+                            onChange={(e) => handleInputChange(e)}
+                        />
+                    </div>
+                    <div className='formfield'>
+                        <label htmlFor="serialNumber">หมายเลขลำดับประจำสินค้า:</label>
+                        <input className='device-data-input'
+                            type="text"
+                            id="serialNumber"
+                            name="serialNumber"
+                            value={formData.serialNumber}
+                            onChange={(e) => handleInputChange(e)}
+                        />
+                    </div>
+                    <div className='formfield'>
+                        <label htmlFor="technicalDetails">รายละเอียดทางเทคนิค:</label>
+                        <textarea className='device-data-input'
+                            type="text"
+                            id="technicalDetails"
+                            name="technicalDetails"
+                            value={formData.technicalDetails}
+                            onChange={(e) => handleInputChange(e)}
+                        />
+                    </div>
+                </div>
+
+                <div className="column-right">
+                    <h5>อัพเดต</h5>
+                    <div className='formfield'>
+                        <label htmlFor="lastMaintenanceDate">การบำรุงรักษาครั้งล่าสุด:</label>
+                        <input className='device-data-input'
+                            type="date"
+                            id="lastMaintenanceDate"
+                            name="lastMaintenanceDate"
+                            value={formData.lastMaintenanceDate}
+                            onChange={(e) => handleInputChange(e)}
+                        />
+                    </div>
+                    <div className='formfield'>
+                        <label htmlFor="nextMaintenanceDate">การบำรุงรักษาครั้งถัดไป:</label>
+                        <input className='device-data-input'
+                            type="date"
+                            id="nextMaintenanceDate"
+                            name="nextMaintenanceDate"
+                            value={formData.nextMaintenanceDate}
+                            onChange={(e) => handleInputChange(e)}
+                        />
+                    </div>
+                    <div className='formfield'>
+                        <label htmlFor="brand">ยี่ห้อ:</label>
+                        <input className='device-data-input'
+                            type="text"
+                            id="brand"
+                            name="brand"
+                            value={formData.brand}
+                            onChange={(e) => handleInputChange(e)}
+                        />
+                    </div>
+                    <div className='formfield'>
+                        <label htmlFor="distributorAccount">บัญชีผู้จัดจำหน่าย:</label>
+                        <input className='device-data-input'
+                            type="text"
+                            id="distributorAccount"
+                            name="distributorAccount"
+                            value={formData.distributorAccount}
+                            onChange={(e) => handleInputChange(e)}
+                        />
+                    </div>
+                    <div className='formfield'>
+                        <label htmlFor="sellerName">ชื่อผู้ขาย:</label>
+                        <input className='device-data-input'
+                            type="text"
+                            id="sellerName"
+                            name="sellerName"
+                            value={formData.sellerName}
+                            onChange={(e) => handleInputChange(e)}
+                        />
+                    </div>
+                    <div className='formfield'>
+                        <label htmlFor="sellerAddress">ที่อยู่ผู้ขาย:</label>
+                        <input className='device-data-input'
+                            type="text"
+                            id="sellerAddress"
+                            name="sellerAddress"
+                            value={formData.sellerAddress}
+                            onChange={(e) => handleInputChange(e)}
+                        />
+                    </div>
+                    <div className='formfield'>
+                        <label htmlFor="phone">โทรศัพท์:</label>
+                        <input className='device-data-input'
+                            type="text"
+                            id="phone"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={(e) => handleInputChange(e)}
+                        />
+                    </div>
+                    <div className='formfield'>
+                        <label htmlFor="fax">โทรสาร:</label>
+                        <input className='device-data-input'
+                            type="text"
+                            id="fax"
+                            name="fax"
+                            value={formData.fax}
+                            onChange={(e) => handleInputChange(e)}
+                        />
+                    </div>
+                </div>
+            </div>
+            <button className='apply-button' onClick={handleSubmit} >Submit</button>
+    </div>
+  )
+}
+
+export default TechnicalDetailsTab

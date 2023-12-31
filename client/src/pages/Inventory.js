@@ -77,7 +77,7 @@ function Inventory() {
                 setFilterInventoryData(response.data);
 
                 // Extract unique status options from inventoryData
-                const statusOptions = [...new Set(response.data.map(item => item.status))];
+                const statusOptions = [...new Set(response.data.map(item => item.rfidStatus))];
                 const nameOptions = [...new Set(response.data.map(item => item.name))];
                 const locationOptions = [...new Set(response.data.map(item => item.location))];
 
@@ -108,7 +108,7 @@ function Inventory() {
         // console.log(statusOptions)
         const params = {
             name: selectedNameOptions.map(item => item.value),
-            status: selectedStatusOptions.map(item => item.value),
+            rfidStatus: selectedStatusOptions.map(item => item.value),
             location: selectedLocationOptions.map(item => item.value),
 
         }
@@ -217,7 +217,7 @@ function Inventory() {
     const searchFilter = (e) => {
         const searchData = inventoryData.filter((row) =>
             row.name.toLowerCase().includes(e.target.value.toLowerCase()) ||
-            row.status.toLowerCase().includes(e.target.value.toLowerCase()) ||
+            row.rfidStatus.toLowerCase().includes(e.target.value.toLowerCase()) ||
             row.rfid.toLowerCase().includes(e.target.value.toLowerCase()) ||
             row.purchaseDate.toLowerCase().includes(e.target.value.toLowerCase()) ||
             row.warrantyExpirationDate.toLowerCase().includes(e.target.value.toLowerCase()) ||
@@ -272,7 +272,7 @@ function Inventory() {
             selector: (row) => (
                 <div style={{ width: '100%', height: '100%', display: 'flex' }}>
                     <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                        <div className="status" id={'status' + row.status}>{row.status}</div>
+                        <div className="status" id={'status' + row.rfidStatus}>{row.rfidStatus}</div>
                     </div>
                 </div>
             ),
@@ -416,6 +416,7 @@ function Inventory() {
                 customStyles={customStyles}
                 onRowClicked={handleRowClick}
                 paginationRowsPerPageOptions={[5, 10]}
+                pointerOnHover
             />
 
             <div>

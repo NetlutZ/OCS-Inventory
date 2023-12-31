@@ -54,16 +54,19 @@ function Activity(props) {
       const response = await axios.get(`${process.env.REACT_APP_API}/activity/`, { params });
       if (response.data.length > 0) {
         setDynamicDataArray(response.data);
+        console.log(response.data)
       }
       const updatedDynamicDataArray = [];
       let lossDeviceName = '';
       let lossDeviceId = '';
       for (const dynamicData of response.data) {
+        /*
         const deviceData = await axios.get(`${process.env.REACT_APP_API}/device/activity/${dynamicData.id}`);
         if (deviceData.data.length > 0) {
           lossDeviceName = deviceData.data[0].name;
           lossDeviceId = deviceData.data[0].id;
         }
+        */
 
         let activityText = '';
         switch (dynamicData.activityCode.charAt(0)) {
@@ -74,7 +77,7 @@ function Activity(props) {
             activityText = `${dynamicData.User.username} Borrow Device`;
             break;
           case 'L':
-            activityText = `${lossDeviceName} (${lossDeviceId}) Loss`;
+            activityText = `Device Loss`;
             break;
           default:
             activityText = 'Unknown Activity';

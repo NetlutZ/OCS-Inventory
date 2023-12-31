@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import "./ActivityPopup.css"
 import axios from 'axios';
+import { set } from "date-fns";
 
 function ActivityPopup(props) {
     const toggleModal = () => {
@@ -18,21 +19,27 @@ function ActivityPopup(props) {
     // get device data from database from '/activity/:id'
     const [tableData, setTableData] = useState([]);
     const [loadData, setLoadData] = useState(false);
+    // create array for keep response data from /device/:id 
+    const [deviceData, setDeviceData] = useState([]);
+    const listDeviceData = [];
 
     const fetchData = async () => {
         try {
-            await axios.get(`http://localhost:8080/device/activity/${props.activityID}`)
-                .then(response => {
-                    if (response.data.length > 0) {
-                        setTableData(response.data);
-                    }
-                    else {
-                        setTableData(
-                            [{ image: '-', name: '-', id: '-' }]
-                        )
-                    }
-                    // console.log(response.data);
-                })
+            const response = await axios.get(`http://localhost:8080/activity/${props.activityID}`);
+            const deviceID = response.data.device;
+            const listDeviceID = deviceID.split(',').map(id => parseInt(id.trim(), 10));
+
+            const promises = listDeviceID.map(id =>
+                axios.get(`http://localhost:8080/device/${id}`)
+                    .then(response => response.data)
+                    .catch(error => {
+                        console.error('There was an error!', error);
+                        return null;
+                    })
+            );
+
+            const listDeviceData = await Promise.all(promises);
+            setTableData(listDeviceData);
         } catch (error) {
             console.error('Error fetching data:', error);
         }

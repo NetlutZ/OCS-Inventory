@@ -12,6 +12,9 @@ module.exports = (sequelize, DataTypes) => {
         userId: {
             type: DataTypes.INTEGER,
         },
+        device:{
+            type: DataTypes.STRING,
+        }
         
 
     });

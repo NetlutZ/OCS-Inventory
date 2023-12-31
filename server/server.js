@@ -19,6 +19,9 @@ app.use('/activity', apiActivity);
 const apiImage = require('./routes/Images');
 app.use('/image', apiImage);
 
+const apiRfid = require('./routes/Rfid');
+app.use('/rfid', apiRfid);
+
 app.get('/', (req, res) => {
     res.send('Hello World');
 });

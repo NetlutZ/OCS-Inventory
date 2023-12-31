@@ -50,7 +50,7 @@ function Dashboard() {
     let totalBorrowed = 0;
 
     data.forEach(item => {
-      const counts = getStatusCounts(item.status);
+      const counts = getStatusCounts(item.rfidStatus);
       totalInStorage += counts.InStorage;
       totalLoss += counts.Loss;
       totalBorrowed += counts.Borrowed;
@@ -73,7 +73,7 @@ function Dashboard() {
   //   let totalBorrow = 0;
 
   //   groupByName(allDevice).forEach(item => {
-  //     const counts = getStatusCounts(item.status);
+  //     const counts = getStatusCounts(item.rfidStatus);
   //     totalInStorage += counts.InStorage;
   //     totalLoss += counts.Loss;
   //     totalBorrow += counts.Borrow;
@@ -91,8 +91,8 @@ function Dashboard() {
     devices.forEach(device => {
       const counts = {};
       // Count occurrences of each status for a device
-      device.status.forEach(status => {
-        counts[status] = (counts[status] || 0) + 1;
+      device.rfidStatus.forEach(rfidStatus => {
+        counts[rfidStatus] = (counts[rfidStatus] || 0) + 1;
       });
       // Assign counts to the device name
       result[device.name] = counts;
@@ -100,7 +100,7 @@ function Dashboard() {
     return result;
   }
 
-  // group setAllDevice by name and then count the number of each status
+  // group setAllDevice by name and then count the number of each rfidsStatus
   const groupByName = (allDevice) => {
     const groupByName1 = allDevice.reduce((acc, cur) => {
       // console.log(acc)
@@ -108,11 +108,11 @@ function Dashboard() {
       const found = acc.find((item) => item.name === cur.name);
       // console.log(found)
       if (found) {
-        found.status.push(cur.status);
+        found.rfidStatus.push(cur.rfidStatus);
       } else {
         acc.push({
           name: cur.name,
-          status: [cur.status],
+          rfidStatus: [cur.rfidStatus],
           image: cur.image
         });
       }
@@ -157,8 +157,8 @@ function Dashboard() {
       Borrowed: 0
     };
 
-    statusArray.forEach(status => {
-      switch (status) {
+    statusArray.forEach(rfidStatus => {
+      switch (rfidStatus) {
         case 'InStorage':
           counts.InStorage++;
           break;
@@ -178,7 +178,7 @@ function Dashboard() {
 
   const formatDataForTable = (data) => {
     return data.map(item => {
-      const counts = getStatusCounts(item.status);
+      const counts = getStatusCounts(item.rfidStatus);
       return {
         name: item.name,
         'InStorage': counts.InStorage,
@@ -248,6 +248,7 @@ function Dashboard() {
         highlightOnHover
         customStyles={customStyles}
         onRowClicked={sendSelectedName}
+        pointerOnHover
       />
 
     </div>

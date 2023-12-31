@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import Activity from './pages/Activity';
 import AddDevice from './pages/AddDevice';
 import Settings from './pages/Settings';
+import DeviceDetail from './pages/DeviceDetail';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
               <Route path="/activity" exact element={<Activity />} />
               <Route path="/addDevice" exact element={<AddDevice />} />
               <Route path="/settings" exact element={<Settings />} />
+              <Route path="/test" exact element={<DeviceDetail />} />
             </Routes>
             </div>
 

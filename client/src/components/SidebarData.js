@@ -33,4 +33,8 @@ export const SidebarData = [
         icon:<CiSettings/>,
         link:"/Settings"
     },
+    {
+        title:"Test",
+        link:"/Test"
+    },
 ]

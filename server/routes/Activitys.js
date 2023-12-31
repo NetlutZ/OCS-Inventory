@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Activitys } = require('../models');
 const { Users } = require('../models');
-const { Op } = require("sequelize");
+const { Op, json } = require("sequelize");
 const moment = require('moment');
 
 router.get('/', (req, res) => {
@@ -29,6 +29,7 @@ router.get('/', (req, res) => {
             }
         })
             .then((result) => {
+                console.log(result)
                 res.json(result);
             }).catch((err) => {
                 res.json(err)
@@ -41,7 +42,8 @@ router.post('/', (req, res) => {
         activityCode: req.body.activityCode,
         activityDate: req.body.activityDate,
         activityTime: req.body.activityTime,
-        userId: req.body.userId
+        userId: req.body.userId,
+        device: req.body.device
     }).then((result) => {
         res.json(result);
     });
@@ -52,7 +54,8 @@ router.put('/:id', (req, res) => {
         activityCode: req.body.activityCode,
         activityDate: req.body.activityDate,
         activityTime: req.body.activityTime,
-        userId: req.body.userId
+        userId: req.body.userId,
+        device: req.body.device
     }, {
         where: {
             id: req.params.id
@@ -88,6 +91,22 @@ router.get('/:id/user', (req, res) => {
             id: req.params.id
         },
         include: [Users]
+    }).then((result) => {
+        res.json(result);
+    });
+});
+
+// get lastest id that activityCode start with 'L'
+router.get('/lastest/loss', (req, res) => {
+    Activitys.findOne({
+        where: {
+            activityCode: {
+                [Op.like]: 'L%'
+            }
+        },
+        order: [
+            ['id', 'DESC']
+        ]
     }).then((result) => {
         res.json(result);
     });
