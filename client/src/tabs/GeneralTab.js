@@ -1,7 +1,13 @@
 import { set } from 'date-fns'
-import React from 'react'
+import { React, useState } from 'react'
 
-function GeneralTab({ formData, setFormData, handleInputChange, handleSubmit }) {
+function GeneralTab({ formData, setFormData, handleInputChange, functionOptions, handleButton, error }) {
+    let buttonText = 'Apply'
+
+    if (functionOptions === 0) {
+        buttonText = 'Next'
+    }
+
     return (
         <div>
             <div className="form-container">
@@ -105,6 +111,7 @@ function GeneralTab({ formData, setFormData, handleInputChange, handleSubmit }) 
                             value={formData.quantity}
                             onChange={(e) => handleInputChange(e)}
                         />
+                        {error.quantity && <p style={{ color: 'red', fontSize:'0.8rem' }}>{error.quantity}</p>}
                     </div>
                     <div className='formfield'>
                         <label htmlFor="unit">หน่วยวัด:</label>
@@ -140,7 +147,7 @@ function GeneralTab({ formData, setFormData, handleInputChange, handleSubmit }) 
                     </div>
                 </div>
             </div>
-                <button className='apply-button' onClick={handleSubmit} >Submit</button>
+            <button className='apply-button' onClick={handleButton} >{buttonText}</button>
         </div>
     )
 }

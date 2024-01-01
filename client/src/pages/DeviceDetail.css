@@ -43,8 +43,8 @@
 
 .active-content {
     display: block;
-    margin-left: 10px;
-    margin-right: 10px;
+    /* margin-left: 10px;
+    margin-right: 10px; */
     transition: all 1s ease-in-out;
 }
 

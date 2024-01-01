@@ -8,21 +8,33 @@ import SortingTab from '../tabs/SortingTab';
 import StructureTab from '../tabs/StructureTab';
 import TechnicalDetailsTab from '../tabs/TechnicalDetailsTab';
 import './DeviceDetail.css';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
 function DeviceDetail() {
   const [formData, setFormData] = useState({
+    rfid: '',                         // หมายเลข RFID
+    rfidStatus: '',                   // สถานะ RFID
+    lastScan: null,                     // การสแกนครั้งล่าสุด
+    purchaseDate: null,                 // วันที่ซื้อ
+    warrantyExpirationDate: null,       // วันหมดอายุการรับประกัน
+    activityId: null,                   // กิจกรรม
+    image: '',                        // รูปภาพ
+    updatedAt: '',                    // อัพเดตเมื่อ
+    createdAt: '',                    // สร้างเมื่อ
+
+    name: '',                         // ชื่อ
+    status: '',                       // สถานะ
     assetGroup: '',                   // กลุ่มสินทรัพย์ถาวร
     assetNumber: '',                  // หมายเลขสินทรัพย์ถาวร
-    name: '',                         // ชื่อ
     searchName: '',                   // ชื่อสำหรับค้นหา
     dataType: '',                     // ชนิดข้อมูล
     mainType: '',                     // ชนิดหลัก
     propertyType: '',                 // ชนิดของคุณสมบัติ
     documentLocation: '',             // ที่ตั้งเอกสาร
-    quantity: '',                     // ปริมาณ
+    quantity: 0,                     // ปริมาณ
     unit: '',                         // หน่วยวัด
     originalAsset: '',                // Original_asset
-    status: '',                       // สถานะ
 
     createdBy: '',                    // จัดทำ
     model: '',                        // โมเดล
@@ -46,9 +58,9 @@ function DeviceDetail() {
     agent: '',                        // ตัวแทน
     policyNumber: '',                 // หมายเลขกรรมธรรม์
     policyExpirationDate: '',         // วันหมดอายุของกรรมธรรม์
-    policyAmount: '',                 // ยอดเงินกรรมธรรม์
-    insuranceValue: '',               // มูลค่าการประกัน
-    replacementCost: '',              // ต้นทุนในการเปลี่ยน
+    policyAmount: 0,                 // ยอดเงินกรรมธรรม์
+    insuranceValue: 0,               // มูลค่าการประกัน
+    replacementCost: 0,              // ต้นทุนในการเปลี่ยน
     lastCostUpdate: '',               // การอัพเดตข้อมูลค่า_ต้นทุนเป็นครั้งคราวครั้งล่าสุด
     insuranceDate1: '',               // วันที่ประกัน1
     insuranceDate2: '',               // วันที่ประกัน2
@@ -88,10 +100,13 @@ function DeviceDetail() {
     running: '',                      // Running
   });
 
-  const [state, setState] = useState(1);
+  const [tab, setTab] = useState(1);
   const action = (index) => {
-    setState(index);
+    setTab(index);
   }
+
+  // 0=add 1=edit
+  const [functionOptions, setFunctionOptions] = useState(0);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -99,74 +114,203 @@ function DeviceDetail() {
     // console.log(formData);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    const validationError = {};
     console.log('Form Data:', formData);
+
+    if (typeof (formData.quantity) === 'string') {
+      if (!formData.quantity.trim()) {
+        validationError.quantity = 'กรุณากรอกข้อมูล'
+        setTab(1);
+      }
+      else if (!(/^\d+(\.\d+)?$/.test(formData.quantity))) {
+        validationError.quantity = 'กรุณากรอกเป็นตัวเลข'
+        setTab(1);
+      }
+    }
+
+    if (typeof (formData.policyAmount) === 'string') {
+      if (!formData.policyAmount.trim()) {
+        validationError.policyAmount = 'กรุณากรอกข้อมูล'
+        setTab(4);
+      }
+      else if (!(/^\d+(\.\d+)?$/.test(formData.policyAmount))) {
+        validationError.policyAmount = 'กรุณากรอกเป็นตัวเลข'
+        setTab(4);
+      }
+    }
+
+    if (typeof (formData.insuranceValue) === 'string') {
+      if (!formData.insuranceValue.trim()) {
+        validationError.insuranceValue = 'กรุณากรอกข้อมูล'
+        setTab(4);
+      }
+      else if (!(/^\d+(\.\d+)?$/.test(formData.insuranceValue))) {
+        validationError.insuranceValue = 'กรุณากรอกเป็นตัวเลข'
+        setTab(4);
+      }
+    }
+
+    if (typeof (formData.replacementCost) === 'string') {
+      if (!formData.replacementCost.trim()) {
+        validationError.replacementCost = 'กรุณากรอกข้อมูล'
+        setTab(4);
+      }
+      else if (!(/^\d+(\.\d+)?$/.test(formData.replacementCost))) {
+        validationError.replacementCost = 'กรุณากรอกเป็นตัวเลข'
+        setTab(4);
+      }
+    }
+
+    setError(validationError);
+    if (Object.keys(validationError).length === 0) {
+      for (const key in formData) {
+        if (formData[key] === "") {
+          formData[key] = null;
+        }
+    }
+
+      try {
+        const response = await axios.post(`${process.env.REACT_APP_API}/device`, formData);
+        Swal.fire({
+          title: "Add Device Success!",
+          text: "Your device has been added.",
+          icon: "success"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.reload(true); // Reload the page after user acknowledges the success message
+          }
+        });
+
+      } catch (error) {
+        console.error('Error submitting form:', error);
+      }
+    }
+
   };
 
+  const nextPage = () => {
+    const validationError = {};
 
+    if (tab === 1) {
+      if (typeof (formData.quantity) === 'string') {
+        if (!formData.quantity.trim()) {
+          validationError.quantity = 'กรุณากรอกข้อมูล'
+          setTab(1);
+        }
+        else if (!(/^\d+(\.\d+)?$/.test(formData.quantity))) {
+          validationError.quantity = 'กรุณากรอกเป็นตัวเลข'
+          setTab(1);
+        }
+      }
+    }
+    else if (tab === 4) {
+      if (typeof (formData.policyAmount) === 'string') {
+        if (!formData.policyAmount.trim()) {
+          validationError.policyAmount = 'กรุณากรอกข้อมูล'
+          setTab(4);
+        }
+        else if (!(/^\d+(\.\d+)?$/.test(formData.policyAmount))) {
+          validationError.policyAmount = 'กรุณากรอกเป็นตัวเลข'
+          setTab(4);
+        }
+      }
+
+      if (typeof (formData.insuranceValue) === 'string') {
+        if (!formData.insuranceValue.trim()) {
+          validationError.insuranceValue = 'กรุณากรอกข้อมูล'
+          setTab(4);
+        }
+        else if (!(/^\d+(\.\d+)?$/.test(formData.insuranceValue))) {
+          validationError.insuranceValue = 'กรุณากรอกเป็นตัวเลข'
+          setTab(4);
+        }
+      }
+
+      if (typeof (formData.replacementCost) === 'string') {
+        if (!formData.replacementCost.trim()) {
+          validationError.replacementCost = 'กรุณากรอกข้อมูล'
+          setTab(4);
+        }
+        else if (!(/^\d+(\.\d+)?$/.test(formData.replacementCost))) {
+          validationError.replacementCost = 'กรุณากรอกเป็นตัวเลข'
+          setTab(4);
+        }
+      }
+    }
+
+    setError(validationError);
+    if (Object.keys(validationError).length === 0) {
+      setTab(tab + 1);
+
+    }
+
+  }
+
+  const [error, setError] = useState('');
 
   return (
     <div className='box'>
 
       <div className='tabs'>
-        <div onClick={() => action(1)} className={`${state === 1 ? 'tab active-tab' : 'tab'}`}>
+        <div onClick={() => action(1)} className={`${tab === 1 ? 'tab active-tab' : 'tab'}`}>
           ทั่วไป
         </div>
-        <div onClick={() => action(2)} className={`${state === 2 ? 'tab active-tab' : 'tab'}`}>
+        <div onClick={() => action(2)} className={`${tab === 2 ? 'tab active-tab' : 'tab'}`}>
           รายละเอียดทางเทคนิค
         </div>
-        <div onClick={() => action(3)} className={`${state === 3 ? 'tab active-tab' : 'tab'}`}>
+        <div onClick={() => action(3)} className={`${tab === 3 ? 'tab active-tab' : 'tab'}`}>
           โครงสร้าง
         </div>
-        <div onClick={() => action(4)} className={`${state === 4 ? 'tab active-tab' : 'tab'}`}>
+        <div onClick={() => action(4)} className={`${tab === 4 ? 'tab active-tab' : 'tab'}`}>
           การประกัน
         </div>
-        <div onClick={() => action(5)} className={`${state === 5 ? 'tab active-tab' : 'tab'}`}>
+        <div onClick={() => action(5)} className={`${tab === 5 ? 'tab active-tab' : 'tab'}`}>
           ที่ตั้ง
         </div>
-        <div onClick={() => action(6)} className={`${state === 6 ? 'tab active-tab' : 'tab'}`}>
+        <div onClick={() => action(6)} className={`${tab === 6 ? 'tab active-tab' : 'tab'}`}>
           การเรียงลำดับ
         </div>
-        <div onClick={() => action(7)} className={`${state === 7 ? 'tab active-tab' : 'tab'}`}>
+        <div onClick={() => action(7)} className={`${tab === 7 ? 'tab active-tab' : 'tab'}`}>
           อื่น ๆ
         </div>
-        <div onClick={() => action(8)} className={`${state === 8 ? 'tab active-tab' : 'tab'}`}>
+        <div onClick={() => action(8)} className={`${tab === 8 ? 'tab active-tab' : 'tab'}`}>
           coding
         </div>
       </div>
 
       <div className='device-contents'>
-        <div className={`${state === 1 ? 'device-content active-content' : 'device-content'}`}>
-          <GeneralTab formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} handleInputChange={handleInputChange} />
+        <div className={`${tab === 1 ? 'device-content active-content' : 'device-content'}`}>
+          <GeneralTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} error={error} />
         </div>
 
-        <div className={`${state === 2 ? 'device-content active-content' : 'device-content'}`}>
-          <TechnicalDetailsTab formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} handleInputChange={handleInputChange} />
+        <div className={`${tab === 2 ? 'device-content active-content' : 'device-content'}`}>
+          <TechnicalDetailsTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} />
         </div>
 
-        <div className={`${state === 3 ? 'device-content active-content' : 'device-content'}`}>
-          <StructureTab formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} handleInputChange={handleInputChange} />
+        <div className={`${tab === 3 ? 'device-content active-content' : 'device-content'}`}>
+          <StructureTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} />
         </div>
 
-        <div className={`${state === 4 ? 'device-content active-content' : 'device-content'}`}>
-          <InsuranceTab formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} handleInputChange={handleInputChange} />
+        <div className={`${tab === 4 ? 'device-content active-content' : 'device-content'}`}>
+          <InsuranceTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} error={error} />
         </div>
 
-        <div className={`${state === 5 ? 'device-content active-content' : 'device-content'}`}>
-          <LocationTab formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} handleInputChange={handleInputChange} />
+        <div className={`${tab === 5 ? 'device-content active-content' : 'device-content'}`}>
+          <LocationTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} />
         </div>
 
-        <div className={`${state === 6 ? 'device-content active-content' : 'device-content'}`}>
-          <SortingTab formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} handleInputChange={handleInputChange} />
+        <div className={`${tab === 6 ? 'device-content active-content' : 'device-content'}`}>
+          <SortingTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} />
         </div>
 
-        <div className={`${state === 7 ? 'device-content active-content' : 'device-content'}`}>
-          <OtherTab formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} handleInputChange={handleInputChange} />
+        <div className={`${tab === 7 ? 'device-content active-content' : 'device-content'}`}>
+          <OtherTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} />
         </div>
 
-        <div className={`${state === 8 ? 'device-content active-content' : 'device-content'}`}>
-          <CodingTab formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} handleInputChange={handleInputChange} />
+        <div className={`${tab === 8 ? 'device-content active-content' : 'device-content'}`}>
+          <CodingTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} functionOptions={functionOptions} />
         </div>
 
 

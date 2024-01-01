@@ -1,436 +1,273 @@
-import React from 'react'
-import "./Inventory.css"
-import { FaRegEdit } from "react-icons/fa";
-import { RiDeleteBinLine } from "react-icons/ri";
-import { IconContext } from "react-icons";
-import { CiSearch } from "react-icons/ci";
-import { IoIosAdd } from "react-icons/io";
-import axios from "axios";
-import DataTable from 'react-data-table-component';
-
-import Select from "react-select"
-import { useState, useEffect } from 'react';
-
-
-import DateRangeComp from '../components/DateRangeComp';
-import { is } from 'date-fns/locale';
-import Swal from "sweetalert2";
-import InventoryPopup from '../components/InventoryPopup';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import CodingTab from '../tabs/CodingTab';
+import GeneralTab from '../tabs/GeneralTab';
+import InsuranceTab from '../tabs/InsuranceTab';
+import LocationTab from '../tabs/LocationTab';
+import OtherTab from '../tabs/OtherTab';
+import SortingTab from '../tabs/SortingTab';
+import StructureTab from '../tabs/StructureTab';
+import TechnicalDetailsTab from '../tabs/TechnicalDetailsTab';
+import OverviewTab from '../tabs/OverviewTab';
+import './DeviceDetail.css';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 import { set } from 'date-fns';
 
-
-
 function Inventory() {
-    const [value, setValue] = useState(null);
-    const [inventoryData, setInventoryData] = useState([]);
-    const [filterInventoryData, setFilterInventoryData] = useState([]);
-    const [count, setCount] = useState(0);
-    const [selectedStatusOptions, setSelectedStatusOptions] = useState([]);
-    const [selectedNameOptions, setSelectedNameOptions] = useState([]);
-    const [selectedLocationOptions, setSelectedLocationOptions] = useState([]);
-    const [statusOptions, setStatusOptions] = useState([]);
-    const [nameOptions, setNameOptions] = useState([]);
-    const [locationOptions, setLocationOptions] = useState([]);
-    const [purchaseStDate, setPurchaseStDate] = useState("");
-    const [purchaseEndDate, setPurchaseEndDate] = useState("");
-    const [warrantyExpStDate, setWarrantyExpStDate] = useState("");
-    const [warrantyExpEndDate, setWarrantyExpEndDate] = useState("");
-    const [isFilter, setIsFilter] = useState(false);
-    const [modal, setModal] = useState(false);
-    const [deviceIdSelected, setDeviceIdSelected] = useState(null);
+    const [formData, setFormData] = useState({
+        rfid: '',                         // หมายเลข RFID
+        rfidStatus: '',                   // สถานะ RFID
+        lastScan: null,                     // การสแกนครั้งล่าสุด
+        purchaseDate: null,                 // วันที่ซื้อ
+        warrantyExpirationDate: null,       // วันหมดอายุการรับประกัน
+        activityId: null,                   // กิจกรรม
+        image: '',                        // รูปภาพ
+        updatedAt: '',                    // อัพเดตเมื่อ
+        createdAt: '',                    // สร้างเมื่อ
 
-    const defaultStatus = JSON.parse(localStorage.getItem('selectedStatus'));
-    const defaultName = JSON.parse(localStorage.getItem('selectedName'));
-    const navigate = useNavigate();
+        name: '',                         // ชื่อ
+        status: '',                       // สถานะ
+        assetGroup: '',                   // กลุ่มสินทรัพย์ถาวร
+        assetNumber: '',                  // หมายเลขสินทรัพย์ถาวร
+        searchName: '',                   // ชื่อสำหรับค้นหา
+        dataType: '',                     // ชนิดข้อมูล
+        mainType: '',                     // ชนิดหลัก
+        propertyType: '',                 // ชนิดของคุณสมบัติ
+        documentLocation: '',             // ที่ตั้งเอกสาร
+        quantity: 0,                     // ปริมาณ
+        unit: '',                         // หน่วยวัด
+        originalAsset: '',                // Original_asset
 
+        createdBy: '',                    // จัดทำ
+        model: '',                        // โมเดล
+        modelYear: '',                    // ปีของรุ่น
+        serialNumber: '',                 // หมายเลขลำดับประจำสินค้า
+        technicalDetails: '',             // รายละเอียดทางเทคนิค
+        lastMaintenanceDate: '',          // การบำรุงรักษาครั้งล่าสุด
+        nextMaintenanceDate: '',          // การบำรุงรักษาครั้งถัดไป
+        brand: '',                        // ยี่ห้อ
+        distributorAccount: '',           // บัญชีผู้จัดจำหน่าย
+        sellerName: '',                   // ชื่อผู้ขาย
+        sellerAddress: '',                // ที่อยู่ผู้ขาย
+        phone: '',                        // โทรศัพท์
+        fax: '',                          // โทรสาร
+        documentNumber: '',               // เลขที่เอกสาร
+        telephone: '',                    // telephone
 
-    useEffect(() => {
-        fetchInventoryData();
-    }, []);
+        mainPermanentAsset: '',           // สินทรัพย์ถาวรหลัก
 
+        insuranceCompany: '',             // บริษัทประกันภัย
+        agent: '',                        // ตัวแทน
+        policyNumber: '',                 // หมายเลขกรรมธรรม์
+        policyExpirationDate: '',         // วันหมดอายุของกรรมธรรม์
+        policyAmount: 0,                 // ยอดเงินกรรมธรรม์
+        insuranceValue: 0,               // มูลค่าการประกัน
+        replacementCost: 0,              // ต้นทุนในการเปลี่ยน
+        lastCostUpdate: '',               // การอัพเดตข้อมูลค่า_ต้นทุนเป็นครั้งคราวครั้งล่าสุด
+        insuranceDate1: '',               // วันที่ประกัน1
+        insuranceDate2: '',               // วันที่ประกัน2
+        marketPriceInsurance: '',         // ประกันภัยที่ราคาตลาดที่เป็นธรรม
 
-    useEffect(() => {
-        const storedStatusState = localStorage.getItem('selectedStatus');
-        const storedNameState = localStorage.getItem('selectedName');
+        GISReferenceNumber: '',           // หมายเลขอ้างอิงGIS
+        responsiblePerson: '',            // ผู้รับผิดชอบ
+        locationDescription: '',          // บันทึกที่ตั้ง
+        storageLocation: '',              // สถานที่เก็บ
+        roomNumber: '',                   // หมายเลขห้อง
+        barcode: '',                      // บาร์โค้ด
+        physicalInventory: '',            // สินค้าคงคลังทางกายภาพ
+        contactPerson: '',                // ผู้ติดต่อ
+        rentalNotes: '',                  // หมายเหตุการเช่า
+        rightsHolder: '',                 // ผู้ถือกรรมสิทธิ์
+        transferredAssetNumber: '',       // หมายเลขสินทรัพย์ถาวรโอน_รับโอน
 
-        if (storedStatusState && inventoryData.length > 0) {
-            const parsedState = JSON.parse(storedStatusState);
-            setSelectedStatusOptions(parsedState);
-            localStorage.removeItem('selectedStatus');
-        }
-        else if (storedNameState && inventoryData.length > 0) {
-            const parsedState = JSON.parse(storedNameState);
-            setSelectedNameOptions(parsedState);
-            localStorage.removeItem('selectedName');
-        }
-    }, [inventoryData]);
+        fieldOrder1: '',                  // เรียงลำดับฟิลด์1
+        fieldOrder2: '',                  // เรียงลำดับฟิลด์2
+        fieldOrder3: '',                  // เรียงลำดับฟิลด์3
 
-    useEffect(() => {
-        filterInventory();
-    }, [purchaseStDate, purchaseEndDate, warrantyExpStDate, warrantyExpEndDate, isFilter, selectedNameOptions, selectedStatusOptions, selectedLocationOptions]);
+        referenceData: '',                // ข้อมูลอ้างอิง
+        comments: '',                     // ข้อคิดเห็น
+        disposalConstraints: '',          // ข้อจำกัดในการตัดจำหน่าย
+        procurementUnit: '',              // หน่วยงานพัสดุ
+        procurementType: '',              // ประเภทพัสดุ
+        procurementCategory: '',          // ชนิดพัสดุ
+        procurementYearCode: '',          // รหัสปีพัสดุ
+        IVZ_FsNum: '',                     // IVZ_FSNum
+        procurementSourceType: '',        // ประเภทแหล่งเงินพัสดุ
+        procurementDetails: '',           // รายละเอียดพัสดุ
 
-    const fetchInventoryData = () => {
-        axios.get(`${process.env.REACT_APP_API}/device`)
-            .then(response => {
-                setInventoryData(response.data);
-                setFilterInventoryData(response.data);
+        campus: '',                       // วิทยาเขต
+        department: '',                   // ส่วนงาน
+        location: '',                     // ที่ตั้ง
+        type: '',                         // ประเภท
+        running: '',                      // Running
+    });
 
-                // Extract unique status options from inventoryData
-                const statusOptions = [...new Set(response.data.map(item => item.rfidStatus))];
-                const nameOptions = [...new Set(response.data.map(item => item.name))];
-                const locationOptions = [...new Set(response.data.map(item => item.location))];
-
-                // Map statusOptions to the format required by Select component
-                const formattedStatusOptions = statusOptions.map(option => ({
-                    value: option,
-                    label: option,
-                }));
-                const formattedNameOptions = nameOptions.map(option => ({
-                    value: option,
-                    label: option,
-                }));
-                const formattedLocationOptions = locationOptions.map(option => ({
-                    value: option,
-                    label: option,
-                }));
-
-                setStatusOptions(formattedStatusOptions);
-                setNameOptions(formattedNameOptions)
-                setLocationOptions(formattedLocationOptions);
-            })
-            .catch(error => {
-                console.error('Error fetching inventory data:', error);
-            });
-    };
-
-    const filterInventory = () => {
-        // console.log(statusOptions)
-        const params = {
-            name: selectedNameOptions.map(item => item.value),
-            rfidStatus: selectedStatusOptions.map(item => item.value),
-            location: selectedLocationOptions.map(item => item.value),
-
-        }
-        if (purchaseStDate && purchaseEndDate) {
-            params.purchaseDate = purchaseStDate + "to" + purchaseEndDate
-        }
-        if (warrantyExpStDate && warrantyExpEndDate) {
-            params.warrantyExpirationDate = warrantyExpStDate + "to" + warrantyExpEndDate
-        }
-        // console.log(params)
-
-        axios.get(`${process.env.REACT_APP_API}/device`, { params }).then(result => {
-            setFilterInventoryData(result.data)
-        }).catch(error => {
-            console.error('Error fetching inventory data:', error);
-        });
-
-        // if (selectedStatusOptions.length === 0 && selectedNameOptions.length === 0 && selectedLocationOptions.length === 0 && !purchaseStDate && !warrantyExpStDate) {
-        //     setFilterInventoryData(inventoryData);
-        // }
-        // else {
-        //     const statusSelected = selectedStatusOptions.map(option => option.value);
-        //     const nameSelected = selectedNameOptions.map(option => option.value);
-        //     const locationSelected = selectedLocationOptions.map(option => option.value);
-
-        //     const filteredData = inventoryData.filter(item => {
-        //         const statusMatch =
-        //             statusSelected.length === 0 ||
-        //             statusSelected.some(status => item.status.includes(status));
-
-        //         const nameMatch =
-        //             nameSelected.length === 0 ||
-        //             nameSelected.some(name => item.name.includes(name));
-
-        //         const locationMatch =
-        //             locationSelected.length === 0 ||
-        //             locationSelected.some(location => item.location.includes(location));
-
-        //         const purchasedateMatch =
-        //             (!purchaseStDate || item.purchaseDate.substring(0, 10) >= purchaseStDate) &&
-        //             (!purchaseEndDate || item.purchaseDate.substring(0, 10) <= purchaseEndDate);
-
-        //         const warrantyExpMatch =
-        //             (!warrantyExpStDate || item.warrantyExpirationDate.substring(0, 10) >= warrantyExpStDate) &&
-        //             (!warrantyExpEndDate || item.warrantyExpirationDate.substring(0, 10) <= warrantyExpEndDate);
-        //         return statusMatch && nameMatch && locationMatch && purchasedateMatch && warrantyExpMatch;
-        //     });
-        //     // console.log(filteredData)
-        //     // Update state with filtered data
-        //     setFilterInventoryData(filteredData);
-        // }
+    const [tab, setTab] = useState(0);
+    const [error, setError] = useState({});
+    const action = (index) => {
+        setTab(index);
     }
 
-    const setPurchaseFilter = (stDate, endDate, isFilter) => {
-        setPurchaseStDate(stDate);
-        setPurchaseEndDate(endDate);
-        setIsFilter(isFilter);
-        // console.log("start date: " + stDate + " end date: " + endDate + " isFilter: " + isFilter);
-        // filterInventory();
-
-    };
-    const setWarrantyExpFilter = (stDate, endDate, isFilter) => {
-        setWarrantyExpStDate(stDate);
-        setWarrantyExpEndDate(endDate);
-        setIsFilter(isFilter);
-        console.log("start date: " + stDate + " end date: " + endDate + " isFilter: " + isFilter);
-        // filterInventory();
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setFormData({ ...formData, [name]: value });
+        console.log(formData);
     };
 
-    const deleteDevice = (row) => {
-        const id = row.id;
-        Swal.fire({
-            title: `Are you sure to delete ${row.name}?`,
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-            width: '50rem',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios.delete(`${process.env.REACT_APP_API}/device/${id}`)
-                    .then(response => {
-                        // Remove deleted device from state
+    const handleSubmit = async (event) => {
+        console.log(formData);
+        event.preventDefault();
 
-                        const updatedInventoryData = inventoryData.filter(item => item.id !== id);
-                        console.log(updatedInventoryData)
-                        setInventoryData(updatedInventoryData);
-                        setFilterInventoryData(updatedInventoryData);
-                    })
-                    .catch(error => {
-                        // Handle error deleting device
-                        console.error('Error deleting device:', error);
+        const validationError = {}
+        if (typeof (formData.quantity) === 'string') {
+            if (!formData.quantity.trim()) {
+                validationError.quantity = 'กรุณากรอกข้อมูล'
+                setTab(1);
+            }
+            else if (!(/^\d+(\.\d+)?$/.test(formData.quantity))) {
+                validationError.quantity = 'กรุณากรอกเป็นตัวเลข'
+                setTab(1);
+            }
+        }
+
+        if (typeof (formData.policyAmount) === 'string') {
+            if (!formData.policyAmount.trim()) {
+                validationError.policyAmount = 'กรุณากรอกข้อมูล'
+                setTab(4);
+            }
+            else if (!(/^\d+(\.\d+)?$/.test(formData.policyAmount))) {
+                validationError.policyAmount = 'กรุณากรอกเป็นตัวเลข'
+                setTab(4);
+            }
+        }
+
+        if (typeof (formData.insuranceValue) === 'string') {
+            if (!formData.insuranceValue.trim()) {
+                validationError.insuranceValue = 'กรุณากรอกข้อมูล'
+                setTab(4);
+            }
+            else if (!(/^\d+(\.\d+)?$/.test(formData.insuranceValue))) {
+                validationError.insuranceValue = 'กรุณากรอกเป็นตัวเลข'
+                setTab(4);
+            }
+        }
+
+        if (typeof (formData.replacementCost) === 'string') {
+            if (!formData.replacementCost.trim()) {
+                validationError.replacementCost = 'กรุณากรอกข้อมูล'
+                setTab(4);
+            }
+            else if (!(/^\d+(\.\d+)?$/.test(formData.replacementCost))) {
+                validationError.replacementCost = 'กรุณากรอกเป็นตัวเลข'
+                setTab(4);
+            }
+        }
+
+        setError(validationError);
+        if (Object.keys(validationError).length === 0) {
+            console.log('Success');
+            try {
+                if (formData.id === undefined) {
+                    Swal.fire({
+                        title: "No Device Selected!",
+                        text: "Please select a device to update",
+                        icon: "error"
+                    }).then((result) => {
+
                     });
+                }
+                else {
+                    const response = await axios.put(`${process.env.REACT_APP_API}/device/${formData.id}`, formData);
+                    Swal.fire({
+                        title: "Update Success!",
+                        text: "Your device has been updated",
+                        icon: "success"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload(true); // Reload the page after user acknowledges the success message
+                        }
+                    });
+                }
 
-                Swal.fire({
-                    title: "Deleted!",
-                    text: "Your file has been deleted.",
-                    icon: "success"
-                });
+            } catch (error) {
+                console.error('Error submitting form:', error);
             }
-        })
-    }
-
-    const searchFilter = (e) => {
-        const searchData = inventoryData.filter((row) =>
-            row.name.toLowerCase().includes(e.target.value.toLowerCase()) ||
-            row.rfidStatus.toLowerCase().includes(e.target.value.toLowerCase()) ||
-            row.rfid.toLowerCase().includes(e.target.value.toLowerCase()) ||
-            row.purchaseDate.toLowerCase().includes(e.target.value.toLowerCase()) ||
-            row.warrantyExpirationDate.toLowerCase().includes(e.target.value.toLowerCase()) ||
-            row.location.toLowerCase().includes(e.target.value.toLowerCase()) ||
-            row.serialNumber.toLowerCase().includes(e.target.value.toLowerCase())
-        );
-
-        setFilterInventoryData(searchData);
-    };
-
-    const handleRowClick = (row) => {
-        // Handle row click here, you can access the clicked row data using the 'row' parameter
-        console.log('Clicked row:', row);
-        setModal(true);
-        setDeviceIdSelected(row.id);
-        // Perform any other actions you want when a row is clicked
-    };
-
-    const limitText = (text, limit) => {
-        if (text.length > limit) {
-            const chunks = [];
-            while (text.length > 0) {
-                chunks.push(text.slice(0, limit));
-                text = text.slice(limit);
-            }
-            return chunks.join('\n'); // Force text onto a new line after each chunk
         }
-        return text;
+
     };
-
-    const changeDateFormat = (dateString) => {
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const [year, month, day] = dateString.split('-');
-        const monthIndex = parseInt(month, 10) - 1;
-        const formattedDate = `${parseInt(day, 10)} ${months[monthIndex]} ${year}`;
-        return formattedDate;
-    };
-
-    const columns = [
-        {
-            name: 'Image',
-            selector: (row) => <img src={`${process.env.REACT_APP_API}/device/image/${row.image}`} alt="Image" style={{ width: 'auto', height: '50px' }} />,
-            sortable: true,
-        },
-        {
-            name: 'Name',
-            selector: (row) => limitText(row.name, 20),
-            sortable: true,
-        },
-        {
-            name: 'Status',
-            selector: (row) => (
-                <div style={{ width: '100%', height: '100%', display: 'flex' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                        <div className="status" id={'status' + row.rfidStatus}>{row.rfidStatus}</div>
-                    </div>
-                </div>
-            ),
-            sortable: true,
-        },
-        {
-            name: 'RFID',
-            selector: (row) => row.rfid,
-            sortable: true,
-        },
-        {
-            name: 'Purchase Date',
-            selector: (row) => changeDateFormat(row.purchaseDate),
-            sortable: true,
-        },
-        {
-            name: 'Warranty Expire',
-            selector: (row) => changeDateFormat(row.warrantyExpirationDate),
-            sortable: true,
-        },
-        {
-            name: 'Location',
-            selector: (row) => row.location,
-            sortable: true,
-
-        },
-        {
-            name: 'Serial Number',
-            selector: (row) => row.serialNumber,
-            sortable: true,
-
-        },
-        {
-            name: 'Action',
-            selector: (row) => (
-                <>
-                    <FaRegEdit color="#667085" fontSize="1em" style={{ paddingRight: '5px', cursor: 'pointer' }} />
-                    <RiDeleteBinLine color="#f97066" fontSize="1em" onClick={() => deleteDevice(row)} style={{ cursor: 'pointer' }} />
-                </>
-            ),
-        },
-    ];
-
-    const customStyles = {
-        headRow: {
-            style: {
-                backgroundColor: '#F9FAFB',
-                color: 'black',
-            },
-        },
-        headCells: {
-            style: {
-                fontWeight: '600',
-                fontSize: '1rem'
-            },
-        },
-        cells: {
-            style: {
-                fontSize: '18px',
-            },
-        },
-    };
-
-    const gotoAddDevice = () => {
-        navigate("/AddDevice")
-    }
 
     return (
-        <div>
-            {/* create search box */}
-            <div className='option'>
+        <div className='box'>
 
-                <div className='first-row'>
-                    <div className="input-wrapper">
-                        <CiSearch id="search-icon" />
-                        <input type="text" placeholder="Search" onChange={searchFilter} />
-                    </div>
-
-                    {/* <div className='add-device-button' > */}
-                    <button className="addDevice" onClick={gotoAddDevice}> <IoIosAdd id="add-icon" /> Add Device</button>
-                    {/* </div> */}
+            <div className='tabs'>
+                <div onClick={() => action(0)} className={`${tab === 0 ? 'tab active-tab' : 'tab'}`}>
+                    ภาพรวม
                 </div>
-
-                <div className='second-row'>
-                    <Select className='filter-select'
-                        placeholder="Name"
-                        options={nameOptions}
-                        onChange={(optionSelected) => {
-                            // use await to wait for state to be updated
-
-                            setSelectedNameOptions(optionSelected);
-                            // filterInventory();
-                        }}
-                        isMulti
-                        isSearchable
-                        noOptionsMessage={() => "not found"}
-                        defaultValue={defaultName}></Select>
-                    <Select className='filter-select'
-                        placeholder="Status"
-                        options={statusOptions}
-                        onChange={(optionSelected) => {
-                            setSelectedStatusOptions(optionSelected);
-                            // filterInventory();
-                            console.log(optionSelected)
-                        }}
-                        isMulti
-                        isSearchable
-                        noOptionsMessage={() => "not found"}
-                        defaultValue={defaultStatus}></Select>
-                    <Select className='filter-select'
-                        placeholder="Location"
-                        options={locationOptions}
-                        defaultValue={value}
-                        onChange={(optionSelected) => {
-                            // use await to wait for state to be updated
-
-                            setSelectedLocationOptions(optionSelected);
-                            // filterInventory();
-                        }}
-                        isMulti
-                        isSearchable
-                        noOptionsMessage={() => "not found"}></Select>
-
-                    <div className='filter-select'> {/* Wrap DateRangeComp in a div */}
-                        <DateRangeComp parentCallback={setPurchaseFilter} placeholder="Purchase Date" />
-                    </div>
-                    <div className='filter-select'> {/* Wrap DateRangeComp in a div */}
-                        <DateRangeComp parentCallback={setWarrantyExpFilter} placeholder="Warranty Expiration Date" />
-                    </div>
+                <div onClick={() => action(1)} className={`${tab === 1 ? 'tab active-tab' : 'tab'}`}>
+                    ทั่วไป
                 </div>
-
+                <div onClick={() => action(2)} className={`${tab === 2 ? 'tab active-tab' : 'tab'}`}>
+                    รายละเอียดทางเทคนิค
+                </div>
+                <div onClick={() => action(3)} className={`${tab === 3 ? 'tab active-tab' : 'tab'}`}>
+                    โครงสร้าง
+                </div>
+                <div onClick={() => action(4)} className={`${tab === 4 ? 'tab active-tab' : 'tab'}`}>
+                    การประกัน
+                </div>
+                <div onClick={() => action(5)} className={`${tab === 5 ? 'tab active-tab' : 'tab'}`}>
+                    ที่ตั้ง
+                </div>
+                <div onClick={() => action(6)} className={`${tab === 6 ? 'tab active-tab' : 'tab'}`}>
+                    การเรียงลำดับ
+                </div>
+                <div onClick={() => action(7)} className={`${tab === 7 ? 'tab active-tab' : 'tab'}`}>
+                    อื่น ๆ
+                </div>
+                <div onClick={() => action(8)} className={`${tab === 8 ? 'tab active-tab' : 'tab'}`}>
+                    coding
+                </div>
             </div>
 
-            <DataTable
-                columns={columns}
-                data={filterInventoryData}
-                pagination
-                highlightOnHover
-                // responsive
-                // striped
-                customStyles={customStyles}
-                onRowClicked={handleRowClick}
-                paginationRowsPerPageOptions={[5, 10]}
-                pointerOnHover
-            />
+            <div className='device-contents'>
+                <div className={`${tab === 0 ? 'device-content active-content' : 'device-content'}`}>
+                    <OverviewTab formData={formData} setFormData={setFormData} setTab={setTab} />
+                </div>
+                <div className={`${tab === 1 ? 'device-content active-content' : 'device-content'}`}>
+                    <GeneralTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} error={error} />
+                </div>
 
-            <div>
-                <InventoryPopup
-                    trigger={modal}
-                    setTrigger={(value) => setModal(value)}
-                    deviceID={deviceIdSelected}
-                >
-                </InventoryPopup>
+                <div className={`${tab === 2 ? 'device-content active-content' : 'device-content'}`}>
+                    <TechnicalDetailsTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
+                </div>
+
+                <div className={`${tab === 3 ? 'device-content active-content' : 'device-content'}`}>
+                    <StructureTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
+                </div>
+
+                <div className={`${tab === 4 ? 'device-content active-content' : 'device-content'}`}>
+                    <InsuranceTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} error={error} />
+                </div>
+
+                <div className={`${tab === 5 ? 'device-content active-content' : 'device-content'}`}>
+                    <LocationTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
+                </div>
+
+                <div className={`${tab === 6 ? 'device-content active-content' : 'device-content'}`}>
+                    <SortingTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
+                </div>
+
+                <div className={`${tab === 7 ? 'device-content active-content' : 'device-content'}`}>
+                    <OtherTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
+                </div>
+
+                <div className={`${tab === 8 ? 'device-content active-content' : 'device-content'}`}>
+                    <CodingTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
+                </div>
             </div>
 
         </div>
     )
-
 }
 
 export default Inventory

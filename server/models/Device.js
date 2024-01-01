@@ -45,7 +45,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         rfid:{
             type: DataTypes.STRING,
-            allowNull: false,
         },
         rfidStatus: {
             type: DataTypes.STRING,
@@ -94,6 +93,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         quantity: {
             type: DataTypes.FLOAT,
+            defaultValue: 0,
         },
         unit: {
             type: DataTypes.STRING,
@@ -166,12 +166,15 @@ module.exports = (sequelize, DataTypes) => {
         },
         policyAmount: {
             type: DataTypes.FLOAT,
+            defaultValue: 0,
         },
         insuranceValue: {
             type: DataTypes.FLOAT,
+            defaultValue: 0,
         },
         replacementCost: {
             type: DataTypes.FLOAT,
+            defaultValue: 0,
         },
         lastCostUpdate: {
             type: DataTypes.DATE,
@@ -233,7 +236,7 @@ module.exports = (sequelize, DataTypes) => {
         referenceData: {
             type: DataTypes.STRING,
         },
-        comment: {
+        comments: {
             type: DataTypes.STRING,
         },
         disposalConstraints: {

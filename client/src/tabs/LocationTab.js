@@ -1,9 +1,14 @@
 import React from 'react'
 
-function LocationTab({ formData, setFormData, handleInputChange, handleSubmit }) {
-  return (
-    <div>
-      <div className="form-container">
+function LocationTab({ formData, setFormData, handleInputChange, handleButton, functionOptions }) {
+    let buttonText = 'Apply'
+
+    if (functionOptions === 0) {
+        buttonText = 'Next'
+    }
+    return (
+        <div>
+            <div className="form-container">
                 <div className="column-left">
                     <h5>การแม็ป</h5>
                     <div className='formfield'>
@@ -112,7 +117,7 @@ function LocationTab({ formData, setFormData, handleInputChange, handleSubmit })
                             onChange={(e) => handleInputChange(e)}
                         />
                     </div>
-                    <h5>โอน/รับโอน</h5>  
+                    <h5>โอน/รับโอน</h5>
                     <div className='formfield'>
                         <label htmlFor="transferredAssetNumber">หมายเลขสินทรัพย์ถาวรโอน_รับโอน:</label>
                         <input className='device-data-input'
@@ -124,12 +129,12 @@ function LocationTab({ formData, setFormData, handleInputChange, handleSubmit })
                         />
                     </div>
                     <h5>ที่ดิน</h5>
-                   
+
                 </div>
             </div>
-            <button className='apply-button' onClick={handleSubmit} >Submit</button>
-    </div>
-  )
+            <button className='apply-button' onClick={handleButton} >{buttonText}</button>
+        </div>
+    )
 }
 
 export default LocationTab

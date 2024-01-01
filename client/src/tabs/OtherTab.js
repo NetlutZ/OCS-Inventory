@@ -1,9 +1,14 @@
 import React from 'react'
 
-function OtherTab({ formData, setFormData, handleInputChange, handleSubmit }) {
-  return (
-    <div>
-      <div className="form-container">
+function OtherTab({ formData, setFormData, handleInputChange, handleButton, functionOptions }) {
+    let buttonText = 'Apply'
+
+    if (functionOptions === 0) {
+        buttonText = 'Next'
+    }
+    return (
+        <div>
+            <div className="form-container">
                 <div className="column-left">
                     <h5>ข้อมูลอ้างอิง</h5>
                     <div className='formfield'>
@@ -111,13 +116,13 @@ function OtherTab({ formData, setFormData, handleInputChange, handleSubmit }) {
                             onChange={(e) => handleInputChange(e)}
                         />
                     </div>
-                   
+
                 </div>
-                
+
             </div>
-            <button className='apply-button' onClick={handleSubmit} >Submit</button>
-    </div>
-  )
+            <button className='apply-button' onClick={handleButton} >{buttonText}</button>
+        </div>
+    )
 }
 
 export default OtherTab

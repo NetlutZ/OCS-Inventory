@@ -1,6 +1,11 @@
 import React from 'react'
 
-function TechnicalDetailsTab({ formData, setFormData, handleInputChange, handleSubmit }) {
+function TechnicalDetailsTab({ formData, setFormData, handleInputChange, handleButton, functionOptions }) {
+    let buttonText = 'Apply'
+
+    if(functionOptions===0){
+        buttonText = 'Next'
+    }
   return (
     <div>
       <div className="form-container">
@@ -142,7 +147,7 @@ function TechnicalDetailsTab({ formData, setFormData, handleInputChange, handleS
                     </div>
                 </div>
             </div>
-            <button className='apply-button' onClick={handleSubmit} >Submit</button>
+            <button className='apply-button' onClick={handleButton} >{buttonText}</button>
     </div>
   )
 }

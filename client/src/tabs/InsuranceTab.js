@@ -1,6 +1,11 @@
 import React from 'react'
 
-function InsuranceTab({ formData, setFormData, handleInputChange, handleSubmit }) {
+function InsuranceTab({ formData, setFormData, handleInputChange, handleButton, functionOptions, error  }) {
+    let buttonText = 'Apply'
+
+    if(functionOptions===0){
+        buttonText = 'Next'
+    }
   return (
     <div>
       <div className="form-container">
@@ -40,7 +45,7 @@ function InsuranceTab({ formData, setFormData, handleInputChange, handleSubmit }
                     <div className='formfield'>
                         <label htmlFor="policyExpirationDate">วันหมดอายุของกรรมธรรม์:</label>
                         <input className='device-data-input'
-                            type="text"
+                            type="date"
                             id="policyExpirationDate"
                             name="policyExpirationDate"
                             value={formData.policyExpirationDate}
@@ -56,6 +61,7 @@ function InsuranceTab({ formData, setFormData, handleInputChange, handleSubmit }
                             value={formData.policyAmount}
                             onChange={(e) => handleInputChange(e)}
                         />
+                        {error.policyAmount && <p style={{ color: 'red', fontSize:'0.8rem' }}>{error.policyAmount}</p>}
                     </div>
                     <div className='formfield'>
                         <label htmlFor="insuranceValue">มูลค่าการประกัน:</label>
@@ -66,6 +72,7 @@ function InsuranceTab({ formData, setFormData, handleInputChange, handleSubmit }
                             value={formData.insuranceValue}
                             onChange={(e) => handleInputChange(e)}
                         />
+                        {error.insuranceValue && <p style={{ color: 'red', fontSize:'0.8rem' }}>{error.insuranceValue}</p>}
                     </div>
                     <div className='formfield'>
                         <label htmlFor="replacementCost">ต้นทุนในการเปลี่ยน:</label>
@@ -76,11 +83,12 @@ function InsuranceTab({ formData, setFormData, handleInputChange, handleSubmit }
                             value={formData.replacementCost}
                             onChange={(e) => handleInputChange(e)}
                         />
+                        {error.replacementCost && <p style={{ color: 'red', fontSize:'0.8rem' }}>{error.replacementCost}</p>}
                     </div>
                     <div className='formfield'>
                         <label htmlFor="lastCostUpdate">การอัพเดตข้อมูลค่า_ต้นทุนเป็นครั้งคราวครั้งล่าสุด:</label>
                         <input className='device-data-input'
-                            type="text"
+                            type="date"
                             id="lastCostUpdate"
                             name="lastCostUpdate"
                             value={formData.lastCostUpdate}
@@ -90,7 +98,7 @@ function InsuranceTab({ formData, setFormData, handleInputChange, handleSubmit }
                     <div className='formfield'>
                         <label htmlFor="insuranceDate1">วันที่ประกัน1:</label>
                         <input className='device-data-input'
-                            type="text"
+                            type="date"
                             id="insuranceDate1"
                             name="insuranceDate1"
                             value={formData.insuranceDate1}
@@ -100,7 +108,7 @@ function InsuranceTab({ formData, setFormData, handleInputChange, handleSubmit }
                     <div className='formfield'>
                         <label htmlFor="insuranceDate2">วันที่ประกัน2:</label>
                         <input className='device-data-input'
-                            type="text"
+                            type="date"
                             id="insuranceDate2"
                             name="insuranceDate2"
                             value={formData.insuranceDate2}
@@ -121,7 +129,7 @@ function InsuranceTab({ formData, setFormData, handleInputChange, handleSubmit }
 
                 
             </div>
-            <button className='apply-button' onClick={handleSubmit} >Submit</button>
+            <button className='apply-button' onClick={handleButton} >{buttonText}</button>
     </div>
   )
 }
