@@ -111,7 +111,7 @@ function Inventory() {
     const handleInputChange = (event) => {
         const { name, value } = event.target;
         setFormData({ ...formData, [name]: value });
-        console.log(formData);
+        // console.log(formData);
     };
 
     const handleSubmit = async (event) => {
@@ -165,36 +165,83 @@ function Inventory() {
 
         setError(validationError);
         if (Object.keys(validationError).length === 0) {
-            console.log('Success');
-            try {
-                if (formData.id === undefined) {
-                    Swal.fire({
-                        title: "No Device Selected!",
-                        text: "Please select a device to update",
-                        icon: "error"
-                    }).then((result) => {
 
-                    });
-                }
-                else {
-                    const response = await axios.put(`${process.env.REACT_APP_API}/device/${formData.id}`, formData);
-                    Swal.fire({
-                        title: "Update Success!",
-                        text: "Your device has been updated",
-                        icon: "success"
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.reload(true); // Reload the page after user acknowledges the success message
-                        }
-                    });
-                }
+            if (formData.id === undefined) {
+                Swal.fire({
+                    title: "No Device Selected!",
+                    text: "Please select a device to update",
+                    icon: "error"
+                }).then((result) => {
 
-            } catch (error) {
-                console.error('Error submitting form:', error);
+                });
             }
-        }
+            else {
 
+                if (choice === 'Upload New Image') {
+                    try {
+                        const formDataNewImage = new FormData();
+                        formDataNewImage.append('image', img)
+                        console.log('New Form Data:', formDataNewImage.get('image'));
+                        for (const key in formData) {
+                            if (formData[key] !== null && formData[key] !== '') {
+                                formDataNewImage.append(key, formData[key])
+                            }
+                        }
+                        
+                        const response = await axios.put(`${process.env.REACT_APP_API}/device/${formData.id}`, formDataNewImage);
+                        Swal.fire({
+                            title: "Update Success!",
+                            text: "Your device has been updated",
+                            icon: "success"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload(true); // Reload the page after user acknowledges the success message
+                            }
+                        })
+                    } catch (error) {
+                        console.error('Error submitting form:', error);
+                    }
+                } else {
+                    for (const key in formData) {
+                        if (formData[key] === "") {
+                            formData[key] = null;
+                        }
+                    }
+                    try {
+                        const response = await axios.put(`${process.env.REACT_APP_API}/device/${formData.id}`, formData);
+                        Swal.fire({
+                            title: "Update Success!",
+                            text: "Your device has been updated",
+                            icon: "success"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload(true); // Reload the page after user acknowledges the success message
+                            }
+                        })
+
+
+                    } catch (error) {
+                        console.error('Error submitting form:', error);
+                    }
+                }
+            }
+
+        }
     };
+
+    const [choice, setChoice] = useState();
+    const choiceSelected = (event) => {
+        setChoice(event.target.value);
+    }
+
+    const [img, setImg] = useState();
+    const receiveImg = (event) => {
+        if (choice === 'Upload New Image') {
+            setImg(event)
+        } else {
+            formData.image = event;
+        }
+    }
 
     return (
         <div className='box'>
@@ -234,7 +281,7 @@ function Inventory() {
                     <OverviewTab formData={formData} setFormData={setFormData} setTab={setTab} />
                 </div>
                 <div className={`${tab === 1 ? 'device-content active-content' : 'device-content'}`}>
-                    <GeneralTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} error={error} />
+                    <GeneralTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} error={error} choiceSelected={choiceSelected} formDataNewImage={receiveImg} />
                 </div>
 
                 <div className={`${tab === 2 ? 'device-content active-content' : 'device-content'}`}>

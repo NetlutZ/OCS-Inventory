@@ -16,7 +16,16 @@ const storage = multer.diskStorage({
     }
 })  
 
-const upload = multer({ storage })
+const upload = multer({ 
+    storage: storage,
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype === 'image/png' || file.mimetype === 'image/jpeg'){
+            cb(null, true)
+        } else {
+            cb(new Error('Invalid Mime Type, only JPEG and PNG'), false)
+        }
+    }
+})
 
 // image in upload.single('image') is the name of the input in the form (key in postman)
 router.post('/', upload.single('image'), (req, res) => {

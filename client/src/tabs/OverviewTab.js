@@ -205,11 +205,11 @@ function OverviewTab({ formData, setFormData, setTab }) {
                 console.log(transformedData);
 
                 //for loop in transformedData and set "" to null
-                for (const key in transformedData) {
-                    if (transformedData[key] === "") {
-                        transformedData[key] = null;
-                    }
-                }
+                // for (const key in transformedData) {
+                //     if (transformedData[key] === "") {
+                //         transformedData[key] = null;
+                //     }
+                // }
 
                 // if (transformedData["lastScan"] === ""){
                 //     transformedData["lastScan"] = null;

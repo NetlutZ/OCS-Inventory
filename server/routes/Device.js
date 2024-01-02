@@ -68,7 +68,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', upload.single('image'), (req, res) => {
-    let imageData = req.file ? req.file.filename : null;
+    let imageData = req.file ? req.file.filename : req.body.image;
 
     Device.create({
         rfid: req.body.rfid,
@@ -77,7 +77,7 @@ router.post('/', upload.single('image'), (req, res) => {
         purchaseDate: req.body.purchaseDate,
         warrantyExpirationDate: req.body.warrantyExpirationDate,
         activityId: req.body.activityId,
-        image: req.body.image,
+        image: imageData,
         updatedAt: req.body.updatedAt,
         createdAt: req.body.createdAt,
         name: req.body.name,
@@ -153,7 +153,9 @@ router.post('/', upload.single('image'), (req, res) => {
     });
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', upload.single('image'), (req, res) => {
+    let imageData = req.file ? req.file.filename : req.body.image;
+    console.log(imageData);
     Device.update({
         rfid: req.body.rfid,
         rfidStatus: req.body.rfidStatus,
@@ -161,7 +163,7 @@ router.put('/:id', (req, res) => {
         purchaseDate: req.body.purchaseDate,
         warrantyExpirationDate: req.body.warrantyExpirationDate,
         activityId: req.body.activityId,
-        image: req.body.image,
+        image: imageData,
         updatedAt: req.body.updatedAt,
         createdAt: req.body.createdAt,
         name: req.body.name,
@@ -277,6 +279,15 @@ router.get('/activity/:id', (req, res) => {
 router.get('/image/:name', (req, res) => {
     // console.log(__dirname);
     res.sendFile(fileURLToPath(`file:///${__dirname}/../public/images/${req.params.name}`));
+});
+
+// get all image 
+router.get('/display/image', (req, res) => {
+    Device.findAll({
+        attributes: ['image']
+    }).then((result) => {
+        res.json(result);
+    });
 });
 
 router.get('/check/loss', (req, res) => {

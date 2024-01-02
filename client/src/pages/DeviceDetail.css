@@ -91,3 +91,41 @@
     float: right;
     margin-top: 1rem;
 }
+
+input:focus{
+    border: lightskyblue 1px solid;
+}
+
+.radio-container {
+    display: flex;
+    justify-content: center; /* Center items horizontally */
+  }
+  
+  .custom-radio {
+    display: flex;
+    align-items: center;
+    margin-right: 20px; /* Adjust spacing between radio buttons */
+  }
+  
+  .hidden-radio {
+    display: none;
+  }
+  
+  .radio-label {
+    display: inline-block;
+    position: relative;
+    padding: 10px 20px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .custom-radio:hover .radio-label {
+    background-color: #f0f0f0; /* Change background color on hover */
+  }
+  
+  .hidden-radio:checked + .radio-label {
+    background-color: #8fdbe6;
+    color: #000000;
+  }
+  

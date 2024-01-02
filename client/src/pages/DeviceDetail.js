@@ -117,7 +117,6 @@ function DeviceDetail() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const validationError = {};
-    console.log('Form Data:', formData);
 
     if (typeof (formData.quantity) === 'string') {
       if (!formData.quantity.trim()) {
@@ -165,27 +164,55 @@ function DeviceDetail() {
 
     setError(validationError);
     if (Object.keys(validationError).length === 0) {
-      for (const key in formData) {
-        if (formData[key] === "") {
-          formData[key] = null;
-        }
-    }
 
-      try {
-        const response = await axios.post(`${process.env.REACT_APP_API}/device`, formData);
-        Swal.fire({
-          title: "Add Device Success!",
-          text: "Your device has been added.",
-          icon: "success"
-        }).then((result) => {
-          if (result.isConfirmed) {
-            window.location.reload(true); // Reload the page after user acknowledges the success message
+      if (choice === 'Upload New Image') {
+        try {
+          const formDataNewImage = new FormData();
+          formDataNewImage.append('image', img)
+          console.log('New Form Data:', formDataNewImage.get('image'));
+          for (const key in formData) {
+            if (formData[key] !== null && formData[key] !== '') {
+              formDataNewImage.append(key, formData[key])
+            }
           }
-        });
 
-      } catch (error) {
-        console.error('Error submitting form:', error);
+          const response = await axios.post(`${process.env.REACT_APP_API}/device`, formDataNewImage);
+          Swal.fire({
+            title: "Add Device Success!",
+            text: "Your device has been added.",
+            icon: "success"
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.reload(true); // Reload the page after user acknowledges the success message
+            }
+          })
+        } catch (error) {
+          console.error('Error submitting form:', error);
+        }
+      } else {
+        for (const key in formData) {
+          if (formData[key] === "") {
+            formData[key] = null;
+          }
+        }
+
+        try {
+          const response = await axios.post(`${process.env.REACT_APP_API}/device`, formData);
+          Swal.fire({
+            title: "Add Device Success!",
+            text: "Your device has been added.",
+            icon: "success"
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.reload(true); // Reload the page after user acknowledges the success message
+            }
+          });
+
+        } catch (error) {
+          console.error('Error submitting form:', error);
+        }
       }
+
     }
 
   };
@@ -250,6 +277,20 @@ function DeviceDetail() {
 
   const [error, setError] = useState('');
 
+  const [choice, setChoice] = useState('')
+  const choiceSelected = (event) => {
+    setChoice(event.target.value);
+  }
+
+  const [img, setImg] = useState();
+  const receiveImg = (event) => {
+    if (choice === 'Upload New Image') {
+      setImg(event)
+    } else {
+      formData.image = event;
+    }
+  }
+
   return (
     <div className='box'>
 
@@ -282,7 +323,7 @@ function DeviceDetail() {
 
       <div className='device-contents'>
         <div className={`${tab === 1 ? 'device-content active-content' : 'device-content'}`}>
-          <GeneralTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} error={error} />
+          <GeneralTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} error={error} choiceSelected={choiceSelected} formDataNewImage={receiveImg} />
         </div>
 
         <div className={`${tab === 2 ? 'device-content active-content' : 'device-content'}`}>
