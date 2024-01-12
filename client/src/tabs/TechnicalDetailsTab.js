@@ -1,14 +1,40 @@
 import React from 'react'
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format } from "date-fns";
 
 function TechnicalDetailsTab({ formData, setFormData, handleInputChange, handleButton, functionOptions }) {
     let buttonText = 'Apply'
 
-    if(functionOptions===0){
+    if (functionOptions === 0) {
         buttonText = 'Next'
     }
-  return (
-    <div>
-      <div className="form-container">
+    const DateInput = ({ name, selected, handleInputChange }) => {
+        const handleChange = (date) => {
+            const formattedDate = date ? format(date, "yyyy-MM-dd") : null;
+          // Create a synthetic event object to maintain consistency with other inputs
+          const syntheticEvent = {
+            target: {
+              name: name,
+              value: formattedDate,
+            },
+          };
+          handleInputChange(syntheticEvent);
+        };
+      
+        return (
+          <DatePicker
+            selected={selected}
+            onChange={handleChange}
+            dateFormat="yyyy-MM-dd"
+            placeholderText="Select a date"
+          />
+        );
+      };
+
+    return (
+        <div>
+            <div className="form-container">
                 <div className="column-left">
                     <h5>โมเดล</h5>
                     <div className='formfield'>
@@ -74,6 +100,14 @@ function TechnicalDetailsTab({ formData, setFormData, handleInputChange, handleB
                             value={formData.lastMaintenanceDate}
                             onChange={(e) => handleInputChange(e)}
                         />
+                        {/* <DateInput
+                            className='device-data-input'
+                            name="lastMaintenanceDate"
+                            selected={formData.lastMaintenanceDate}
+                            handleInputChange={handleInputChange}
+                            dateFormat="yyyy-MM-dd" // Adjust the date format as needed
+                            placeholderText="Select a date"
+                        /> */}
                     </div>
                     <div className='formfield'>
                         <label htmlFor="nextMaintenanceDate">การบำรุงรักษาครั้งถัดไป:</label>
@@ -148,8 +182,8 @@ function TechnicalDetailsTab({ formData, setFormData, handleInputChange, handleB
                 </div>
             </div>
             <button className='apply-button' onClick={handleButton} >{buttonText}</button>
-    </div>
-  )
+        </div>
+    )
 }
 
 export default TechnicalDetailsTab
