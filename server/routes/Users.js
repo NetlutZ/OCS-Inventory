@@ -1,6 +1,8 @@
-const {Users} = require('../models');
+const { Users } = require('../models');
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 router.get('/', (req, res) => {
     Users.findAll().then((result) => {
@@ -8,21 +10,29 @@ router.get('/', (req, res) => {
     });
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
+    const hash = await bcrypt.hash(req.body.password, saltRounds);
+
     Users.create({
-        name: req.body.name,
         username: req.body.username,
-        email: req.body.email
-    }).then((result) => {
-        res.json(result);
-    });
+        password: hash,
+        name: req.body.name,
+        email: req.body.email,
+    })
+        .then((result) => {
+            res.send({ Register: true });
+        })
+        .catch((err) => {
+            res.send({ Register: false });
+        });
 });
 
 router.put('/:id', (req, res) => {
     Users.update({
         name: req.body.name,
         username: req.body.username,
-        email: req.body.email
+        email: req.body.email,
+        password: req.body.password
     }, {
         where: {
             id: req.params.id

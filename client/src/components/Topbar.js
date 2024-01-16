@@ -1,10 +1,45 @@
-import React from 'react';
+import { React, useState, useEffect, useRef } from 'react';
 import './Topbar.css';
 import { IoIosNotificationsOutline } from 'react-icons/io';
 import { FaRegUser } from 'react-icons/fa';
 import ocs from '../image/ocs kasetsart.png';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Topbar() {
+  const Menus = ["Profile", "Logout"]
+  const [openMenu, setOpenMenu] = useState(false);
+  const menuRef = useRef();
+  useEffect(() => {
+    const handler = (event) => {
+      if (!menuRef.current.contains(event.target)) {
+        setOpenMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+
+
+    return () => {
+      document.removeEventListener("mousedown", handler);
+    };
+  },);
+
+  const navigate = useNavigate()
+  const removeSession = () => {
+    // console.log("logout")
+    axios.get(`${process.env.REACT_APP_API}/logout`)
+      .then((res) => {
+        console.log(res)
+        if (res.data.Logout) {
+          navigate('/')
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
+
+
   return (
     <div className="TopbarContainer">
       <div className="Topbar">
@@ -15,12 +50,34 @@ function Topbar() {
           </div>
           <div className="rightIcons">
             <IoIosNotificationsOutline className="notificationIcon" />
-            <FaRegUser className="userIcon" />
+
+            <div ref={menuRef}>
+              <FaRegUser
+                className="userIcon"
+                onClick={() => setOpenMenu(!openMenu)}
+              />
+              <div className={`dropdown-user ${openMenu ? 'active' : 'inactive'}`}>
+                <ul>
+                  <Dropdown img="https://www.w3schools.com/howto/img_avatar.png" text="Profile" />
+                  <Dropdown img="https://www.w3schools.com/howto/img_avatar.png" text="Logout" onClick={() => removeSession()}/>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+function Dropdown(props) {
+  return (
+    <li className="dropdown-user-item" onClick={props.onClick}>
+      <img src={props.img}></img>
+      <a>{props.text}</a>
+
+    </li>
+  )
 }
 
 export default Topbar;

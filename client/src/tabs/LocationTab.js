@@ -1,6 +1,9 @@
 import React from 'react'
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format } from "date-fns";
 
-function LocationTab({ formData, setFormData, handleInputChange, handleButton, functionOptions }) {
+function LocationTab({ formData, setFormData, handleInputChange, handleButton, functionOptions, handleDateChange }) {
     let buttonText = 'Apply'
 
     if (functionOptions === 0) {
@@ -78,12 +81,15 @@ function LocationTab({ formData, setFormData, handleInputChange, handleButton, f
                     <h5>สินค้าคงคลัง</h5>
                     <div className='formfield'>
                         <label htmlFor="physicalInventory">สินค้าคงคลังทางกายภาพ:</label>
-                        <input className='device-data-input'
-                            type="text"
+                        <DatePicker
+                            className='device-data-input'
                             id="physicalInventory"
-                            name="physicalInventory"
-                            value={formData.physicalInventory}
-                            onChange={(e) => handleInputChange(e)}
+                            selected={formData.physicalInventory === null ? '' :new Date(formData.physicalInventory) }
+                            onChange={(date) => handleDateChange(date, 'physicalInventory')}
+                            dateFormat="dd-MM-yyyy"
+                            placeholderText="Select a date"
+                            showIcon
+                            toggleCalendarOnIconClick
                         />
                     </div>
                     <div className='formfield'>

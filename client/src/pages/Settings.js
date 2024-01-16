@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
+import Layout from './Layout';
 
 function Settings() {
   let navigate = useNavigate();
@@ -156,7 +157,7 @@ function Settings() {
   }
 
   return (
-    <div>
+    <Layout>
       <form onSubmit={handleSubmit} className="two-column-form">
         <div className="column">
           {/* Purchase Date */}
@@ -243,14 +244,14 @@ function Settings() {
       </div>
 
       <div>
-      <div>
-        <form onSubmit={handleSubmitImage}>
-          <input type="file" name="image" onChange={handleFileChange} />
-          <button type="submit">Submit</button>
-        </form>
+        <div>
+          <form onSubmit={handleSubmitImage}>
+            <input type="file" name="image" onChange={handleFileChange} />
+            <button type="submit">Submit</button>
+          </form>
+        </div>
       </div>
-      </div>
-    </div>
+    </Layout>
 
   );
 }

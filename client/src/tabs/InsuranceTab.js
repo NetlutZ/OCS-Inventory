@@ -1,6 +1,9 @@
 import React from 'react'
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format } from "date-fns";
 
-function InsuranceTab({ formData, setFormData, handleInputChange, handleButton, functionOptions, error  }) {
+function InsuranceTab({ formData, setFormData, handleInputChange, handleButton, functionOptions, error, handleDateChange  }) {
     let buttonText = 'Apply'
 
     if(functionOptions===0){
@@ -44,12 +47,15 @@ function InsuranceTab({ formData, setFormData, handleInputChange, handleButton, 
                     </div>
                     <div className='formfield'>
                         <label htmlFor="policyExpirationDate">วันหมดอายุของกรรมธรรม์:</label>
-                        <input className='device-data-input'
-                            type="date"
+                        <DatePicker
+                            className='device-data-input'
                             id="policyExpirationDate"
-                            name="policyExpirationDate"
-                            value={formData.policyExpirationDate}
-                            onChange={(e) => handleInputChange(e)}
+                            selected={formData.policyExpirationDate === null ? '' :new Date(formData.policyExpirationDate) }
+                            onChange={(date) => handleDateChange(date, 'policyExpirationDate')}
+                            dateFormat="dd-MM-yyyy"
+                            placeholderText="Select a date"
+                            showIcon
+                            toggleCalendarOnIconClick
                         />
                     </div>
                     <div className='formfield'>
@@ -87,32 +93,41 @@ function InsuranceTab({ formData, setFormData, handleInputChange, handleButton, 
                     </div>
                     <div className='formfield'>
                         <label htmlFor="lastCostUpdate">การอัพเดตข้อมูลค่า_ต้นทุนเป็นครั้งคราวครั้งล่าสุด:</label>
-                        <input className='device-data-input'
-                            type="date"
+                        <DatePicker
+                            className='device-data-input'
                             id="lastCostUpdate"
-                            name="lastCostUpdate"
-                            value={formData.lastCostUpdate}
-                            onChange={(e) => handleInputChange(e)}
+                            selected={formData.lastCostUpdate === null ? '' :new Date(formData.lastCostUpdate) }
+                            onChange={(date) => handleDateChange(date, 'lastCostUpdate')}
+                            dateFormat="dd-MM-yyyy"
+                            placeholderText="Select a date"
+                            showIcon
+                            toggleCalendarOnIconClick
                         />
                     </div>
                     <div className='formfield'>
                         <label htmlFor="insuranceDate1">วันที่ประกัน1:</label>
-                        <input className='device-data-input'
-                            type="date"
+                        <DatePicker
+                            className='device-data-input'
                             id="insuranceDate1"
-                            name="insuranceDate1"
-                            value={formData.insuranceDate1}
-                            onChange={(e) => handleInputChange(e)}
+                            selected={formData.insuranceDate1 === null ? '' :new Date(formData.insuranceDate1) }
+                            onChange={(date) => handleDateChange(date, 'insuranceDate1')}
+                            dateFormat="dd-MM-yyyy"
+                            placeholderText="Select a date"
+                            showIcon
+                            toggleCalendarOnIconClick
                         />
                     </div>
                     <div className='formfield'>
                         <label htmlFor="insuranceDate2">วันที่ประกัน2:</label>
-                        <input className='device-data-input'
-                            type="date"
+                        <DatePicker
+                            className='device-data-input'
                             id="insuranceDate2"
-                            name="insuranceDate2"
-                            value={formData.insuranceDate2}
-                            onChange={(e) => handleInputChange(e)}
+                            selected={formData.insuranceDate2 === null ? '' :new Date(formData.insuranceDate2) }
+                            onChange={(date) => handleDateChange(date, 'insuranceDate2')}
+                            dateFormat="dd-MM-yyyy"
+                            placeholderText="Select a date"
+                            showIcon
+                            toggleCalendarOnIconClick
                         />
                     </div>
                     <div className='formfield'>

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import "./Dashboard.css"
 import styled from '@emotion/styled';
-import axios from 'axios';
+import axios, { Axios } from 'axios';
 import DataTable from 'react-data-table-component';
 import { useNavigate } from 'react-router-dom';
+import Layout from './Layout';
 
 
 function Dashboard() {
@@ -25,9 +26,21 @@ function Dashboard() {
     }
     return text;
   };
-
+  axios.defaults.withCredentials = true
   useEffect(() => {
-    fecthData()
+    // fecthData()
+    axios.get(`${process.env.REACT_APP_API}`)
+      .then((res) => {
+        console.log(res)
+        if(res.data.loggedIn){
+          fecthData();
+        }else{
+          navigate('/')
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
   }, [])
 
   const fecthData = async () => {
@@ -225,6 +238,7 @@ function Dashboard() {
   }
 
   return (
+    <Layout>
     <div id='container'>
       <div className='status-sum'>
         <div className='status-sum-item' id='inStorage' onClick={() => sendSelectedStatus('InStorage')}>
@@ -252,6 +266,7 @@ function Dashboard() {
       />
 
     </div>
+    </Layout>
   );
 }
 

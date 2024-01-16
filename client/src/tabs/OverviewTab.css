@@ -1,4 +1,4 @@
-.option{
+.option {
     background-color: #F9FAFB;
     border-bottom: 1px solid #EAECF0;
 }
@@ -50,6 +50,7 @@ input:focus {
     border: 2px solid #EAECF0;
     margin-right: 10px;
 }
+
 .filterOption:hover,
 .addDevice:hover {
     background-color: #EAECF0;
@@ -66,7 +67,7 @@ input:focus {
     color: #53B1FD;
 }
 
-.filterOption{
+.filterOption {
     height: 2em;
     border-radius: 5px;
     background-color: white;
@@ -74,8 +75,8 @@ input:focus {
     margin: 10px;
 }
 
-  
-.filter-select{
+
+.filter-select {
     max-width: 300px;
     margin: 10px;
 }
@@ -89,18 +90,18 @@ input.inputBox {
     padding: 5px 8px 4px 8px;
     border-radius: 3px;
     border: 1px solid #666;
-  }
-  
-  .calendarWrap {
+}
+
+.calendarWrap {
     display: inline-block;
     position: relative;
-  }
-  
-  .calendarElement {
+}
+
+.calendarElement {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
     top: 40px;
     border: 1px solid #ccc;
     z-index: 999;
-  }
+}

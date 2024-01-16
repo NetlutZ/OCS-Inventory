@@ -211,39 +211,40 @@ function OverviewTab({ formData, setFormData, setTab }) {
                 //     }
                 // }
 
-                // if (transformedData["lastScan"] === ""){
-                //     transformedData["lastScan"] = null;
-                // }
-                // if(transformedData["purchaseDate"] === ""){
-                //     transformedData["purchaseDate"] = null;
-                // }
-                // if(transformedData["warrantyExpirationDate"] === ""){
-                //     transformedData["warrantyExpirationDate"] = null;
-                // }
-                // if(transformedData["activityId"] === ""){
-                //     transformedData["activityId"] = null;
-                // }
-                // if(transformedData["lastMaintenanceDate"] === ""){
-                //     transformedData["lastMaintenanceDate"] = null;
-                // }
-                // if(transformedData["nextMaintenanceDate"] === ""){
-                //     transformedData["nextMaintenanceDate"] = null;
-                // }
-                // if(transformedData["policyExpirationDate"] === ""){
-                //     transformedData["policyExpirationDate"] = null;
-                // }
-                // if(transformedData["lastCostUpdate"] === ""){
-                //     transformedData["lastCostUpdate"] = null;
-                // }
-                // if(transformedData["insuranceDate1"] === ""){
-                //     transformedData["insuranceDate1"] = null;
-                // }
-                // if(transformedData["insuranceDate2"] === ""){
-                //     transformedData["insuranceDate2"] = null;
-                // }
-                // if(transformedData["physicalInventory"] === ""){
-                //     transformedData["physicalInventory"] = null;
-                // }
+                // Fix show date when click device
+                if (transformedData["lastScan"] === ""){
+                    transformedData["lastScan"] = null;
+                }
+                if(transformedData["purchaseDate"] === ""){
+                    transformedData["purchaseDate"] = null;
+                }
+                if(transformedData["warrantyExpirationDate"] === ""){
+                    transformedData["warrantyExpirationDate"] = null;
+                }
+                if(transformedData["activityId"] === ""){
+                    transformedData["activityId"] = null;
+                }
+                if(transformedData["lastMaintenanceDate"] === ""){
+                    transformedData["lastMaintenanceDate"] = null;
+                }
+                if(transformedData["nextMaintenanceDate"] === ""){
+                    transformedData["nextMaintenanceDate"] = null;
+                }
+                if(transformedData["policyExpirationDate"] === ""){
+                    transformedData["policyExpirationDate"] = null;
+                }
+                if(transformedData["lastCostUpdate"] === ""){
+                    transformedData["lastCostUpdate"] = null;
+                }
+                if(transformedData["insuranceDate1"] === ""){
+                    transformedData["insuranceDate1"] = null;
+                }
+                if(transformedData["insuranceDate2"] === ""){
+                    transformedData["insuranceDate2"] = null;
+                }
+                if(transformedData["physicalInventory"] === ""){
+                    transformedData["physicalInventory"] = null;
+                }
                 // if(transformedData["quantity"] === ""){
                 //     transformedData["quantity"] = 0;
                 // }

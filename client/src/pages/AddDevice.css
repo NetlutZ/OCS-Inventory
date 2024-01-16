@@ -1,10 +1,136 @@
-.input-container {
-  margin-bottom: 15px;
+.tabs {
+  display: flex;
+  justify-content: space-between;
 }
 
-label {
+.tab {
+  background: #ccc;
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid grey;
+  border-top: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.active-tab {
+  border: none;
+  background: #fff;
+
+}
+
+.active-tab::after {
+  border-top: 2px solid gray;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  background: initial;
+}
+
+.device-contents {
+  position: relative;
+}
+
+.device-content {
+  display: none;
+  position: relative;
+}
+
+.active-content {
   display: block;
-  margin-bottom: 5px;
+  /* margin-left: 10px;
+  margin-right: 10px; */
+  transition: all 1s ease-in-out;
+}
+
+
+
+
+.form-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.column-left,
+.column-right {
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+
+
+.formfield {
+  display: table;
+  width: 100%;
+  padding-bottom: 5px;
+  padding-left: 20px;
+}
+
+.formfield label,
+.formfield .input-wrapper {
+  display: table-cell;
+  vertical-align: top;
+}
+
+.formfield label {
+  width: 150px;
+}
+
+.formfield .input-wrapper .table-form {
+  width: 100%;
+}
+
+.apply-button {
+  display: flex;
+  margin-left: auto;
+  margin-top: 1rem;
+}
+
+input:focus {
+  border: lightskyblue 1px solid;
+}
+
+.radio-container {
+  display: flex;
+  justify-content: center;
+  /* Center items horizontally */
+}
+
+.custom-radio {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  /* Adjust spacing between radio buttons */
+}
+
+.hidden-radio {
+  display: none;
+}
+
+.radio-label {
+  display: inline-block;
+  position: relative;
+  padding: 10px 20px;
+  border: 1px solid #000;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.custom-radio:hover .radio-label {
+  background-color: #f0f0f0;
+  /* Change background color on hover */
+}
+
+.hidden-radio:checked+.radio-label {
+  background-color: #8fdbe6;
+  color: #000000;
 }
 
 .device-data-input {
@@ -14,14 +140,4 @@ label {
   border-radius: 4px;
   font-size: 1rem;
   box-sizing: border-box;
-}
-
-.submit-add-device{
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
 }

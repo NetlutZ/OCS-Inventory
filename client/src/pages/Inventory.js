@@ -11,7 +11,9 @@ import OverviewTab from '../tabs/OverviewTab';
 import './DeviceDetail.css';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { set } from 'date-fns';
+import { set, format } from 'date-fns';
+import moment from 'moment';
+import Layout from './Layout';
 
 function Inventory() {
     const [formData, setFormData] = useState({
@@ -43,8 +45,8 @@ function Inventory() {
         modelYear: '',                    // ปีของรุ่น
         serialNumber: '',                 // หมายเลขลำดับประจำสินค้า
         technicalDetails: '',             // รายละเอียดทางเทคนิค
-        lastMaintenanceDate: '',          // การบำรุงรักษาครั้งล่าสุด
-        nextMaintenanceDate: '',          // การบำรุงรักษาครั้งถัดไป
+        lastMaintenanceDate: null,          // การบำรุงรักษาครั้งล่าสุด
+        nextMaintenanceDate: null,          // การบำรุงรักษาครั้งถัดไป
         brand: '',                        // ยี่ห้อ
         distributorAccount: '',           // บัญชีผู้จัดจำหน่าย
         sellerName: '',                   // ชื่อผู้ขาย
@@ -59,13 +61,13 @@ function Inventory() {
         insuranceCompany: '',             // บริษัทประกันภัย
         agent: '',                        // ตัวแทน
         policyNumber: '',                 // หมายเลขกรรมธรรม์
-        policyExpirationDate: '',         // วันหมดอายุของกรรมธรรม์
+        policyExpirationDate: null,         // วันหมดอายุของกรรมธรรม์
         policyAmount: 0,                 // ยอดเงินกรรมธรรม์
         insuranceValue: 0,               // มูลค่าการประกัน
         replacementCost: 0,              // ต้นทุนในการเปลี่ยน
-        lastCostUpdate: '',               // การอัพเดตข้อมูลค่า_ต้นทุนเป็นครั้งคราวครั้งล่าสุด
-        insuranceDate1: '',               // วันที่ประกัน1
-        insuranceDate2: '',               // วันที่ประกัน2
+        lastCostUpdate: null,               // การอัพเดตข้อมูลค่า_ต้นทุนเป็นครั้งคราวครั้งล่าสุด
+        insuranceDate1: null,               // วันที่ประกัน1
+        insuranceDate2: null,               // วันที่ประกัน2
         marketPriceInsurance: '',         // ประกันภัยที่ราคาตลาดที่เป็นธรรม
 
         GISReferenceNumber: '',           // หมายเลขอ้างอิงGIS
@@ -74,7 +76,7 @@ function Inventory() {
         storageLocation: '',              // สถานที่เก็บ
         roomNumber: '',                   // หมายเลขห้อง
         barcode: '',                      // บาร์โค้ด
-        physicalInventory: '',            // สินค้าคงคลังทางกายภาพ
+        physicalInventory: null,            // สินค้าคงคลังทางกายภาพ
         contactPerson: '',                // ผู้ติดต่อ
         rentalNotes: '',                  // หมายเหตุการเช่า
         rightsHolder: '',                 // ผู้ถือกรรมสิทธิ์
@@ -106,7 +108,15 @@ function Inventory() {
     const [error, setError] = useState({});
     const action = (index) => {
         setTab(index);
+        if (index === 0) {
+            window.location.reload(true);
+        }
     }
+
+    const handleDateChange = (date, name) => {
+        const formattedDate = moment(date).format('YYYY-MM-DD');
+        setFormData({ ...formData, [name]: new Date(formattedDate) });
+    };
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
@@ -187,7 +197,7 @@ function Inventory() {
                                 formDataNewImage.append(key, formData[key])
                             }
                         }
-                        
+
                         const response = await axios.put(`${process.env.REACT_APP_API}/device/${formData.id}`, formDataNewImage);
                         Swal.fire({
                             title: "Update Success!",
@@ -202,12 +212,13 @@ function Inventory() {
                         console.error('Error submitting form:', error);
                     }
                 } else {
-                    for (const key in formData) {
-                        if (formData[key] === "") {
-                            formData[key] = null;
-                        }
-                    }
+                    // for (const key in formData) {
+                    //     if (formData[key] === "") {
+                    //         formData[key] = null;
+                    //     }
+                    // }
                     try {
+                        formData.image = img;
                         const response = await axios.put(`${process.env.REACT_APP_API}/device/${formData.id}`, formData);
                         Swal.fire({
                             title: "Update Success!",
@@ -239,81 +250,84 @@ function Inventory() {
         if (choice === 'Upload New Image') {
             setImg(event)
         } else {
-            formData.image = event;
+            // formData.image = event;
+            setImg(event)
         }
     }
 
     return (
-        <div className='box'>
+        <Layout>
+            <div className='box'>
 
-            <div className='tabs'>
-                <div onClick={() => action(0)} className={`${tab === 0 ? 'tab active-tab' : 'tab'}`}>
-                    ภาพรวม
+                <div className='tabs'>
+                    <div onClick={() => action(0)} className={`${tab === 0 ? 'tab active-tab' : 'tab'}`}>
+                        ภาพรวม
+                    </div>
+                    <div onClick={() => action(1)} className={`${tab === 1 ? 'tab active-tab' : 'tab'}`}>
+                        ทั่วไป
+                    </div>
+                    <div onClick={() => action(2)} className={`${tab === 2 ? 'tab active-tab' : 'tab'}`}>
+                        รายละเอียดทางเทคนิค
+                    </div>
+                    <div onClick={() => action(3)} className={`${tab === 3 ? 'tab active-tab' : 'tab'}`}>
+                        โครงสร้าง
+                    </div>
+                    <div onClick={() => action(4)} className={`${tab === 4 ? 'tab active-tab' : 'tab'}`}>
+                        การประกัน
+                    </div>
+                    <div onClick={() => action(5)} className={`${tab === 5 ? 'tab active-tab' : 'tab'}`}>
+                        ที่ตั้ง
+                    </div>
+                    <div onClick={() => action(6)} className={`${tab === 6 ? 'tab active-tab' : 'tab'}`}>
+                        การเรียงลำดับ
+                    </div>
+                    <div onClick={() => action(7)} className={`${tab === 7 ? 'tab active-tab' : 'tab'}`}>
+                        อื่น ๆ
+                    </div>
+                    <div onClick={() => action(8)} className={`${tab === 8 ? 'tab active-tab' : 'tab'}`}>
+                        coding
+                    </div>
                 </div>
-                <div onClick={() => action(1)} className={`${tab === 1 ? 'tab active-tab' : 'tab'}`}>
-                    ทั่วไป
+
+                <div className='device-contents'>
+                    <div className={`${tab === 0 ? 'device-content active-content' : 'device-content'}`}>
+                        <OverviewTab formData={formData} setFormData={setFormData} setTab={setTab} />
+                    </div>
+                    <div className={`${tab === 1 ? 'device-content active-content' : 'device-content'}`}>
+                        <GeneralTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} error={error} choiceSelected={choiceSelected} formDataNewImage={receiveImg} />
+                    </div>
+
+                    <div className={`${tab === 2 ? 'device-content active-content' : 'device-content'}`}>
+                        <TechnicalDetailsTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} handleDateChange={handleDateChange} />
+                    </div>
+
+                    <div className={`${tab === 3 ? 'device-content active-content' : 'device-content'}`}>
+                        <StructureTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
+                    </div>
+
+                    <div className={`${tab === 4 ? 'device-content active-content' : 'device-content'}`}>
+                        <InsuranceTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} error={error} handleDateChange={handleDateChange} />
+                    </div>
+
+                    <div className={`${tab === 5 ? 'device-content active-content' : 'device-content'}`}>
+                        <LocationTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} handleDateChange={handleDateChange} />
+                    </div>
+
+                    <div className={`${tab === 6 ? 'device-content active-content' : 'device-content'}`}>
+                        <SortingTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
+                    </div>
+
+                    <div className={`${tab === 7 ? 'device-content active-content' : 'device-content'}`}>
+                        <OtherTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
+                    </div>
+
+                    <div className={`${tab === 8 ? 'device-content active-content' : 'device-content'}`}>
+                        <CodingTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
+                    </div>
                 </div>
-                <div onClick={() => action(2)} className={`${tab === 2 ? 'tab active-tab' : 'tab'}`}>
-                    รายละเอียดทางเทคนิค
-                </div>
-                <div onClick={() => action(3)} className={`${tab === 3 ? 'tab active-tab' : 'tab'}`}>
-                    โครงสร้าง
-                </div>
-                <div onClick={() => action(4)} className={`${tab === 4 ? 'tab active-tab' : 'tab'}`}>
-                    การประกัน
-                </div>
-                <div onClick={() => action(5)} className={`${tab === 5 ? 'tab active-tab' : 'tab'}`}>
-                    ที่ตั้ง
-                </div>
-                <div onClick={() => action(6)} className={`${tab === 6 ? 'tab active-tab' : 'tab'}`}>
-                    การเรียงลำดับ
-                </div>
-                <div onClick={() => action(7)} className={`${tab === 7 ? 'tab active-tab' : 'tab'}`}>
-                    อื่น ๆ
-                </div>
-                <div onClick={() => action(8)} className={`${tab === 8 ? 'tab active-tab' : 'tab'}`}>
-                    coding
-                </div>
+
             </div>
-
-            <div className='device-contents'>
-                <div className={`${tab === 0 ? 'device-content active-content' : 'device-content'}`}>
-                    <OverviewTab formData={formData} setFormData={setFormData} setTab={setTab} />
-                </div>
-                <div className={`${tab === 1 ? 'device-content active-content' : 'device-content'}`}>
-                    <GeneralTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} error={error} choiceSelected={choiceSelected} formDataNewImage={receiveImg} />
-                </div>
-
-                <div className={`${tab === 2 ? 'device-content active-content' : 'device-content'}`}>
-                    <TechnicalDetailsTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
-                </div>
-
-                <div className={`${tab === 3 ? 'device-content active-content' : 'device-content'}`}>
-                    <StructureTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
-                </div>
-
-                <div className={`${tab === 4 ? 'device-content active-content' : 'device-content'}`}>
-                    <InsuranceTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} error={error} />
-                </div>
-
-                <div className={`${tab === 5 ? 'device-content active-content' : 'device-content'}`}>
-                    <LocationTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
-                </div>
-
-                <div className={`${tab === 6 ? 'device-content active-content' : 'device-content'}`}>
-                    <SortingTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
-                </div>
-
-                <div className={`${tab === 7 ? 'device-content active-content' : 'device-content'}`}>
-                    <OtherTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
-                </div>
-
-                <div className={`${tab === 8 ? 'device-content active-content' : 'device-content'}`}>
-                    <CodingTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
-                </div>
-            </div>
-
-        </div>
+        </Layout>
     )
 }
 

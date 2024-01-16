@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import "./ActivityPopup.css"
 import axios from 'axios';
 import { set } from "date-fns";
+import { FcCancel } from "react-icons/fc";
+import { FcApproval } from "react-icons/fc";
 
 function ActivityPopup(props) {
     const toggleModal = () => {
@@ -78,6 +80,7 @@ function ActivityPopup(props) {
                                     <th>Image</th>
                                     <th>Name</th>
                                     <th>ID</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -86,6 +89,7 @@ function ActivityPopup(props) {
                                         <td style={{ width: '10%' }}>{<img src={`http://localhost:8080/device/image/${row.image}`} alt="Image" style={{ width: 'auto', height: '50px' }} />}</td>
                                         <td style={{ width: '10%' }}>{row.name}</td>
                                         <td style={{ width: '10%' }}>{row.id}</td>
+                                        <td style={{ width: '10%' }}>{row.rfidStatus === 'InStorage' ? <FcApproval /> : <FcCancel />}</td>
                                     </tr>
                                 ))}
                             </tbody>

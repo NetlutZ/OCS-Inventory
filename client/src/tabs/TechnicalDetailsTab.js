@@ -2,8 +2,9 @@ import React from 'react'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
+import moment from 'moment';
 
-function TechnicalDetailsTab({ formData, setFormData, handleInputChange, handleButton, functionOptions }) {
+function TechnicalDetailsTab({ formData, setFormData, handleInputChange, handleButton, functionOptions, handleDateChange }) {
     let buttonText = 'Apply'
 
     if (functionOptions === 0) {
@@ -12,25 +13,25 @@ function TechnicalDetailsTab({ formData, setFormData, handleInputChange, handleB
     const DateInput = ({ name, selected, handleInputChange }) => {
         const handleChange = (date) => {
             const formattedDate = date ? format(date, "yyyy-MM-dd") : null;
-          // Create a synthetic event object to maintain consistency with other inputs
-          const syntheticEvent = {
-            target: {
-              name: name,
-              value: formattedDate,
-            },
-          };
-          handleInputChange(syntheticEvent);
+            // Create a synthetic event object to maintain consistency with other inputs
+            const syntheticEvent = {
+                target: {
+                    name: name,
+                    value: formattedDate,
+                },
+            };
+            handleInputChange(syntheticEvent);
         };
-      
+
         return (
-          <DatePicker
-            selected={selected}
-            onChange={handleChange}
-            dateFormat="yyyy-MM-dd"
-            placeholderText="Select a date"
-          />
+            <DatePicker
+                selected={selected}
+                onChange={handleChange}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="Select a date"
+            />
         );
-      };
+    };
 
     return (
         <div>
@@ -93,30 +94,28 @@ function TechnicalDetailsTab({ formData, setFormData, handleInputChange, handleB
                     <h5>อัพเดต</h5>
                     <div className='formfield'>
                         <label htmlFor="lastMaintenanceDate">การบำรุงรักษาครั้งล่าสุด:</label>
-                        <input className='device-data-input'
-                            type="date"
-                            id="lastMaintenanceDate"
-                            name="lastMaintenanceDate"
-                            value={formData.lastMaintenanceDate}
-                            onChange={(e) => handleInputChange(e)}
-                        />
-                        {/* <DateInput
+                        <DatePicker
                             className='device-data-input'
-                            name="lastMaintenanceDate"
-                            selected={formData.lastMaintenanceDate}
-                            handleInputChange={handleInputChange}
-                            dateFormat="yyyy-MM-dd" // Adjust the date format as needed
+                            id="lastMaintenanceDate"
+                            selected={formData.lastMaintenanceDate === null ? '' :new Date(formData.lastMaintenanceDate) }
+                            onChange={(date) => handleDateChange(date, 'lastMaintenanceDate')}
+                            dateFormat="dd-MM-yyyy"
                             placeholderText="Select a date"
-                        /> */}
+                            showIcon
+                            toggleCalendarOnIconClick
+                        />
                     </div>
                     <div className='formfield'>
                         <label htmlFor="nextMaintenanceDate">การบำรุงรักษาครั้งถัดไป:</label>
-                        <input className='device-data-input'
-                            type="date"
+                        <DatePicker
+                            className='device-data-input'
                             id="nextMaintenanceDate"
-                            name="nextMaintenanceDate"
-                            value={formData.nextMaintenanceDate}
-                            onChange={(e) => handleInputChange(e)}
+                            selected={formData.nextMaintenanceDate === null ? '' :new Date(formData.nextMaintenanceDate) }
+                            onChange={(date) => handleDateChange(date, 'nextMaintenanceDate')}
+                            dateFormat="dd-MM-yyyy"
+                            placeholderText="Select a date"
+                            showIcon
+                            toggleCalendarOnIconClick
                         />
                     </div>
                     <div className='formfield'>

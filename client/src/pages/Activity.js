@@ -8,6 +8,7 @@ import ReactPaginate from 'react-paginate';
 import Select from 'react-select';
 import { addDays } from 'date-fns'
 import format from 'date-fns/format';
+import Layout from './Layout';
 
 function Activity(props) {
 
@@ -47,7 +48,7 @@ function Activity(props) {
 
   const fetchData = async () => {
     const params = {}
-    if (activityStDate.length>0 && activityEndDate.length>0) {
+    if (activityStDate.length > 0 && activityEndDate.length > 0) {
       params.activityDate = `${activityStDate} to ${activityEndDate}`;
     }
     try {
@@ -151,7 +152,7 @@ function Activity(props) {
 
 
   return (
-    <div>
+    <Layout>
       <div className='filter-range' style={{ margin: 30 }}><DateRangePickerComp parentCallback={setActivityTime} /></div>
 
       <div className='activity-list'>
@@ -207,7 +208,7 @@ function Activity(props) {
         >
         </ActivityPopup>
       </div>
-    </div>
+    </Layout>
   );
 }
 
@@ -219,6 +220,6 @@ export default Activity;
 
 // Problem
 // 1.
-// สมมติมี 3 activity แบ่ง pagination ละ activity จะมี 3 pagination. 
+// สมมติมี 3 activity แบ่ง pagination ละ activity จะมี 3 pagination.
 // เมื่อเลือก pagination ที่ 3 แล้วทำการ filter ให้เหลือแค่ 2 activity จะไม่มี activity แสดงเนื่องจากยังคงค้างอยู่ที่ pagination ที่ 3 (แต่ยังคงกดไปหน้าอื่น ๆ ได้)
 // => แก้โดยการ setPage(1); ตอนโหลดข้อมูลใหม่

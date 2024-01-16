@@ -13,19 +13,7 @@ import DeviceDetail from './pages/DeviceDetail';
 function App() {
   return (
     <div className="App">
-      <div>
-        <Topbar />
-      </div>
-      <div className="layout">
-        {/* <div className="sidebar">
-          <Sidebar />
-        </div> */}
-        <div className="content">
-          {/* Content for the right div goes here */}
           <Router>
-            <div className="sidebar">
-              <Sidebar />
-            </div>
             <div className="container-edit">
             <Routes>
               <Route path="/" exact element={<Home />} />
@@ -37,10 +25,7 @@ function App() {
               <Route path="/test" exact element={<DeviceDetail />} />
             </Routes>
             </div>
-
           </Router>
-        </div>
-      </div>
     </div>
   );
 
