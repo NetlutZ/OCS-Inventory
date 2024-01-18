@@ -61,8 +61,14 @@ module.exports = (sequelize, DataTypes) => {
         activityId: {
             type: DataTypes.INTEGER,
         },
+        userId:{
+            type: DataTypes.INTEGER,
+        },
         image: {
             type: DataTypes.STRING,
+        },
+        returnDate: {
+            type: DataTypes.DATE,
         },
 
 
@@ -286,6 +292,10 @@ module.exports = (sequelize, DataTypes) => {
     Device.associate = (models) => {
         Device.belongsTo(models.Activitys, {
             foreignKey: 'activityId',
+            onDelete: 'CASCADE',
+        });
+        Device.belongsTo(models.Users, {
+            foreignKey: 'userId',
             onDelete: 'CASCADE',
         });
     };

@@ -23,10 +23,17 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        expires: 1000 * 60 * 60,
+        expires: 1000 * 30,
         // expires: new Date(Date.now() + 10000),
     },
 }));
+
+app.get('/active-sessions', (req, res) => {
+    const activeSessions = req.sessionStore.sessions;
+  
+    // Now activeSessions is an object containing all active sessions
+    res.json(activeSessions);
+  });
 
 const apiDevice = require('./routes/Device');
 app.use('/device', apiDevice);

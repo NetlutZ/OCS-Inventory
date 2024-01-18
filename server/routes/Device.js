@@ -22,7 +22,7 @@ const upload = multer({ storage })
 
 router.get('/', (req, res) => {
 
-    const { name, location, rfidStatus, purchaseDate, warrantyExpirationDate, rfid } = req.query;
+    const { name, location, rfidStatus, purchaseDate, warrantyExpirationDate, rfid, userId } = req.query;
     const filters = {};
     if (name) {
         // filters.name = name.split(',').map(str => str.trim());
@@ -53,6 +53,9 @@ router.get('/', (req, res) => {
             [Op.between]: [startWarrantyExpirationDate, endWarrantyExpirationDate]
         }
     }
+    if (userId) {
+        filters.userId = userId;
+    }
 
     // console.log(filters)
     Device.findAll({
@@ -77,7 +80,9 @@ router.post('/', upload.single('image'), (req, res) => {
         purchaseDate: req.body.purchaseDate,
         warrantyExpirationDate: req.body.warrantyExpirationDate,
         activityId: req.body.activityId,
+        userId: req.body.userId,
         image: imageData,
+        returnDate: req.body.returnDate,
         updatedAt: req.body.updatedAt,
         createdAt: req.body.createdAt,
         name: req.body.name,
@@ -163,7 +168,9 @@ router.put('/:id', upload.single('image'), (req, res) => {
         purchaseDate: req.body.purchaseDate,
         warrantyExpirationDate: req.body.warrantyExpirationDate,
         activityId: req.body.activityId,
+        userId: req.body.userId,
         image: imageData,
+        returnDate: req.body.returnDate,
         updatedAt: req.body.updatedAt,
         createdAt: req.body.createdAt,
         name: req.body.name,

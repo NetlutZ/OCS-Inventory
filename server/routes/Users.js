@@ -27,6 +27,17 @@ router.post('/', async (req, res) => {
         });
 });
 
+router.get('/username/:username', (req, res) => {
+    Users.findOne({
+        where: {
+            username: req.params.username
+        }
+    }).then((result) => {
+        res.json(result);
+    });
+    
+});
+
 router.put('/:id', (req, res) => {
     Users.update({
         name: req.body.name,

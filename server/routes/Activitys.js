@@ -112,6 +112,36 @@ router.get('/lastest/loss', (req, res) => {
     });
 });
 
+router.get('/lastest/borrow', (req, res) => {
+    Activitys.findOne({
+        where: {
+            activityCode: {
+                [Op.like]: 'B%'
+            }
+        },
+        order: [
+            ['id', 'DESC']
+        ]
+    }).then((result) => {
+        res.json(result);
+    });
+});
+
+router.get('/lastest/return', (req, res) => {
+    Activitys.findOne({
+        where: {
+            activityCode: {
+                [Op.like]: 'R%'
+            }
+        },
+        order: [
+            ['id', 'DESC']
+        ]
+    }).then((result) => {
+        res.json(result);
+    });
+});
+
 // router.get('/', (req, res) => {
 //     const {stActivityDate, endActivityDate} = req.query;
 //     Activitys.findAll({
