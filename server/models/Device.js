@@ -70,6 +70,10 @@ module.exports = (sequelize, DataTypes) => {
         returnDate: {
             type: DataTypes.DATE,
         },
+        maxBorrowDays: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
 
 
     

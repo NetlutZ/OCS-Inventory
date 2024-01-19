@@ -96,6 +96,18 @@ router.get('/:id/user', (req, res) => {
     });
 });
 
+router.get('/user/:id', (req, res) => {
+    Activitys.findAll({
+        where: {
+            userId: req.params.id
+        },
+        include: [Users]
+    }).then((result) => {
+        res.json(result);
+    });
+    
+});
+
 // get lastest id that activityCode start with 'L'
 router.get('/lastest/loss', (req, res) => {
     Activitys.findOne({
