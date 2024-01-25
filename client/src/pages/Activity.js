@@ -9,6 +9,7 @@ import Select from 'react-select';
 import { addDays } from 'date-fns'
 import format from 'date-fns/format';
 import Layout from './Layout';
+import TablePagination from '@mui/material/TablePagination';
 
 function Activity(props) {
 
@@ -90,8 +91,6 @@ function Activity(props) {
           activityText: activityText,
         });
       }
-      setTotalPage(Math.ceil(updatedDynamicDataArray.length / itemPerPage));
-      setPage(1);
       // setDynamicDataArray(updatedDynamicDataArray);
       const sorted = [...updatedDynamicDataArray].sort((a, b) => {
         const dateA = new Date(`${a.activityDate.substring(0, 10)}T${a.activityTime}`);
@@ -128,28 +127,16 @@ function Activity(props) {
 
   }
 
-  const [page, setPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(0);
-  const selectPageHandler = (selectedPage) => {
-    if (selectedPage >= 1 && selectedPage <= totalPage && selectedPage !== page) {
-      setPage(selectedPage)
-    }
-  }
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
-  const [itemPerPage, setItemPerPage] = useState(1);
-  const selectItemPerPageHandler = (selectedItemPerPage) => {
-    // if (selectedItemPerPage >= 1 && selectedItemPerPage <= totalPage && selectedItemPerPage !== itemPerPage) {
-    setItemPerPage(selectedItemPerPage)
-    setTotalPage(Math.ceil(dynamicDataArray.length / selectedItemPerPage));
-    // }
-  }
-
-  const itemPerPageOption = [
-    { value: 1, label: '1' },
-    { value: 10, label: '10' },
-    { value: 20, label: '20' },
-  ]
-
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   return (
     <Layout>
@@ -157,7 +144,7 @@ function Activity(props) {
 
       <div className='activity-list'>
         {dynamicDataArray &&
-          dynamicDataArray.slice(page * itemPerPage - itemPerPage, page * itemPerPage).map((dynamicData, index) => (
+          dynamicDataArray.slice((page+1) * rowsPerPage - rowsPerPage, (page+1) * rowsPerPage).map((dynamicData, index) => (
             <div key={index} className={`activity-item border-${dynamicData.activityCode.charAt(0)}`} onClick={() => handleActivityClick(dynamicData)}>
               <div style={{ borderRight: '2px solid #D0D5DD', margin: 4, padding: 10 }}>
                 <h2 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, marginBottom: 5 }}>{changeDateFormat(dynamicData.activityDate)}</h2>
@@ -172,28 +159,23 @@ function Activity(props) {
             </div>
           ))}
       </div>
-      <div className='pagination'>
-        <Select
-          className='pagination-select'
-          defaultValue={itemPerPageOption[0]}
-          options={itemPerPageOption}
-          onChange={(e) => selectItemPerPageHandler(e.value)}
-        />
-        <span onClick={() => selectPageHandler(page - 1)} className={page > 1 ? "" : "pagination__disable"}>◀</span>
-        {
-          [...Array(totalPage)].map((_, i) => {
-            return <span
-              className={page === i + 1 ? 'pagination__selected' : 'pagination-item'}
-              key={i}
-              onClick={() => selectPageHandler(i + 1)}
-            >
-              {i + 1}
-            </span>
-          })
-        }
-        <span onClick={() => selectPageHandler(page + 1)} className={page < totalPage ? "" : "pagination__disable"}>▶</span>
-      </div>
 
+      <TablePagination
+      style={{display:"flex" , justifyContent:"center"}}
+        count={dynamicDataArray.length}
+        page={page}
+        onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPageOptions={[5, 10, 20, 30]}
+        showFirstButton={true}
+        showLastButton={true}
+        sx={{
+          '& .MuiInputBase-root, & .MuiTablePagination-actions': {
+            marginBottom: '13px', // For center rowPerPage and changePageButton
+          }
+        }}
+      />
       <div>
         <ActivityPopup
           trigger={modal}

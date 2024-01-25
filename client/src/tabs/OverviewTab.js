@@ -224,6 +224,12 @@ function OverviewTab({ formData, setFormData, setTab }) {
                 if(transformedData["activityId"] === ""){
                     transformedData["activityId"] = null;
                 }
+                if(transformedData["userId"] === ""){
+                    transformedData["userId"] = null;
+                }
+                if(transformedData["returnDate"] === ""){
+                    transformedData["returnDate"] = null;
+                }
                 if(transformedData["lastMaintenanceDate"] === ""){
                     transformedData["lastMaintenanceDate"] = null;
                 }

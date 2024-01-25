@@ -23,7 +23,10 @@ function Inventory() {
         purchaseDate: null,                 // วันที่ซื้อ
         warrantyExpirationDate: null,       // วันหมดอายุการรับประกัน
         activityId: null,                   // กิจกรรม
+        userId: null,                       // ผู้ใช้
         image: '',                        // รูปภาพ
+        returnDate: null,                   // วันที่คืน
+        maxBorrowDays: 0,                 // วันที่ยืมสูงสุด
         updatedAt: '',                    // อัพเดตเมื่อ
         createdAt: '',                    // สร้างเมื่อ
 
@@ -109,7 +112,7 @@ function Inventory() {
     const action = (index) => {
         setTab(index);
         if (index === 0) {
-            window.location.reload(true);
+            // window.location.reload(true);
         }
     }
 

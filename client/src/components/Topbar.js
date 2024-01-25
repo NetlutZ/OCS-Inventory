@@ -5,6 +5,8 @@ import { FaRegUser } from 'react-icons/fa';
 import ocs from '../image/ocs kasetsart.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Badge from '@mui/material/Badge';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 
 function Topbar() {
   const Menus = ["Profile", "Logout"]
@@ -49,7 +51,10 @@ function Topbar() {
             <span className="brandName">OCS INVENTORY</span>
           </div>
           <div className="rightIcons">
-            <IoIosNotificationsOutline className="notificationIcon" />
+            {/* <IoIosNotificationsOutline className="notificationIcon" /> */}
+            <Badge badgeContent={100} max={99} color="error" sx={{marginRight:"1rem"}}>
+              <NotificationsNoneIcon  />
+            </Badge>
 
             <div ref={menuRef}>
               <FaRegUser
@@ -59,7 +64,7 @@ function Topbar() {
               <div className={`dropdown-user ${openMenu ? 'active' : 'inactive'}`}>
                 <ul>
                   <Dropdown img="https://www.w3schools.com/howto/img_avatar.png" text="Profile" />
-                  <Dropdown img="https://www.w3schools.com/howto/img_avatar.png" text="Logout" onClick={() => removeSession()}/>
+                  <Dropdown img="https://www.w3schools.com/howto/img_avatar.png" text="Logout" onClick={() => removeSession()} />
                 </ul>
               </div>
             </div>
