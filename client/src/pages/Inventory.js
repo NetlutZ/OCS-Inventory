@@ -113,6 +113,7 @@ function Inventory() {
         setTab(index);
         if (index === 0) {
             // window.location.reload(true);
+            setOpenTab(false);
         }
     }
 
@@ -258,43 +259,50 @@ function Inventory() {
         }
     }
 
+    const [openTab, setOpenTab] = useState(false);
+
     return (
         <Layout>
             <div className='box'>
-
-                <div className='tabs'>
-                    <div onClick={() => action(0)} className={`${tab === 0 ? 'tab active-tab' : 'tab'}`}>
-                        ภาพรวม
-                    </div>
-                    <div onClick={() => action(1)} className={`${tab === 1 ? 'tab active-tab' : 'tab'}`}>
-                        ทั่วไป
-                    </div>
-                    <div onClick={() => action(2)} className={`${tab === 2 ? 'tab active-tab' : 'tab'}`}>
-                        รายละเอียดทางเทคนิค
-                    </div>
-                    <div onClick={() => action(3)} className={`${tab === 3 ? 'tab active-tab' : 'tab'}`}>
-                        โครงสร้าง
-                    </div>
-                    <div onClick={() => action(4)} className={`${tab === 4 ? 'tab active-tab' : 'tab'}`}>
-                        การประกัน
-                    </div>
-                    <div onClick={() => action(5)} className={`${tab === 5 ? 'tab active-tab' : 'tab'}`}>
-                        ที่ตั้ง
-                    </div>
-                    <div onClick={() => action(6)} className={`${tab === 6 ? 'tab active-tab' : 'tab'}`}>
-                        การเรียงลำดับ
-                    </div>
-                    <div onClick={() => action(7)} className={`${tab === 7 ? 'tab active-tab' : 'tab'}`}>
-                        อื่น ๆ
-                    </div>
-                    <div onClick={() => action(8)} className={`${tab === 8 ? 'tab active-tab' : 'tab'}`}>
-                        coding
-                    </div>
+                <div>
+                    {openTab ? (
+                        <div className='tabs'>
+                            <div onClick={() => action(0)} className={`${tab === 0 ? 'tab active-tab' : 'tab'}`}>
+                                ภาพรวม
+                            </div>
+                            <div onClick={() => action(1)} className={`${tab === 1 ? 'tab active-tab' : 'tab'}`}>
+                                ทั่วไป
+                            </div>
+                            <div onClick={() => action(2)} className={`${tab === 2 ? 'tab active-tab' : 'tab'}`}>
+                                รายละเอียดทางเทคนิค
+                            </div>
+                            <div onClick={() => action(3)} className={`${tab === 3 ? 'tab active-tab' : 'tab'}`}>
+                                โครงสร้าง
+                            </div>
+                            <div onClick={() => action(4)} className={`${tab === 4 ? 'tab active-tab' : 'tab'}`}>
+                                การประกัน
+                            </div>
+                            <div onClick={() => action(5)} className={`${tab === 5 ? 'tab active-tab' : 'tab'}`}>
+                                ที่ตั้ง
+                            </div>
+                            <div onClick={() => action(6)} className={`${tab === 6 ? 'tab active-tab' : 'tab'}`}>
+                                การเรียงลำดับ
+                            </div>
+                            <div onClick={() => action(7)} className={`${tab === 7 ? 'tab active-tab' : 'tab'}`}>
+                                อื่น ๆ
+                            </div>
+                            <div onClick={() => action(8)} className={`${tab === 8 ? 'tab active-tab' : 'tab'}`}>
+                                coding
+                            </div>
+                        </div>
+                    ) : (
+                        <div></div>
+                    )}
                 </div>
 
                 <div className='device-contents'>
                     <div className={`${tab === 0 ? 'device-content active-content' : 'device-content'}`}>
-                        <OverviewTab formData={formData} setFormData={setFormData} setTab={setTab} />
+                        <OverviewTab formData={formData} setFormData={setFormData} setTab={setTab} setOpenTab={setOpenTab}/>
                     </div>
                     <div className={`${tab === 1 ? 'device-content active-content' : 'device-content'}`}>
                         <GeneralTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} error={error} choiceSelected={choiceSelected} formDataNewImage={receiveImg} />

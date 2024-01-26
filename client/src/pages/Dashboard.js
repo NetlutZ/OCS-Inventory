@@ -5,15 +5,18 @@ import axios, { Axios } from 'axios';
 import DataTable from 'react-data-table-component';
 import { useNavigate } from 'react-router-dom';
 import Layout from './Layout';
+import * as ConstanceStrings from '../ConstanceString';
 
 
 function Dashboard() {
+  axios.defaults.withCredentials = true;
   const [allDevice, setAllDevice] = useState([]);
   const [overallStatusCount, setOverallStatusCount] = useState({
     InStorage: 0,
     Loss: 0,
     Borrowed: 0
   });
+  const [userRole, setUserRole] = useState(null);
 
   const limitText = (text, limit) => {
     if (text.length > limit) {
@@ -26,32 +29,40 @@ function Dashboard() {
     }
     return text;
   };
-  axios.defaults.withCredentials = true
   useEffect(() => {
-    // fecthData()
     axios.get(`${process.env.REACT_APP_API}`)
       .then((res) => {
-        console.log(res)
-        if(res.data.loggedIn){
-          fecthData();
-        }else{
+        if (res.data.loggedIn) {
+          setUserRole(res.data.role);
+        } else {
           navigate('/')
         }
       })
       .catch((err) => {
         console.log(err)
-      })
-  }, [])
+      });
+  }, []);
+
+  useEffect(() => {
+    fecthData();
+  }, [userRole]);
 
   const fecthData = async () => {
+    const params = {}
+    if (userRole === ConstanceStrings.USER) {
+      params.rfidStatus = "InStorage"
+    }
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API}/device`);
-      const fetchedData = response.data;
+      if (userRole !== null) {
 
-      setAllDevice(fetchedData);
+        const response = await axios.get(`${process.env.REACT_APP_API}/device`, { params });
+        const fetchedData = response.data;
 
-      const counts = calculateOverallStatusCount(groupByName(fetchedData));
-      setOverallStatusCount(counts);
+        setAllDevice(fetchedData);
+
+        const counts = calculateOverallStatusCount(groupByName(fetchedData));
+        setOverallStatusCount(counts);
+      }
     } catch (error) {
       console.error("Error fetching data: ", error);
     }
@@ -163,6 +174,10 @@ function Dashboard() {
     }
   ];
 
+  if (userRole === ConstanceStrings.USER) {
+    columns.splice(3);
+  }
+
   const getStatusCounts = (statusArray) => {
     const counts = {
       InStorage: 0,
@@ -233,39 +248,43 @@ function Dashboard() {
   };
 
   const sendSelectedName = (row) => {
-    localStorage.setItem('selectedName',JSON.stringify([{value: row.name, label: row.name}]));
+    localStorage.setItem('selectedName', JSON.stringify([{ value: row.name, label: row.name }]));
     navigate('/Inventory');
   }
 
   return (
     <Layout>
-    <div id='container'>
-      <div className='status-sum'>
-        <div className='status-sum-item' id='inStorage' onClick={() => sendSelectedStatus('InStorage')}>
-          <div className='status-sum-text'>In Storage</div>
-          <div className='status-sum-number'>{overallStatusCount.InStorage}</div>
+      <div id='container'>
+        <div className='status-sum'>
+          <div className='status-sum-item' id='inStorage' onClick={() => sendSelectedStatus('InStorage')}>
+            <div className='status-sum-text'>In Storage</div>
+            <div className='status-sum-number'>{overallStatusCount.InStorage}</div>
+          </div>
+          {userRole === ConstanceStrings.ADMIN ?
+            <>
+              <div className='status-sum-item' id='borrowed' onClick={() => sendSelectedStatus('Borrowed')}>
+                <div className='status-sum-text'>Borrowed</div>
+                <div className='status-sum-number'>{overallStatusCount.Borrowed}</div>
+              </div>
+              <div className='status-sum-item' id='loss' onClick={() => sendSelectedStatus('Loss')}>
+                <div className='status-sum-text'>Loss</div>
+                <div className='status-sum-number'>{overallStatusCount.Loss}</div>
+              </div>
+            </> : <></>}
+
         </div>
-        <div className='status-sum-item' id='borrowed' onClick={() => sendSelectedStatus('Borrowed')}>
-          <div className='status-sum-text'>Borrowed</div>
-          <div className='status-sum-number'>{overallStatusCount.Borrowed}</div>
-        </div>
-        <div className='status-sum-item' id='loss' onClick={() => sendSelectedStatus('Loss')}>
-          <div className='status-sum-text'>Loss</div>
-          <div className='status-sum-number'>{overallStatusCount.Loss}</div>
-        </div>
+
+        <DataTable
+          columns={columns}
+          data={formattedData}
+          pagination
+          highlightOnHover
+          customStyles={customStyles}
+          onRowClicked={sendSelectedName}
+          pointerOnHover
+        />
+
       </div>
-
-      <DataTable
-        columns={columns}
-        data={formattedData}
-        pagination
-        highlightOnHover
-        customStyles={customStyles}
-        onRowClicked={sendSelectedName}
-        pointerOnHover
-      />
-
-    </div>
     </Layout>
   );
 }

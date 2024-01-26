@@ -19,9 +19,10 @@ import InventoryPopup from '../components/InventoryPopup';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { set } from 'date-fns';
 
+import * as ConstanceStrings from '../ConstanceString';
 
-
-function OverviewTab({ formData, setFormData, setTab }) {
+function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
+    axios.defaults.withCredentials = true
     const [value, setValue] = useState(null);
     const [inventoryData, setInventoryData] = useState([]);
     const [filterInventoryData, setFilterInventoryData] = useState([]);
@@ -38,6 +39,8 @@ function OverviewTab({ formData, setFormData, setTab }) {
     const [isFilter, setIsFilter] = useState(false);
     const [modal, setModal] = useState(false);
     const [deviceIdSelected, setDeviceIdSelected] = useState(null);
+    const [userRole, setUserRole] = useState(null);
+    const [deviceClicked, setDeviceClicked] = useState(false);
 
     const defaultStatus = JSON.parse(localStorage.getItem('selectedStatus'));
     const defaultName = JSON.parse(localStorage.getItem('selectedName'));
@@ -45,9 +48,18 @@ function OverviewTab({ formData, setFormData, setTab }) {
 
 
     useEffect(() => {
-        fetchInventoryData();
+        axios.get(`${process.env.REACT_APP_API}`)
+            .then((res) => {
+                setUserRole(res.data.role);
+            })
+            .catch((err) => {
+                console.log(err)
+            });
     }, []);
 
+    useEffect(() => {
+        fetchInventoryData();
+    }, [userRole]);
 
     useEffect(() => {
         const storedStatusState = localStorage.getItem('selectedStatus');
@@ -70,42 +82,48 @@ function OverviewTab({ formData, setFormData, setTab }) {
     }, [purchaseStDate, purchaseEndDate, warrantyExpStDate, warrantyExpEndDate, isFilter, selectedNameOptions, selectedStatusOptions, selectedLocationOptions]);
 
     const fetchInventoryData = () => {
-        axios.get(`${process.env.REACT_APP_API}/device`)
-            .then(response => {
-                setInventoryData(response.data);
-                setFilterInventoryData(response.data);
+        const params = {}
+        if (userRole === ConstanceStrings.USER) {
+            params.rfidStatus = "InStorage"
+        }
+        if (userRole !== null) {
+            axios.get(`${process.env.REACT_APP_API}/device`, { params })
+                .then(response => {
+                    setInventoryData(response.data);
+                    setFilterInventoryData(response.data);
 
-                // Extract unique status options from inventoryData
-                const statusOptions = [...new Set(response.data.map(item => item.rfidStatus))];
-                const nameOptions = [...new Set(response.data.map(item => item.name))];
-                const locationOptions = [...new Set(response.data.map(item => item.location))];
+                    // Extract unique status options from inventoryData
+                    const statusOptions = [...new Set(response.data.map(item => item.rfidStatus))];
+                    const nameOptions = [...new Set(response.data.map(item => item.name))];
+                    const locationOptions = [...new Set(response.data.map(item => item.location))];
 
-                // Map statusOptions to the format required by Select component
-                const formattedStatusOptions = statusOptions.map(option => ({
-                    value: option,
-                    label: option,
-                }));
-                const formattedNameOptions = nameOptions.map(option => ({
-                    value: option,
-                    label: option,
-                }));
-                const formattedLocationOptions = locationOptions.map(option => ({
-                    value: option,
-                    label: option,
-                }));
+                    // Map statusOptions to the format required by Select component
+                    const formattedStatusOptions = statusOptions.map(option => ({
+                        value: option,
+                        label: option,
+                    }));
+                    const formattedNameOptions = nameOptions.map(option => ({
+                        value: option,
+                        label: option,
+                    }));
+                    const formattedLocationOptions = locationOptions.map(option => ({
+                        value: option,
+                        label: option,
+                    }));
 
-                setStatusOptions(formattedStatusOptions);
-                setNameOptions(formattedNameOptions)
-                setLocationOptions(formattedLocationOptions);
-            })
-            .catch(error => {
-                console.error('Error fetching inventory data:', error);
-            });
+                    setStatusOptions(formattedStatusOptions);
+                    setNameOptions(formattedNameOptions)
+                    setLocationOptions(formattedLocationOptions);
+                })
+                .catch(error => {
+                    console.error('Error fetching inventory data:', error);
+                });
+        }
     };
 
     const filterInventory = () => {
         // console.log(statusOptions)
-        const params = {
+        let params = {
             name: selectedNameOptions.map(item => item.value),
             rfidStatus: selectedStatusOptions.map(item => item.value),
             location: selectedLocationOptions.map(item => item.value),
@@ -119,11 +137,16 @@ function OverviewTab({ formData, setFormData, setTab }) {
         }
         // console.log(params)
 
-        axios.get(`${process.env.REACT_APP_API}/device`, { params }).then(result => {
-            setFilterInventoryData(result.data)
-        }).catch(error => {
-            console.error('Error fetching inventory data:', error);
-        });
+        if (userRole === ConstanceStrings.USER) {
+            params.rfidStatus = "InStorage"
+        }
+        if (userRole !== null) {
+            axios.get(`${process.env.REACT_APP_API}/device`, { params }).then(result => {
+                setFilterInventoryData(result.data)
+            }).catch(error => {
+                console.error('Error fetching inventory data:', error);
+            });
+        }
     }
 
     const setPurchaseFilter = (stDate, endDate, isFilter) => {
@@ -193,6 +216,8 @@ function OverviewTab({ formData, setFormData, setTab }) {
     };
 
     const handleRowClick = (row) => {
+        setDeviceClicked(true);
+        setOpenTab(true);
         console.log('Clicked row:', row);
         // setModal(true);
         // setDeviceIdSelected(row.id);
@@ -212,43 +237,43 @@ function OverviewTab({ formData, setFormData, setTab }) {
                 // }
 
                 // Fix show date when click device
-                if (transformedData["lastScan"] === ""){
+                if (transformedData["lastScan"] === "") {
                     transformedData["lastScan"] = null;
                 }
-                if(transformedData["purchaseDate"] === ""){
+                if (transformedData["purchaseDate"] === "") {
                     transformedData["purchaseDate"] = null;
                 }
-                if(transformedData["warrantyExpirationDate"] === ""){
+                if (transformedData["warrantyExpirationDate"] === "") {
                     transformedData["warrantyExpirationDate"] = null;
                 }
-                if(transformedData["activityId"] === ""){
+                if (transformedData["activityId"] === "") {
                     transformedData["activityId"] = null;
                 }
-                if(transformedData["userId"] === ""){
+                if (transformedData["userId"] === "") {
                     transformedData["userId"] = null;
                 }
-                if(transformedData["returnDate"] === ""){
+                if (transformedData["returnDate"] === "") {
                     transformedData["returnDate"] = null;
                 }
-                if(transformedData["lastMaintenanceDate"] === ""){
+                if (transformedData["lastMaintenanceDate"] === "") {
                     transformedData["lastMaintenanceDate"] = null;
                 }
-                if(transformedData["nextMaintenanceDate"] === ""){
+                if (transformedData["nextMaintenanceDate"] === "") {
                     transformedData["nextMaintenanceDate"] = null;
                 }
-                if(transformedData["policyExpirationDate"] === ""){
+                if (transformedData["policyExpirationDate"] === "") {
                     transformedData["policyExpirationDate"] = null;
                 }
-                if(transformedData["lastCostUpdate"] === ""){
+                if (transformedData["lastCostUpdate"] === "") {
                     transformedData["lastCostUpdate"] = null;
                 }
-                if(transformedData["insuranceDate1"] === ""){
+                if (transformedData["insuranceDate1"] === "") {
                     transformedData["insuranceDate1"] = null;
                 }
-                if(transformedData["insuranceDate2"] === ""){
+                if (transformedData["insuranceDate2"] === "") {
                     transformedData["insuranceDate2"] = null;
                 }
-                if(transformedData["physicalInventory"] === ""){
+                if (transformedData["physicalInventory"] === "") {
                     transformedData["physicalInventory"] = null;
                 }
                 // if(transformedData["quantity"] === ""){
@@ -263,7 +288,7 @@ function OverviewTab({ formData, setFormData, setTab }) {
                 // if(transformedData["replacementCost"] === ""){
                 //     transformedData["replacementCost"] = 0;
                 // }
-                
+
 
                 setFormData(transformedData);
 
@@ -289,8 +314,8 @@ function OverviewTab({ formData, setFormData, setTab }) {
     };
 
     const limitText = (text, limit) => {
-        if(!text) return text;
-        
+        if (!text) return text;
+
         if (text.length > limit) {
             const chunks = [];
             while (text.length > 0) {
@@ -304,9 +329,9 @@ function OverviewTab({ formData, setFormData, setTab }) {
 
     const changeDateFormat = (dateString) => {
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        if(!dateString){
+        if (!dateString) {
             return dateString;
-        } 
+        }
         const [year, month, day] = dateString.split('-');
         const monthIndex = parseInt(month, 10) - 1;
         const formattedDate = `${parseInt(day, 10)} ${months[monthIndex]} ${year}`;
@@ -336,6 +361,12 @@ function OverviewTab({ formData, setFormData, setTab }) {
             sortable: true,
         },
         {
+            name: 'Location',
+            selector: (row) => row.location,
+            sortable: true,
+
+        },
+        {
             name: 'RFID',
             selector: (row) => row.rfid,
             sortable: true,
@@ -349,12 +380,6 @@ function OverviewTab({ formData, setFormData, setTab }) {
             name: 'Warranty Expire',
             selector: (row) => changeDateFormat(row.warrantyExpirationDate),
             sortable: true,
-        },
-        {
-            name: 'Location',
-            selector: (row) => row.location,
-            sortable: true,
-
         },
         {
             name: 'Serial Number',
@@ -372,6 +397,11 @@ function OverviewTab({ formData, setFormData, setTab }) {
             ),
         },
     ];
+
+    if (userRole === ConstanceStrings.USER) {
+        // keep only image, name, status, location
+        columns.splice(4);
+    }
 
     const customStyles = {
         headRow: {
@@ -397,6 +427,9 @@ function OverviewTab({ formData, setFormData, setTab }) {
         navigate("/AddDevice")
     }
 
+    const nothing = () => {
+    }
+
     return (
         <div>
             {/* create search box */}
@@ -408,9 +441,10 @@ function OverviewTab({ formData, setFormData, setTab }) {
                         <input type="text" placeholder="Search" onChange={searchFilter} />
                     </div>
 
-                    {/* <div className='add-device-button' > */}
-                    <button className="addDevice" onClick={gotoAddDevice}> <IoIosAdd id="add-icon" /> Add Device</button>
-                    {/* </div> */}
+                    {userRole === ConstanceStrings.ADMIN ?
+                        <>
+                            <button className="addDevice" onClick={gotoAddDevice}> <IoIosAdd id="add-icon" /> Add Device</button>
+                        </> : <></>}
                 </div>
 
                 <div className='second-row'>
@@ -445,12 +479,17 @@ function OverviewTab({ formData, setFormData, setTab }) {
                         isSearchable
                         noOptionsMessage={() => "not found"}></Select>
 
-                    <div className='filter-select'> {/* Wrap DateRangeComp in a div */}
-                        <DateRangeComp parentCallback={setPurchaseFilter} placeholder="Purchase Date" />
-                    </div>
-                    <div className='filter-select'> {/* Wrap DateRangeComp in a div */}
-                        <DateRangeComp parentCallback={setWarrantyExpFilter} placeholder="Warranty Expiration Date" />
-                    </div>
+                    {userRole === ConstanceStrings.ADMIN ?
+                        <>
+                            <div className='filter-select'> {/* Wrap DateRangeComp in a div */}
+                                <DateRangeComp parentCallback={setPurchaseFilter} placeholder="Purchase Date" />
+                            </div>
+                            <div className='filter-select'> {/* Wrap DateRangeComp in a div */}
+                                <DateRangeComp parentCallback={setWarrantyExpFilter} placeholder="Warranty Expiration Date" />
+                            </div>
+                        </>
+                        : <></>}
+
                 </div>
 
             </div>
@@ -463,7 +502,7 @@ function OverviewTab({ formData, setFormData, setTab }) {
                 // responsive
                 // striped
                 customStyles={customStyles}
-                onRowClicked={handleRowClick}
+                onRowClicked={userRole === ConstanceStrings.ADMIN ? handleRowClick : nothing}
                 paginationRowsPerPageOptions={[5, 10]}
                 pointerOnHover
             />

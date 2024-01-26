@@ -17,24 +17,28 @@ router.get('/', (req, res) => {
             });
     }
     else {
-        const {activityDate} = req.query;
-        const startActivityDate = moment(activityDate.split('to')[0].trim()).startOf('day').format('YYYY-MM-DD HH:mm:ss')
-        const endActivityDate = moment(activityDate.split('to')[1].trim()).endOf('day').format('YYYY-MM-DD HH:mm:ss')
-        Activitys.findAll({
-            include: [Users],            
-            where: {
-                activityDate: {
-                    [Op.between]: [startActivityDate, endActivityDate]
-                }
+        const { activityDate, userId } = req.query;
+        const filters = {};
+        if (activityDate) {
+            const startActivityDate = moment(activityDate.split('to')[0].trim()).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+            const endActivityDate = moment(activityDate.split('to')[1].trim()).endOf('day').format('YYYY-MM-DD HH:mm:ss')
+            filters.activityDate = {
+                [Op.between]: [startActivityDate, endActivityDate]
             }
+        }
+        if (userId) {
+            filters.userId = userId
+        }
+        Activitys.findAll({
+            include: [Users],
+            where: filters
         })
             .then((result) => {
-                console.log(result)
                 res.json(result);
             }).catch((err) => {
                 res.json(err)
             });
-    }   
+    }
 });
 
 router.post('/', (req, res) => {
@@ -105,7 +109,7 @@ router.get('/user/:id', (req, res) => {
     }).then((result) => {
         res.json(result);
     });
-    
+
 });
 
 // get lastest id that activityCode start with 'L'
@@ -162,7 +166,7 @@ router.get('/lastest/return', (req, res) => {
 //             activityDate: {
 //                     [Op.gte]: stActivityDate+ ' 00:00:00',
 //                     [Op.lte]: endActivityDate+' 23:59:59'
-                
+
 //             }
 //         }
 //     })

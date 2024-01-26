@@ -21,8 +21,8 @@ const storage = multer.diskStorage({
 })
 
 const upload = multer({ storage })
-
-router.get('/', AuthenRoleController.authenRole(ROLES_LIST.Admin), (req, res) => {
+//AuthenRoleController.authenRole(ROLES_LIST.Admin)
+router.get('/', (req, res) => {
 
     const { name, location, rfidStatus, purchaseDate, warrantyExpirationDate, rfid, userId } = req.query;
     const filters = {};

@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { Component, useState, useEffect, useId } from 'react';
 import "./Activity.css";
 import ActivityPopup from '../components/ActivityPopup';
 import DateRangePickerComp from '../components/DateRangePickerComp';
@@ -10,9 +10,10 @@ import { addDays } from 'date-fns'
 import format from 'date-fns/format';
 import Layout from './Layout';
 import TablePagination from '@mui/material/TablePagination';
+import * as ConstanceStrings from '../ConstanceString';
 
 function Activity(props) {
-
+  axios.defaults.withCredentials = true;
   const [modal, setModal] = useState(false);
   const [selectedActivityID, setSelectedActivityID] = useState(null);
   const [date, setDate] = useState(null);
@@ -23,6 +24,8 @@ function Activity(props) {
   const [activityStDate, setActivityStDate] = useState([]);
   const [activityEndDate, setActivityEndDate] = useState([]);
   const [isFilter, setIsFilter] = useState(false);
+  const [userRole, setUserRole] = useState(ConstanceStrings.USER);
+  const [userId, setUserId] = useState(null);
 
   const handleActivityClick = (dynamicData) => {
     setSelectedActivityID(dynamicData.id);
@@ -32,6 +35,22 @@ function Activity(props) {
     setActivityCode(dynamicData.activityCode);
     setModal(true);
   };
+
+  useEffect(() => {
+    axios.get(`${process.env.REACT_APP_API}`)
+      .then((res) => {
+        setUserRole(res.data.role);
+        setUserId(res.data.userId);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [userRole, userId]);
 
   function SortDate(data, key) {
     return data.sort(function (a, b) {
@@ -52,57 +71,64 @@ function Activity(props) {
     if (activityStDate.length > 0 && activityEndDate.length > 0) {
       params.activityDate = `${activityStDate} to ${activityEndDate}`;
     }
+    if (userRole === ConstanceStrings.USER) {
+      params.userId = userId;
+    }
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API}/activity/`, { params });
-      if (response.data.length > 0) {
-        setDynamicDataArray(response.data);
-        console.log(response.data)
-      }
-      const updatedDynamicDataArray = [];
-      let lossDeviceName = '';
-      let lossDeviceId = '';
-      for (const dynamicData of response.data) {
-        /*
-        const deviceData = await axios.get(`${process.env.REACT_APP_API}/device/activity/${dynamicData.id}`);
-        if (deviceData.data.length > 0) {
-          lossDeviceName = deviceData.data[0].name;
-          lossDeviceId = deviceData.data[0].id;
+      if (userId !== null) {
+        const response = await axios.get(`${process.env.REACT_APP_API}/activity/`, { params });
+        if (response.data.length > 0) {
+          setDynamicDataArray(response.data);
+          console.log(response.data)
         }
-        */
+        const updatedDynamicDataArray = [];
+        let lossDeviceName = '';
+        let lossDeviceId = '';
+        for (const dynamicData of response.data) {
+          /*
+          const deviceData = await axios.get(`${process.env.REACT_APP_API}/device/activity/${dynamicData.id}`);
+          if (deviceData.data.length > 0) {
+            lossDeviceName = deviceData.data[0].name;
+            lossDeviceId = deviceData.data[0].id;
+          }
+          */
 
-        let activityText = '';
-        switch (dynamicData.activityCode.charAt(0)) {
-          case 'R':
-            activityText = `${dynamicData.User.username} Return Device`;
-            break;
-          case 'B':
-            activityText = `${dynamicData.User.username} Borrow Device`;
-            break;
-          case 'L':
-            activityText = `Device Loss`;
-            break;
-          default:
-            activityText = 'Unknown Activity';
-            break;
+          let activityText = '';
+          switch (dynamicData.activityCode.charAt(0)) {
+            case 'R':
+              activityText = `${dynamicData.User.username} Return Device`;
+              break;
+            case 'B':
+              activityText = `${dynamicData.User.username} Borrow Device`;
+              break;
+            case 'L':
+              activityText = `Device Loss`;
+              break;
+            default:
+              activityText = 'Unknown Activity';
+              break;
+          }
+
+          updatedDynamicDataArray.push({
+            ...dynamicData,
+            activityText: activityText,
+          });
         }
-
-        updatedDynamicDataArray.push({
-          ...dynamicData,
-          activityText: activityText,
+        // setDynamicDataArray(updatedDynamicDataArray);
+        const sorted = [...updatedDynamicDataArray].sort((a, b) => {
+          const dateA = new Date(`${a.activityDate.substring(0, 10)}T${a.activityTime}`);
+          const dateB = new Date(`${b.activityDate.substring(0, 10)}T${b.activityTime}`);
+          // console.log(dateA)
+          return dateB - dateA;
         });
+        setDynamicDataArray(sorted);
       }
-      // setDynamicDataArray(updatedDynamicDataArray);
-      const sorted = [...updatedDynamicDataArray].sort((a, b) => {
-        const dateA = new Date(`${a.activityDate.substring(0, 10)}T${a.activityTime}`);
-        const dateB = new Date(`${b.activityDate.substring(0, 10)}T${b.activityTime}`);
-        // console.log(dateA)
-        return dateB - dateA;
-      });
-      setDynamicDataArray(sorted);
+
     } catch (error) {
       console.log(error);
     }
     // console.log(dynamicDataArray)
+    setPage(0);
   };
 
   useEffect(() => {
@@ -144,7 +170,7 @@ function Activity(props) {
 
       <div className='activity-list'>
         {dynamicDataArray &&
-          dynamicDataArray.slice((page+1) * rowsPerPage - rowsPerPage, (page+1) * rowsPerPage).map((dynamicData, index) => (
+          dynamicDataArray.slice((page + 1) * rowsPerPage - rowsPerPage, (page + 1) * rowsPerPage).map((dynamicData, index) => (
             <div key={index} className={`activity-item border-${dynamicData.activityCode.charAt(0)}`} onClick={() => handleActivityClick(dynamicData)}>
               <div style={{ borderRight: '2px solid #D0D5DD', margin: 4, padding: 10 }}>
                 <h2 style={{ margin: 0, fontFamily: 'Prompt', fontWeight: 400, marginBottom: 5 }}>{changeDateFormat(dynamicData.activityDate)}</h2>
@@ -161,7 +187,7 @@ function Activity(props) {
       </div>
 
       <TablePagination
-      style={{display:"flex" , justifyContent:"center"}}
+        style={{ display: "flex", justifyContent: "center" }}
         count={dynamicDataArray.length}
         page={page}
         onPageChange={handleChangePage}

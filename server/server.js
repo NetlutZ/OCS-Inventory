@@ -57,7 +57,8 @@ app.use('/rfid', apiRfid);
 
 app.get('/', (req, res) => {
     if (req.session.username) {
-        res.send({ loggedIn: true, username: req.session.username });
+        console.log(req.session.username);
+        res.send({ loggedIn: true, username: req.session.username, userId: req.session.userId, role: req.session.role });
     } else {
         res.send({ loggedIn: false });
     }
@@ -68,51 +69,57 @@ const ROLES_LIST = require('./config/roles_list');
 const authenRole = require('./controllers/AuthenRoleController');
 
 // app.use(authen);
-const apiRegister = require('./routes/Register');
-app.use('/register', apiRegister);
-const apiLogin = require('./routes/Login');
-app.use('/login', apiLogin);
-const apiAuthen = require('./routes/Authen');
-app.use('/authen', apiAuthen);
-const apiRefreshToken = require('./routes/RefreshToken');
-app.use('/refresh-token', apiRefreshToken);
-const apiLogout = require('./routes/Logout');
-app.use('/logout', apiLogout);
+// const apiRegister = require('./routes/Register');
+// app.use('/register', apiRegister);
+// const apiLogin = require('./routes/Login');
+// app.use('/login', apiLogin);
+// const apiAuthen = require('./routes/Authen');
+// app.use('/authen', apiAuthen);
+// const apiRefreshToken = require('./routes/RefreshToken');
+// app.use('/refresh-token', apiRefreshToken);
+// const apiLogout = require('./routes/Logout');
+// app.use('/logout', apiLogout);
 
-// const { Users } = require('./models');
-// app.post('/login', async (req, res) => {
-//     const { username, password } = req.body;
-//     try {
-//         const user = await Users.findOne({
-//             where: {
-//                 username,
-//             },
-//         });
+const { Users, Device } = require('./models');
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const user = await Users.findOne({
+            where: {
+                username,
+            },
+        });
 
-//         if (user) {
-//             const compare = await bcrypt.compare(password, user.password);
-//             if (compare) {
-//                 req.session.username = user.username;
-//                 res.send({ Login: true });
-//             } else {
-//                 res.send({ Login: false, error: 'Wrong password' });
-//             }
-//         } else {
-//             res.send({ Login: false, error: 'User not found' });
-//         }
-//     } catch (error) {
-//         res.send({ error: error.message });
-//     }
-// });
+        if (user) {
+            const compare = await bcrypt.compare(password, user.password);
+            if (compare) {
+                req.session.username = user.username;
+                req.session.userId = user.id;
+                req.session.role = user.role;
+                res.send({ Login: true, userId: user.id, role: user.role });
+            } else {
+                res.send({ Login: false, error: 'Wrong password' });
+            }
+        } else {
+            res.send({ Login: false, error: 'User not found' });
+        }
+    } catch (error) {
+        res.send({ error: error.message });
+    }
+});
 
-// app.get('/logout', (req, res) => {
-//     if (req.session.username) {
-//         req.session.destroy();
-//         res.send({ Logout: true });
-//     } else {
-//         res.send({ Logout: false });
-//     }
-// });
+app.get('/logout', (req, res) => {
+    if (req.session.username) {
+        req.session.destroy();
+        res.send({ Logout: true });
+    } else {
+        res.send({ Logout: false });
+    }
+});
+
+const apiMail = require('./routes/SendMail');
+app.use('/mail', apiMail);
+
 
 const PORT = process.env.PORT || 8080
 db.sequelize.sync({ force: false }).then((req) => {

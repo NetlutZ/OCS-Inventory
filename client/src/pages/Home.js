@@ -2,6 +2,7 @@ import { React, useState, useEffect } from 'react'
 import './Home.css'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import Cookies from 'js-cookie'
 
 function Home() {
   const [value, setValue] = useState({
@@ -31,7 +32,6 @@ function Home() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log(value)
     axios.post(`${process.env.REACT_APP_API}/login`, value)
       .then((res) => {
         console.log(res.data)

@@ -12,8 +12,10 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import moment from 'moment';
 import Layout from './Layout';
+import * as ConstanceStrings from '../ConstanceString';
 
 function AddDevice() {
+  axios.defaults.withCredentials = true;
   const [formData, setFormData] = useState({
     rfid: '',                         // หมายเลข RFID
     rfidStatus: '',                   // สถานะ RFID
@@ -101,6 +103,17 @@ function AddDevice() {
     type: '',                         // ประเภท
     running: '',                      // Running
   });
+
+  const [userRole, setUserRole] = useState(null);
+  useEffect(() => {
+    axios.get(`${process.env.REACT_APP_API}`)
+      .then((res) => {
+        setUserRole(res.data.role);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   const [tab, setTab] = useState(1);
   const action = (index) => {
@@ -301,74 +314,111 @@ function AddDevice() {
     }
   }
 
+  const tabs = [
+    { id: 1, label: 'ทั่วไป', component: <GeneralTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} error={error} choiceSelected={choiceSelected} formDataNewImage={receiveImg} /> },
+    { id: 2, label: 'รายละเอียดทางเทคนิค', component: <TechnicalDetailsTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} handleDateChange={handleDateChange} /> },
+    { id: 3, label: 'โครงสร้าง', component: <StructureTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} /> },
+    { id: 4, label: 'การประกัน', component: <InsuranceTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} error={error} handleDateChange={handleDateChange} /> },
+    { id: 5, label: 'ที่ตั้ง', component: <LocationTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} handleDateChange={handleDateChange} /> },
+    { id: 6, label: 'การเรียงลำดับ', component: <SortingTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} /> },
+    { id: 7, label: 'อื่น ๆ', component: <OtherTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} /> },
+    { id: 8, label: 'coding', component: <CodingTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} functionOptions={functionOptions} /> },
+
+  ]
+
   return (
     <Layout>
-      <div className='box'>
+      {userRole !== null ? (
+        userRole === ConstanceStrings.ADMIN ? (
+          <div className='box'>
+            <div className='tabs'>
+              {tabs.map((tabData) => (
+                <div key={tabData.id} onClick={() => action(tabData.id)} className={`${tab === tabData.id ? 'tab active-tab' : 'tab'}`}>
+                  {tabData.label}
+                </div>
+              ))}
+            </div>
 
-        <div className='tabs'>
-          <div onClick={() => action(1)} className={`${tab === 1 ? 'tab active-tab' : 'tab'}`}>
-            ทั่วไป
-          </div>
-          <div onClick={() => action(2)} className={`${tab === 2 ? 'tab active-tab' : 'tab'}`}>
-            รายละเอียดทางเทคนิค
-          </div>
-          <div onClick={() => action(3)} className={`${tab === 3 ? 'tab active-tab' : 'tab'}`}>
-            โครงสร้าง
-          </div>
-          <div onClick={() => action(4)} className={`${tab === 4 ? 'tab active-tab' : 'tab'}`}>
-            การประกัน
-          </div>
-          <div onClick={() => action(5)} className={`${tab === 5 ? 'tab active-tab' : 'tab'}`}>
-            ที่ตั้ง
-          </div>
-          <div onClick={() => action(6)} className={`${tab === 6 ? 'tab active-tab' : 'tab'}`}>
-            การเรียงลำดับ
-          </div>
-          <div onClick={() => action(7)} className={`${tab === 7 ? 'tab active-tab' : 'tab'}`}>
-            อื่น ๆ
-          </div>
-          <div onClick={() => action(8)} className={`${tab === 8 ? 'tab active-tab' : 'tab'}`}>
-            coding
-          </div>
-        </div>
-
-        <div className='device-contents'>
-          <div className={`${tab === 1 ? 'device-content active-content' : 'device-content'}`}>
-            <GeneralTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} error={error} choiceSelected={choiceSelected} formDataNewImage={receiveImg} />
-          </div>
-
-          <div className={`${tab === 2 ? 'device-content active-content' : 'device-content'}`}>
-            <TechnicalDetailsTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} handleDateChange={handleDateChange} />
-          </div>
-
-          <div className={`${tab === 3 ? 'device-content active-content' : 'device-content'}`}>
-            <StructureTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} />
-          </div>
-
-          <div className={`${tab === 4 ? 'device-content active-content' : 'device-content'}`}>
-            <InsuranceTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} error={error} handleDateChange={handleDateChange} />
-          </div>
-
-          <div className={`${tab === 5 ? 'device-content active-content' : 'device-content'}`}>
-            <LocationTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} handleDateChange={handleDateChange} />
-          </div>
-
-          <div className={`${tab === 6 ? 'device-content active-content' : 'device-content'}`}>
-            <SortingTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} />
-          </div>
-
-          <div className={`${tab === 7 ? 'device-content active-content' : 'device-content'}`}>
-            <OtherTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} />
-          </div>
-
-          <div className={`${tab === 8 ? 'device-content active-content' : 'device-content'}`}>
-            <CodingTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} functionOptions={functionOptions} />
+            <div className='device-contents'>
+              {tabs.map((tabData) => (
+                <div key={tabData.id} className={`${tab === tabData.id ? 'device-content active-content' : 'device-content'}`}>
+                  {tabData.component}
+                </div>
+              ))}
+            </div>
           </div>
 
 
-        </div>
+          // <div className='box'>
+          //   <div className='tabs'>
+          //     <div onClick={() => action(1)} className={`${tab === 1 ? 'tab active-tab' : 'tab'}`}>
+          //       ทั่วไป
+          //     </div>
+          //     <div onClick={() => action(2)} className={`${tab === 2 ? 'tab active-tab' : 'tab'}`}>
+          //       รายละเอียดทางเทคนิค
+          //     </div>
+          //     <div onClick={() => action(3)} className={`${tab === 3 ? 'tab active-tab' : 'tab'}`}>
+          //       โครงสร้าง
+          //     </div>
+          //     <div onClick={() => action(4)} className={`${tab === 4 ? 'tab active-tab' : 'tab'}`}>
+          //       การประกัน
+          //     </div>
+          //     <div onClick={() => action(5)} className={`${tab === 5 ? 'tab active-tab' : 'tab'}`}>
+          //       ที่ตั้ง
+          //     </div>
+          //     <div onClick={() => action(6)} className={`${tab === 6 ? 'tab active-tab' : 'tab'}`}>
+          //       การเรียงลำดับ
+          //     </div>
+          //     <div onClick={() => action(7)} className={`${tab === 7 ? 'tab active-tab' : 'tab'}`}>
+          //       อื่น ๆ
+          //     </div>
+          //     <div onClick={() => action(8)} className={`${tab === 8 ? 'tab active-tab' : 'tab'}`}>
+          //       coding
+          //     </div>
+          //   </div>
 
-      </div>
+          //   <div className='device-contents'>
+          //     <div className={`${tab === 1 ? 'device-content active-content' : 'device-content'}`}>
+          //       <GeneralTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} error={error} choiceSelected={choiceSelected} formDataNewImage={receiveImg} />
+          //     </div>
+
+          //     <div className={`${tab === 2 ? 'device-content active-content' : 'device-content'}`}>
+          //       <TechnicalDetailsTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} handleDateChange={handleDateChange} />
+          //     </div>
+
+          //     <div className={`${tab === 3 ? 'device-content active-content' : 'device-content'}`}>
+          //       <StructureTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} />
+          //     </div>
+
+          //     <div className={`${tab === 4 ? 'device-content active-content' : 'device-content'}`}>
+          //       <InsuranceTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} error={error} handleDateChange={handleDateChange} />
+          //     </div>
+
+          //     <div className={`${tab === 5 ? 'device-content active-content' : 'device-content'}`}>
+          //       <LocationTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} handleDateChange={handleDateChange} />
+          //     </div>
+
+          //     <div className={`${tab === 6 ? 'device-content active-content' : 'device-content'}`}>
+          //       <SortingTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} />
+          //     </div>
+
+          //     <div className={`${tab === 7 ? 'device-content active-content' : 'device-content'}`}>
+          //       <OtherTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} />
+          //     </div>
+
+          //     <div className={`${tab === 8 ? 'device-content active-content' : 'device-content'}`}>
+          //       <CodingTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} functionOptions={functionOptions} />
+          //     </div>
+
+          //   </div>
+
+          // </div>
+        ) : (
+          <>NO ACCESS</>
+        )
+      ) : (
+        <></>
+      )}
     </Layout>
   )
 }
