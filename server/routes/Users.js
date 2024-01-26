@@ -18,6 +18,8 @@ router.post('/', async (req, res) => {
         password: hash,
         name: req.body.name,
         email: req.body.email,
+        token: req.body.token,
+        role: req.body.role
     })
         .then((result) => {
             res.send({ Register: true });
@@ -43,7 +45,9 @@ router.put('/:id', (req, res) => {
         name: req.body.name,
         username: req.body.username,
         email: req.body.email,
-        password: req.body.password
+        password: req.body.password,
+        token: req.body.token,
+        role: req.body.role
     }, {
         where: {
             id: req.params.id

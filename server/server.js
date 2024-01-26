@@ -6,10 +6,15 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-
+const {logger} = require('./middleWare/LogEvents');
+const errorHandler = require('./middleWare/errorHandler');
+const jwt = require('jsonwebtoken');
 const app = express();
 
 app.use(express.json());
+app.use(logger);
+app.use(errorHandler);
+
 app.use(cors({
     origin: [`http://localhost:3000`],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -23,7 +28,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        expires: 1000 * 30,
+        expires: 1000 * 60 * 60,
         // expires: new Date(Date.now() + 10000),
     },
 }));
@@ -58,41 +63,56 @@ app.get('/', (req, res) => {
     }
 });
 
+const {authen} = require('./controllers/AuthenJWTController');
+const ROLES_LIST = require('./config/roles_list');
+const authenRole = require('./controllers/AuthenRoleController');
 
-const { Users } = require('./models');
-app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    try {
-        const user = await Users.findOne({
-            where: {
-                username,
-            },
-        });
+// app.use(authen);
+const apiRegister = require('./routes/Register');
+app.use('/register', apiRegister);
+const apiLogin = require('./routes/Login');
+app.use('/login', apiLogin);
+const apiAuthen = require('./routes/Authen');
+app.use('/authen', apiAuthen);
+const apiRefreshToken = require('./routes/RefreshToken');
+app.use('/refresh-token', apiRefreshToken);
+const apiLogout = require('./routes/Logout');
+app.use('/logout', apiLogout);
 
-        if (user) {
-            const compare = await bcrypt.compare(password, user.password);
-            if (compare) {
-                req.session.username = user.username;
-                res.send({ Login: true });
-            } else {
-                res.send({ Login: false, error: 'Wrong password' });
-            }
-        } else {
-            res.send({ Login: false, error: 'User not found' });
-        }
-    } catch (error) {
-        res.send({ error: error.message });
-    }
-});
+// const { Users } = require('./models');
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+//     try {
+//         const user = await Users.findOne({
+//             where: {
+//                 username,
+//             },
+//         });
 
-app.get('/logout', (req, res) => {
-    if (req.session.username) {
-        req.session.destroy();
-        res.send({ Logout: true });
-    } else {
-        res.send({ Logout: false });
-    }
-});
+//         if (user) {
+//             const compare = await bcrypt.compare(password, user.password);
+//             if (compare) {
+//                 req.session.username = user.username;
+//                 res.send({ Login: true });
+//             } else {
+//                 res.send({ Login: false, error: 'Wrong password' });
+//             }
+//         } else {
+//             res.send({ Login: false, error: 'User not found' });
+//         }
+//     } catch (error) {
+//         res.send({ error: error.message });
+//     }
+// });
+
+// app.get('/logout', (req, res) => {
+//     if (req.session.username) {
+//         req.session.destroy();
+//         res.send({ Logout: true });
+//     } else {
+//         res.send({ Logout: false });
+//     }
+// });
 
 const PORT = process.env.PORT || 8080
 db.sequelize.sync({ force: false }).then((req) => {

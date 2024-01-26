@@ -7,6 +7,8 @@ const moment = require('moment');
 const multer = require('multer');
 const { fileURLToPath } = require('url');
 
+const ROLES_LIST = require('../config/roles_list');
+const AuthenRoleController = require('../controllers/AuthenRoleController');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -20,7 +22,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-router.get('/', (req, res) => {
+router.get('/', AuthenRoleController.authenRole(ROLES_LIST.Admin), (req, res) => {
 
     const { name, location, rfidStatus, purchaseDate, warrantyExpirationDate, rfid, userId } = req.query;
     const filters = {};

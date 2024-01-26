@@ -1,0 +1,10 @@
+2024-01-25 11:53:06	7a0c7015-b8ff-4d4a-8d84-f60c8f4f6f73	Error	Not allowed by CORS
+
+2024-01-25 11:53:17	85cae62f-e81b-4536-9083-6476e99d63e0	Error	Not allowed by CORS
+
+2024-01-25 11:53:17	b6a349fe-7c9c-4e6c-be62-5014968f8b60	Error	Not allowed by CORS
+
+2024-01-25 11:53:28	36459120-e67e-40cb-9720-feea22c773a0	Error	Not allowed by CORS
+2024-01-25 11:53:48	8717dc19-3923-4984-b75a-e1f50002c848	Error	Not allowed by CORS
+2024-01-25 11:53:52	9d2f75dc-3e0b-4c1d-bd4e-7696b81db656	Error	Not allowed by CORS
+2024-01-25 11:53:54	85d7703e-e435-40bb-b8f7-6b478993634b	Error	Not allowed by CORS
