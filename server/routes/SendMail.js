@@ -21,6 +21,7 @@ async function sendEmail(toEmail, htmlTable) {
         const mailOptions = {
             from: mail,
             to: toEmail,
+            cc: mail, // change to admin email
             subject: 'Device return today',
             html: htmlTable,
         };

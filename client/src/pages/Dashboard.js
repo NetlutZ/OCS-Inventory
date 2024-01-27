@@ -282,6 +282,7 @@ function Dashboard() {
           customStyles={customStyles}
           onRowClicked={sendSelectedName}
           pointerOnHover
+          striped
         />
 
       </div>

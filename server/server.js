@@ -57,8 +57,7 @@ app.use('/rfid', apiRfid);
 
 app.get('/', (req, res) => {
     if (req.session.username) {
-        console.log(req.session.username);
-        res.send({ loggedIn: true, username: req.session.username, userId: req.session.userId, role: req.session.role });
+        res.send({ loggedIn: true, username: req.session.username, userId: req.session.userId, role: req.session.role, name: req.session.name, email: req.session.email });
     } else {
         res.send({ loggedIn: false });
     }
@@ -69,8 +68,8 @@ const ROLES_LIST = require('./config/roles_list');
 const authenRole = require('./controllers/AuthenRoleController');
 
 // app.use(authen);
-// const apiRegister = require('./routes/Register');
-// app.use('/register', apiRegister);
+const apiRegister = require('./routes/Register');
+app.use('/register', apiRegister);
 // const apiLogin = require('./routes/Login');
 // app.use('/login', apiLogin);
 // const apiAuthen = require('./routes/Authen');
@@ -96,7 +95,9 @@ app.post('/login', async (req, res) => {
                 req.session.username = user.username;
                 req.session.userId = user.id;
                 req.session.role = user.role;
-                res.send({ Login: true, userId: user.id, role: user.role });
+                req.session.name = user.name;
+                req.session.email = user.email;
+                res.send({ Login: true, userId: user.id, role: user.role, name: user.name, email: user.email });
             } else {
                 res.send({ Login: false, error: 'Wrong password' });
             }

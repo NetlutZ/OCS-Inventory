@@ -1,0 +1,22 @@
+/* UserProfileTable.css */
+
+.user-profile-table {
+    border-collapse: collapse;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.property,
+.value {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.property {
+    font-weight: bold;
+}
+
+.value {
+    text-align: center;
+}

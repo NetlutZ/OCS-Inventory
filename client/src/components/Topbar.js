@@ -2,6 +2,8 @@ import { React, useState, useEffect, useRef } from 'react';
 import './Topbar.css';
 import { IoIosNotificationsOutline } from 'react-icons/io';
 import { FaRegUser } from 'react-icons/fa';
+import { CgProfile } from "react-icons/cg";
+import { MdLogout } from "react-icons/md";
 import ocs from '../image/ocs kasetsart.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -41,6 +43,9 @@ function Topbar() {
       })
   }
 
+  const toProfile = () => {
+    navigate('/profile');
+  }
 
   return (
     <div className="TopbarContainer">
@@ -52,19 +57,42 @@ function Topbar() {
           </div>
           <div className="rightIcons">
             {/* <IoIosNotificationsOutline className="notificationIcon" /> */}
-            <Badge badgeContent={100} max={99} color="error" sx={{marginRight:"1rem"}}>
-              <NotificationsNoneIcon  />
-            </Badge>
+
+            {/* <div className="notification-dropdown" ref={dropdownRef}>
+              <button className="bell-icon" onClick={toggleDropdown}>
+                🔔
+              </button>
+              {isDropdownOpen && (
+                <div className="dropdown">
+                  <ul>
+                    {notifications.length > 0 ? (
+                      notifications.map((notification) => (
+                        <li key={notification.id}>{notification.message}</li>
+                      ))
+                    ) : (
+                      <li>No notifications</li>
+                    )}
+                  </ul>
+                  <button onClick={clearNotifications}>Clear Notifications</button>
+                </div>
+              )}
+            </div> */}
+
+            {/* <Badge badgeContent={100} max={99} color="error" sx={{ marginRight: "1rem" }}>
+              <NotificationsNoneIcon />
+
+            </Badge> */}
 
             <div ref={menuRef}>
               <FaRegUser
                 className="userIcon"
                 onClick={() => setOpenMenu(!openMenu)}
+                cursor={'pointer'}
               />
               <div className={`dropdown-user ${openMenu ? 'active' : 'inactive'}`}>
                 <ul>
-                  <Dropdown img="https://www.w3schools.com/howto/img_avatar.png" text="Profile" />
-                  <Dropdown img="https://www.w3schools.com/howto/img_avatar.png" text="Logout" onClick={() => removeSession()} />
+                  <Dropdown text="Profile" icon={<CgProfile />} onClick={() => toProfile()}/>
+                  <Dropdown text="Logout" icon={<MdLogout/>} onClick={() => removeSession()} />
                 </ul>
               </div>
             </div>
@@ -78,7 +106,9 @@ function Topbar() {
 function Dropdown(props) {
   return (
     <li className="dropdown-user-item" onClick={props.onClick}>
-      <img src={props.img}></img>
+      <div className="icon-overlay" style={{ fontSize: '1.2rem', display:'flex', alignItems:'center', marginRight:'10px' }}>
+            {props.icon}
+          </div>
       <a>{props.text}</a>
 
     </li>

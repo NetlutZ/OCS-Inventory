@@ -84,6 +84,7 @@ function DateRangeComp (props) {
             readOnly
             className="expandable_input"
             onClick={() => setOpen(prevState => !prevState)}
+            style={{ cursor: 'pointer', color: 'gray', backgroundColor: '#ffffff' }}
           />
           {isFilter && (
             <MdClear

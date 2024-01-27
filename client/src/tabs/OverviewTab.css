@@ -14,6 +14,13 @@
     margin: 10px;
 }
 
+.input-wrapper:hover {
+    border: 2px solid #CDD2D4;
+}
+.input-wrapper:focus-within {
+    border: 2px solid #418dff;
+}
+
 #search-icon {
     overflow: visible;
     color: #53B1FD;
@@ -77,7 +84,8 @@ input:focus {
 
 
 .filter-select {
-    max-width: 300px;
+    min-width: 10rem;
+    max-width: 20rem;
     margin: 10px;
 }
 

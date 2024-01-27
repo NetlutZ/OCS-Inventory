@@ -9,3 +9,7 @@
 #clear-icon{
     color: #ccc;
 }
+
+.expandable_input:focus-within{
+    border: 2px solid #418dff;
+}

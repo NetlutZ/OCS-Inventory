@@ -1,7 +1,7 @@
 const { Device } = require('../models');
 const express = require('express');
 const router = express.Router();
-const { Activitys } = require('../models');
+const { Activitys, Users } = require('../models');
 const { Op } = require("sequelize");
 const moment = require('moment');
 const multer = require('multer');
@@ -61,7 +61,7 @@ router.get('/', (req, res) => {
 
     // console.log(filters)
     Device.findAll({
-        include: [Activitys],
+        include: [Activitys, Users],
         where: filters
 
     })

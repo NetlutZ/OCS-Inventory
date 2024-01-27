@@ -355,27 +355,28 @@ function GeneralTab({ formData, setFormData, handleInputChange, functionOptions,
                 <img src={selectedImage} alt="Selected" style={{ width: '300px', height: 'auto', display: 'block', marginLeft: 'auto', marginRight: 'auto' }} />
             )}
 
-            
+
             <button className='apply-button' onClick={handleButton} >{buttonText}</button>
 
-            <hr
-                style={{
-                    color: 'black',
-                    backgroundColor: 'black',
-                    height: 5,   
-                }}
-            />
+            {functionOptions === 0 ?
+                <>
+                    <div className="rectangle" style={{width:'100%', height:'2rem', backgroundColor:'#B2DDFF', color:'white', display:'flex', alignItems:"center", justifyContent:'center', marginTop:"10px", marginBottom:"10px"}}>
+                        OR CHOOSE EXCEL FILE
+                    </div>
 
-            <div>
-                <label htmlFor="files" className="btn">Select Excel</label>
-                <input
-                    id="files"
-                    type="file"
-                    accept=".xlsx, .xls"
-                    onChange={handleFileUpload}
-                />
-                <button onClick={postFile} >Submit Excel File</button>
-            </div>
+                    <div>
+                        <label htmlFor="files" className="btn">Select Excel</label>
+                        <input
+                            id="files"
+                            type="file"
+                            accept=".xlsx, .xls"
+                            onChange={handleFileUpload}
+                        />
+                        <button onClick={postFile} >Submit Excel File</button>
+                    </div>
+                </>
+                : <></>}
+
 
         </div>
     )

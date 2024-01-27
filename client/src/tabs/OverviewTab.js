@@ -4,7 +4,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { IconContext } from "react-icons";
 import { CiSearch } from "react-icons/ci";
-import { IoIosAdd } from "react-icons/io";
+import { IoIosAdd, IoMdClose  } from "react-icons/io";
 import axios from "axios";
 import DataTable from 'react-data-table-component';
 
@@ -29,22 +29,21 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
     const [selectedStatusOptions, setSelectedStatusOptions] = useState([]);
     const [selectedNameOptions, setSelectedNameOptions] = useState([]);
     const [selectedLocationOptions, setSelectedLocationOptions] = useState([]);
+    const [selectedAssetGroupOptions, setSelectedAssetGroupOptions] = useState([]);
     const [statusOptions, setStatusOptions] = useState([]);
     const [nameOptions, setNameOptions] = useState([]);
     const [locationOptions, setLocationOptions] = useState([]);
     const [purchaseStDate, setPurchaseStDate] = useState("");
     const [purchaseEndDate, setPurchaseEndDate] = useState("");
-    const [warrantyExpStDate, setWarrantyExpStDate] = useState("");
-    const [warrantyExpEndDate, setWarrantyExpEndDate] = useState("");
+    const [assetGroupOptions, setAssetGroupOptions] = useState([]);
     const [isFilter, setIsFilter] = useState(false);
-    const [modal, setModal] = useState(false);
-    const [deviceIdSelected, setDeviceIdSelected] = useState(null);
     const [userRole, setUserRole] = useState(null);
-    const [deviceClicked, setDeviceClicked] = useState(false);
 
     const defaultStatus = JSON.parse(localStorage.getItem('selectedStatus'));
     const defaultName = JSON.parse(localStorage.getItem('selectedName'));
     const navigate = useNavigate();
+
+    const [searchText, setSearchText] = useState('');
 
 
     useEffect(() => {
@@ -57,10 +56,12 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
             });
     }, []);
 
+    // Fetch Data for Set Select Option
     useEffect(() => {
         fetchInventoryData();
     }, [userRole]);
 
+    // Set Select Option when Click from Dashboard
     useEffect(() => {
         const storedStatusState = localStorage.getItem('selectedStatus');
         const storedNameState = localStorage.getItem('selectedName');
@@ -76,10 +77,6 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
             localStorage.removeItem('selectedName');
         }
     }, [inventoryData]);
-
-    useEffect(() => {
-        filterInventory();
-    }, [purchaseStDate, purchaseEndDate, warrantyExpStDate, warrantyExpEndDate, isFilter, selectedNameOptions, selectedStatusOptions, selectedLocationOptions]);
 
     const fetchInventoryData = () => {
         const params = {}
@@ -121,28 +118,53 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
         }
     };
 
+    useEffect(() => {
+        filterInventory();
+    }, [purchaseStDate, purchaseEndDate, isFilter, selectedNameOptions, selectedStatusOptions, selectedLocationOptions, selectedAssetGroupOptions, searchText]);
+
     const filterInventory = () => {
-        // console.log(statusOptions)
-        let params = {
+        const params = {
             name: selectedNameOptions.map(item => item.value),
             rfidStatus: selectedStatusOptions.map(item => item.value),
             location: selectedLocationOptions.map(item => item.value),
+            assetGroup: selectedAssetGroupOptions.map(item => item.value),
 
         }
         if (purchaseStDate && purchaseEndDate) {
             params.purchaseDate = purchaseStDate + "to" + purchaseEndDate
         }
-        if (warrantyExpStDate && warrantyExpEndDate) {
-            params.warrantyExpirationDate = warrantyExpStDate + "to" + warrantyExpEndDate
-        }
-        // console.log(params)
 
         if (userRole === ConstanceStrings.USER) {
             params.rfidStatus = "InStorage"
         }
         if (userRole !== null) {
             axios.get(`${process.env.REACT_APP_API}/device`, { params }).then(result => {
-                setFilterInventoryData(result.data)
+
+                const filterData = result.data.filter((row) => {
+                    const lowerCaseName = row.name ? row.name.toLowerCase() : '';
+                    const lowerCaseRfidStatus = row.rfidStatus ? row.rfidStatus.toLowerCase() : '';
+                    const lowerCaseRfid = row.rfid ? row.rfid.toLowerCase() : '';
+                    const lowerCasePurchaseDate = row.purchaseDate ? row.purchaseDate.toLowerCase() : '';
+                    const lowerCaseLocation = row.location ? row.location.toLowerCase() : '';
+                    const lowerCaseSerialNumber = row.serialNumber ? row.serialNumber.toLowerCase() : '';
+                    const lowerCaseAssetNumber = row.assetNumber ? row.assetNumber.toLowerCase() : '';
+                    const lowerCaseResponsiblePerson = row.responsiblePerson ? row.responsiblePerson.toLowerCase() : '';
+                    const lowerCaseAssetGroup = row.assetGroup ? row.assetGroup.toLowerCase() : '';
+
+                    return (
+                        lowerCaseName.includes(searchText) ||
+                        lowerCaseRfidStatus.includes(searchText) ||
+                        lowerCaseRfid.includes(searchText) ||
+                        lowerCasePurchaseDate.includes(searchText) ||
+                        lowerCaseLocation.includes(searchText) ||
+                        lowerCaseSerialNumber.includes(searchText) ||
+                        lowerCaseAssetNumber.includes(searchText) ||
+                        lowerCaseResponsiblePerson.includes(searchText) ||
+                        lowerCaseAssetGroup.includes(searchText)
+                    );
+                });
+
+                setFilterInventoryData(filterData)
             }).catch(error => {
                 console.error('Error fetching inventory data:', error);
             });
@@ -153,16 +175,6 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
         setPurchaseStDate(stDate);
         setPurchaseEndDate(endDate);
         setIsFilter(isFilter);
-        // console.log("start date: " + stDate + " end date: " + endDate + " isFilter: " + isFilter);
-        // filterInventory();
-
-    };
-    const setWarrantyExpFilter = (stDate, endDate, isFilter) => {
-        setWarrantyExpStDate(stDate);
-        setWarrantyExpEndDate(endDate);
-        setIsFilter(isFilter);
-        console.log("start date: " + stDate + " end date: " + endDate + " isFilter: " + isFilter);
-        // filterInventory();
     };
 
     const deleteDevice = (row) => {
@@ -202,25 +214,44 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
     }
 
     const searchFilter = (e) => {
-        const searchData = inventoryData.filter((row) =>
-            row.name.toLowerCase().includes(e.target.value.toLowerCase()) ||
-            row.rfidStatus.toLowerCase().includes(e.target.value.toLowerCase()) ||
-            row.rfid.toLowerCase().includes(e.target.value.toLowerCase()) ||
-            row.purchaseDate.toLowerCase().includes(e.target.value.toLowerCase()) ||
-            row.warrantyExpirationDate.toLowerCase().includes(e.target.value.toLowerCase()) ||
-            row.location.toLowerCase().includes(e.target.value.toLowerCase()) ||
-            row.serialNumber.toLowerCase().includes(e.target.value.toLowerCase())
-        );
+        const searchTerm = e.target.value.toLowerCase();
+        setSearchText(searchTerm);
 
-        setFilterInventoryData(searchData);
+
+        // const searchData = inventoryData.filter((row) => {
+        //     const lowerCaseName = row.name ? row.name.toLowerCase() : '';
+        //     const lowerCaseRfidStatus = row.rfidStatus ? row.rfidStatus.toLowerCase() : '';
+        //     const lowerCaseRfid = row.rfid ? row.rfid.toLowerCase() : '';
+        //     const lowerCasePurchaseDate = row.purchaseDate ? row.purchaseDate.toLowerCase() : '';
+        //     const lowerCaseLocation = row.location ? row.location.toLowerCase() : '';
+        //     const lowerCaseSerialNumber = row.serialNumber ? row.serialNumber.toLowerCase() : '';
+        //     const lowerCaseAssetNumber = row.assetNumber ? row.assetNumber.toLowerCase() : '';
+        //     const lowerCaseResponsiblePerson = row.responsiblePerson ? row.responsiblePerson.toLowerCase() : '';
+        //     const lowerCaseAssetGroup = row.assetGroup ? row.assetGroup.toLowerCase() : '';
+
+        //     return (
+        //         lowerCaseName.includes(searchTerm) ||
+        //         lowerCaseRfidStatus.includes(searchTerm) ||
+        //         lowerCaseRfid.includes(searchTerm) ||
+        //         lowerCasePurchaseDate.includes(searchTerm) ||
+        //         lowerCaseLocation.includes(searchTerm) ||
+        //         lowerCaseSerialNumber.includes(searchTerm) ||
+        //         lowerCaseAssetNumber.includes(searchTerm) ||
+        //         lowerCaseResponsiblePerson.includes(searchTerm) ||
+        //         lowerCaseAssetGroup.includes(searchTerm)
+        //     );
+        // });
+
+        // setFilterInventoryData(searchData);
+    };
+
+    const clearSearch = () => {
+        setSearchText('');
     };
 
     const handleRowClick = (row) => {
-        setDeviceClicked(true);
         setOpenTab(true);
         console.log('Clicked row:', row);
-        // setModal(true);
-        // setDeviceIdSelected(row.id);
 
         //get device data from id and set to formData
         axios.get(`${process.env.REACT_APP_API}/device/${row.id}`)
@@ -276,19 +307,6 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                 if (transformedData["physicalInventory"] === "") {
                     transformedData["physicalInventory"] = null;
                 }
-                // if(transformedData["quantity"] === ""){
-                //     transformedData["quantity"] = 0;
-                // }
-                // if(transformedData["policyAmount"] === ""){
-                //     transformedData["policyAmount"] = 0;
-                // }
-                // if(transformedData["insuranceValue"] === ""){
-                //     transformedData["insuranceValue"] = 0;
-                // }
-                // if(transformedData["replacementCost"] === ""){
-                //     transformedData["replacementCost"] = 0;
-                // }
-
 
                 setFormData(transformedData);
 
@@ -297,8 +315,6 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                 console.error('Error fetching device data:', error);
             });
         setTab(1);
-
-
     };
 
     const transformData = (data) => {
@@ -338,19 +354,33 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
         return formattedDate;
     };
 
-    const columns = [
+    let columns = [
         {
-            name: 'Image',
-            selector: (row) => <img src={`${process.env.REACT_APP_API}/device/image/${row.image}`} alt="Image" style={{ width: 'auto', height: '50px' }} />,
-            sortable: true,
+            name: 'รูปภาพ',
+            selector: (row) => <img src={`${process.env.REACT_APP_API}/device/image/${row.image}`} alt="Image" style={{ width: 'auto', height: '30px' }} />,
+            width: '7%',
         },
         {
-            name: 'Name',
-            selector: (row) => limitText(row.name, 20),
+            name: 'กลุ่มสินทรัพย์ถาวร',
+            selector: (row) => row.assetGroup,
             sortable: true,
+            width: '10%',
         },
         {
-            name: 'Status',
+            name: 'หมายเลขสินทรัพย์ถาวร',
+            selector: (row) => row.assetNumber,
+            sortable: true,
+            width: '15%',
+
+        },
+        {
+            name: 'ชื่อ',
+            selector: (row) => row.name,
+            sortable: true,
+            width: '15%',
+        },
+        {
+            name: 'สถานะ',
             selector: (row) => (
                 <div style={{ width: '100%', height: '100%', display: 'flex' }}>
                     <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
@@ -361,10 +391,20 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
             sortable: true,
         },
         {
-            name: 'Location',
+            name: 'ยืมโดย',
+            selector: (row) => row.userId ? row.User.username : "-",
+            sortable: true,
+        },
+        {
+            name: 'วันที่ซื้อ',
+            selector: (row) => changeDateFormat(row.purchaseDate),
+            sortable: true,
+        },
+        {
+            name: 'ตำแหน่งที่เก็บ',
             selector: (row) => row.location,
             sortable: true,
-
+            width: '13%',
         },
         {
             name: 'RFID',
@@ -372,35 +412,55 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
             sortable: true,
         },
         {
-            name: 'Purchase Date',
-            selector: (row) => changeDateFormat(row.purchaseDate),
+            name: 'ผู้รับผิดชอบ',
+            selector: (row) => row.responsiblePerson,
             sortable: true,
-        },
-        {
-            name: 'Warranty Expire',
-            selector: (row) => changeDateFormat(row.warrantyExpirationDate),
-            sortable: true,
-        },
-        {
-            name: 'Serial Number',
-            selector: (row) => row.serialNumber,
-            sortable: true,
+            width: '8%',
 
         },
         {
             name: 'Action',
             selector: (row) => (
                 <>
-                    <FaRegEdit color="#667085" fontSize="1em" style={{ paddingRight: '5px', cursor: 'pointer' }} />
+                    {/* <FaRegEdit color="#667085" fontSize="1em" style={{ paddingRight: '5px', cursor: 'pointer' }} /> */}
                     <RiDeleteBinLine color="#f97066" fontSize="1em" onClick={() => deleteDevice(row)} style={{ cursor: 'pointer' }} />
                 </>
             ),
+            width: '5%',
+            center: true,
         },
     ];
 
     if (userRole === ConstanceStrings.USER) {
-        // keep only image, name, status, location
-        columns.splice(4);
+        columns = [
+            {
+                name: 'รูปภาพ',
+                selector: (row) => <img src={`${process.env.REACT_APP_API}/device/image/${row.image}`} alt="Image" style={{ width: 'auto', height: '30px' }} />,
+            },
+            {
+                name: 'ชื่อ',
+                selector: (row) => row.name,
+                sortable: true,
+            },
+            {
+                name: 'สถานะ',
+                selector: (row) => (
+                    <div style={{ width: '100%', height: '100%', display: 'flex' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                            <div className="status" id={'status' + row.rfidStatus}>{row.rfidStatus}</div>
+                        </div>
+                    </div>
+                ),
+                sortable: true,
+            },
+            {
+                name: 'ตำแหน่งที่เก็บ',
+                selector: (row) => row.location,
+                sortable: true,
+
+            },
+        ];
+
     }
 
     const customStyles = {
@@ -413,12 +473,19 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
         headCells: {
             style: {
                 fontWeight: '600',
-                fontSize: '1rem'
+                fontSize: '0.8rem',
+                paddingLeft: '8px',
             },
         },
         cells: {
             style: {
-                fontSize: '18px',
+                fontSize: '0.8rem',
+                paddingLeft: '8px',
+            },
+        },
+        rows: {
+            style: {
+                minHeight: '35px', // override the row height
             },
         },
     };
@@ -430,6 +497,47 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
     const nothing = () => {
     }
 
+    const ExpandedComponent = ({ data }) => {
+        return data ? (
+            <>
+                {/* table have 2 column label and value */}
+                <table className="expanded-table">
+                    <tbody>
+                        <tr>
+                            <td className="label">กลุ่มสินทรัพย์ถาวร</td>
+                            <td className="value">{data.assetGroup}</td>
+                        </tr>
+                        <tr>
+                            <td className="label">หมายเลขสินทรัพย์ถาวร</td>
+                            <td className="value">{data.assetNumber}</td>
+                        </tr>
+                        <tr>
+                            <td className="label">ชื่อ</td>
+                            <td className="value">{data.name}</td>
+                        </tr>
+                        <tr>
+                            <td className="label">สถานที่เก็บ</td>
+                            <td className="value">{data.location}</td>
+                        </tr>
+                        <tr>
+                            <td className="label">RFID</td>
+                            <td className="value">{data.rfid}</td>
+                        </tr>
+                        <tr>
+                            <td className="label">ผู้รับผิดชอบ</td>
+                            <td className="value">{data.responsiblePerson}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </>
+        ) : (
+            <>
+
+            </>
+        );
+
+    };
+
     return (
         <div>
             {/* create search box */}
@@ -438,7 +546,12 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                 <div className='first-row'>
                     <div className="input-wrapper">
                         <CiSearch id="search-icon" />
-                        <input type="text" placeholder="Search" onChange={searchFilter} />
+                        <input type="text" placeholder="Search" onChange={searchFilter}  value={searchText}/>
+                        {searchText && (
+                            <div className="clear-icon" onClick={clearSearch}>
+                                <IoMdClose color='gray'/>
+                            </div>
+                        )}
                     </div>
 
                     {userRole === ConstanceStrings.ADMIN ?
@@ -448,8 +561,23 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                 </div>
 
                 <div className='second-row'>
+                    {userRole === ConstanceStrings.ADMIN ?
+                        <>
+                            <Select className='filter-select'
+                                placeholder="กลุ่มสินทรัพย์ถาวร"
+                                options={assetGroupOptions}
+                                onChange={(optionSelected) => {
+                                    setSelectedAssetGroupOptions(optionSelected);
+                                }}
+                                isMulti
+                                isSearchable
+                                noOptionsMessage={() => "not found"}
+                                defaultValue={value}
+                            ></Select>
+                        </>
+                        : <></>}
                     <Select className='filter-select'
-                        placeholder="Name"
+                        placeholder="ชื่อ"
                         options={nameOptions}
                         onChange={(optionSelected) => {
                             setSelectedNameOptions(optionSelected);
@@ -457,9 +585,11 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                         isMulti
                         isSearchable
                         noOptionsMessage={() => "not found"}
-                        defaultValue={defaultName}></Select>
+                        defaultValue={defaultName}
+
+                    ></Select>
                     <Select className='filter-select'
-                        placeholder="Status"
+                        placeholder="สถานะ"
                         options={statusOptions}
                         onChange={(optionSelected) => {
                             setSelectedStatusOptions(optionSelected);
@@ -469,7 +599,7 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                         noOptionsMessage={() => "not found"}
                         defaultValue={defaultStatus}></Select>
                     <Select className='filter-select'
-                        placeholder="Location"
+                        placeholder="ตำแหน่งที่เก็บ"
                         options={locationOptions}
                         defaultValue={value}
                         onChange={(optionSelected) => {
@@ -482,10 +612,7 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                     {userRole === ConstanceStrings.ADMIN ?
                         <>
                             <div className='filter-select'> {/* Wrap DateRangeComp in a div */}
-                                <DateRangeComp parentCallback={setPurchaseFilter} placeholder="Purchase Date" />
-                            </div>
-                            <div className='filter-select'> {/* Wrap DateRangeComp in a div */}
-                                <DateRangeComp parentCallback={setWarrantyExpFilter} placeholder="Warranty Expiration Date" />
+                                <DateRangeComp parentCallback={setPurchaseFilter} placeholder="วันที่ซื้อ" />
                             </div>
                         </>
                         : <></>}
@@ -500,21 +627,15 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                 pagination
                 highlightOnHover
                 // responsive
-                // striped
+                striped
                 customStyles={customStyles}
                 onRowClicked={userRole === ConstanceStrings.ADMIN ? handleRowClick : nothing}
                 paginationRowsPerPageOptions={[5, 10]}
                 pointerOnHover
+            // expandableRows
+            // expandableRowsComponent={ExpandedComponent}
+            // dense
             />
-
-            {/* <div>
-                <InventoryPopup
-                    trigger={modal}
-                    setTrigger={(value) => setModal(value)}
-                    deviceID={deviceIdSelected}
-                >
-                </InventoryPopup>
-            </div> */}
 
         </div>
     )
