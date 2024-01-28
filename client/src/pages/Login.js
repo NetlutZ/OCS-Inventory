@@ -14,6 +14,8 @@ import {
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import backgroundImage from '../image/Cover.png';
+import ocs from '../image/ocs kasetsart.png';
 
 const defaultTheme = createTheme();
 
@@ -85,7 +87,7 @@ function Login() {
           sm={4}
           md={7}
           sx={{
-            backgroundImage: 'url(https://source.unsplash.com/random?wallpapers)',
+            backgroundImage: `url(${backgroundImage})`,
             backgroundRepeat: 'no-repeat',
             backgroundColor: (t) =>
               t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
@@ -103,9 +105,7 @@ function Login() {
               alignItems: 'center',
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon />
-            </Avatar>
+            <img src={ocs} alt="OCS Kasetsart" className="imageStyle" style={{width:"15rem"}} />
             <Typography component="h1" variant="h5">
               Sign in
             </Typography>

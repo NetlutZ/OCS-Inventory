@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
         },
         device:{
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
         }
         
 

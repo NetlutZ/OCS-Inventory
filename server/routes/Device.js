@@ -302,7 +302,7 @@ router.get('/display/image', (req, res) => {
 });
 
 router.get('/check/loss', (req, res) => {
-    const sec = 20000; // 20 sec
+    const sec = 1000 * 60; // 1 min
     const timeDiff = new Date - sec;
 
     Device.findAll({
