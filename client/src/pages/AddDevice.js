@@ -7,6 +7,7 @@ import OtherTab from '../tabs/OtherTab';
 import SortingTab from '../tabs/SortingTab';
 import StructureTab from '../tabs/StructureTab';
 import TechnicalDetailsTab from '../tabs/TechnicalDetailsTab';
+import RFID from '../tabs/RFID';
 import './AddDevice.css';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -19,11 +20,14 @@ function AddDevice() {
   const [formData, setFormData] = useState({
     rfid: '',                         // หมายเลข RFID
     rfidStatus: '',                   // สถานะ RFID
-    lastScan: null,                     // การสแกนครั้งล่าสุด
-    purchaseDate: null,                 // วันที่ซื้อ
-    warrantyExpirationDate: null,       // วันหมดอายุการรับประกัน
+    lastScan: null,                     // การสแกนครั้งล่าสุด     =rfid tab
+    purchaseDate: null,                 // วันที่ซื้อ        *
+    warrantyExpirationDate: null,       // วันหมดอายุการรับประกัน   =ยังไม่มีใน tab
     activityId: null,                   // กิจกรรม
+    userId: null,                       // ผู้ใช้
     image: '',                        // รูปภาพ
+    returnDate: null,                   // วันที่คืน      =rfid tab
+    maxBorrowDays: 0,                 // วันที่ยืมสูงสุด
     updatedAt: '',                    // อัพเดตเมื่อ
     createdAt: '',                    // สร้างเมื่อ
 
@@ -45,8 +49,8 @@ function AddDevice() {
     modelYear: '',                    // ปีของรุ่น
     serialNumber: '',                 // หมายเลขลำดับประจำสินค้า
     technicalDetails: '',             // รายละเอียดทางเทคนิค
-    lastMaintenanceDate: null,          // การบำรุงรักษาครั้งล่าสุด
-    nextMaintenanceDate: null,          // การบำรุงรักษาครั้งถัดไป
+    lastMaintenanceDate: null,          // การบำรุงรักษาครั้งล่าสุด    *
+    nextMaintenanceDate: null,          // การบำรุงรักษาครั้งถัดไป    *
     brand: '',                        // ยี่ห้อ
     distributorAccount: '',           // บัญชีผู้จัดจำหน่าย
     sellerName: '',                   // ชื่อผู้ขาย
@@ -61,13 +65,13 @@ function AddDevice() {
     insuranceCompany: '',             // บริษัทประกันภัย
     agent: '',                        // ตัวแทน
     policyNumber: '',                 // หมายเลขกรรมธรรม์
-    policyExpirationDate: null,         // วันหมดอายุของกรรมธรรม์
+    policyExpirationDate: null,         // วันหมดอายุของกรรมธรรม์    *
     policyAmount: 0,                 // ยอดเงินกรรมธรรม์
     insuranceValue: 0,               // มูลค่าการประกัน
     replacementCost: 0,              // ต้นทุนในการเปลี่ยน
-    lastCostUpdate: null,               // การอัพเดตข้อมูลค่า_ต้นทุนเป็นครั้งคราวครั้งล่าสุด
-    insuranceDate1: null,               // วันที่ประกัน1
-    insuranceDate2: null,               // วันที่ประกัน2
+    lastCostUpdate: null,               // การอัพเดตข้อมูลค่า_ต้นทุนเป็นครั้งคราวครั้งล่าสุด   *
+    insuranceDate1: null,               // วันที่ประกัน1    *
+    insuranceDate2: null,               // วันที่ประกัน2    *
     marketPriceInsurance: '',         // ประกันภัยที่ราคาตลาดที่เป็นธรรม
 
     GISReferenceNumber: '',           // หมายเลขอ้างอิงGIS
@@ -76,7 +80,7 @@ function AddDevice() {
     storageLocation: '',              // สถานที่เก็บ
     roomNumber: '',                   // หมายเลขห้อง
     barcode: '',                      // บาร์โค้ด
-    physicalInventory: null,            // สินค้าคงคลังทางกายภาพ
+    physicalInventory: null,            // สินค้าคงคลังทางกายภาพ   *
     contactPerson: '',                // ผู้ติดต่อ
     rentalNotes: '',                  // หมายเหตุการเช่า
     rightsHolder: '',                 // ผู้ถือกรรมสิทธิ์
@@ -102,7 +106,7 @@ function AddDevice() {
     location: '',                     // ที่ตั้ง
     type: '',                         // ประเภท
     running: '',                      // Running
-  });
+});
 
   const [userRole, setUserRole] = useState(null);
   useEffect(() => {
@@ -196,6 +200,9 @@ function AddDevice() {
               formDataNewImage.append(key, formData[key])
             }
           }
+          if(formDataNewImage.get('rfidStatus') === ''){
+            formDataNewImage.append('rfidStatus', 'InStorage')
+          }
 
           const response = await axios.post(`${process.env.REACT_APP_API}/device`, formDataNewImage);
           Swal.fire({
@@ -219,6 +226,7 @@ function AddDevice() {
 
         try {
           formData.image = img;
+          formData.rfidStatus = 'InStorage';
           const response = await axios.post(`${process.env.REACT_APP_API}/device`, formData);
           Swal.fire({
             title: "Add Device Success!",
@@ -322,7 +330,8 @@ function AddDevice() {
     { id: 5, label: 'ที่ตั้ง', component: <LocationTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} handleDateChange={handleDateChange} /> },
     { id: 6, label: 'การเรียงลำดับ', component: <SortingTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} /> },
     { id: 7, label: 'อื่น ๆ', component: <OtherTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} /> },
-    { id: 8, label: 'coding', component: <CodingTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} functionOptions={functionOptions} /> },
+    { id: 8, label: 'coding', component: <CodingTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} /> },
+    { id: 9, label: 'RFID', component: <RFID formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} functionOptions={functionOptions} handleDateChange={handleDateChange} />}
 
   ]
 

@@ -283,6 +283,7 @@ function Dashboard() {
           onRowClicked={sendSelectedName}
           pointerOnHover
           striped
+          defaultSortFieldId={2}
         />
 
       </div>

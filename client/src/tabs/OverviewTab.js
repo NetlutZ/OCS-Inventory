@@ -4,7 +4,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { IconContext } from "react-icons";
 import { CiSearch } from "react-icons/ci";
-import { IoIosAdd, IoMdClose  } from "react-icons/io";
+import { IoIosAdd, IoMdClose } from "react-icons/io";
 import axios from "axios";
 import DataTable from 'react-data-table-component';
 
@@ -93,6 +93,7 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                     const statusOptions = [...new Set(response.data.map(item => item.rfidStatus))];
                     const nameOptions = [...new Set(response.data.map(item => item.name))];
                     const locationOptions = [...new Set(response.data.map(item => item.location))];
+                    const assetGroupOptions = [...new Set(response.data.map(item => item.assetGroup))];
 
                     // Map statusOptions to the format required by Select component
                     const formattedStatusOptions = statusOptions.map(option => ({
@@ -107,10 +108,15 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                         value: option,
                         label: option,
                     }));
+                    const formattedAssetGroupOptions = assetGroupOptions.map(option => ({
+                        value: option,
+                        label: option,
+                    }));
 
                     setStatusOptions(formattedStatusOptions);
                     setNameOptions(formattedNameOptions)
                     setLocationOptions(formattedLocationOptions);
+                    setAssetGroupOptions(formattedAssetGroupOptions);
                 })
                 .catch(error => {
                     console.error('Error fetching inventory data:', error);
@@ -208,6 +214,8 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                     title: "Deleted!",
                     text: "Your file has been deleted.",
                     icon: "success"
+                }).then(() => {
+                    window.location.reload();
                 });
             }
         })
@@ -270,7 +278,10 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                 // Fix show date when click device
                 if (transformedData["lastScan"] === "") {
                     transformedData["lastScan"] = null;
-                }
+                } 
+                // else {
+                //     transformedData["lastScan"] = changeDateTimeFormat(new Date(transformedData["lastScan"]));
+                // }
                 if (transformedData["purchaseDate"] === "") {
                     transformedData["purchaseDate"] = null;
                 }
@@ -285,6 +296,8 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                 }
                 if (transformedData["returnDate"] === "") {
                     transformedData["returnDate"] = null;
+                } else {
+                    transformedData["returnDate"] = changeDateFormat(transformedData["returnDate"]);
                 }
                 if (transformedData["lastMaintenanceDate"] === "") {
                     transformedData["lastMaintenanceDate"] = null;
@@ -343,6 +356,17 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
         return text;
     };
 
+    const changeDateTimeFormat = (date) => {
+        const dd = String(date.getDate()).padStart(2, '0');
+        const mm = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-based
+        const yyyy = date.getFullYear();
+        const hh = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+        const ss = String(date.getSeconds()).padStart(2, '0');
+
+        return `${dd}/${mm}/${yyyy} ${hh}:${min}:${ss}`;
+    };
+
     const changeDateFormat = (dateString) => {
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         if (!dateString) {
@@ -361,6 +385,12 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
             width: '7%',
         },
         {
+            name: 'ชื่อ',
+            selector: (row) => row.name,
+            sortable: true,
+            width: '15%',
+        },
+        {
             name: 'กลุ่มสินทรัพย์ถาวร',
             selector: (row) => row.assetGroup,
             sortable: true,
@@ -372,12 +402,6 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
             sortable: true,
             width: '15%',
 
-        },
-        {
-            name: 'ชื่อ',
-            selector: (row) => row.name,
-            sortable: true,
-            width: '15%',
         },
         {
             name: 'สถานะ',
@@ -404,12 +428,13 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
             name: 'ตำแหน่งที่เก็บ',
             selector: (row) => row.location,
             sortable: true,
-            width: '13%',
+            width: '8%',
         },
         {
             name: 'RFID',
             selector: (row) => row.rfid,
             sortable: true,
+            width: '13%',
         },
         {
             name: 'ผู้รับผิดชอบ',
@@ -546,10 +571,10 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                 <div className='first-row'>
                     <div className="input-wrapper">
                         <CiSearch id="search-icon" />
-                        <input type="text" placeholder="Search" onChange={searchFilter}  value={searchText}/>
+                        <input type="text" placeholder="Search" onChange={searchFilter} value={searchText} />
                         {searchText && (
                             <div className="clear-icon" onClick={clearSearch}>
-                                <IoMdClose color='gray'/>
+                                <IoMdClose color='gray' />
                             </div>
                         )}
                     </div>
@@ -621,7 +646,7 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
 
             </div>
 
-            <DataTable
+            {/* <DataTable
                 columns={columns}
                 data={filterInventoryData}
                 pagination
@@ -630,12 +655,49 @@ function OverviewTab({ formData, setFormData, setTab, setOpenTab }) {
                 striped
                 customStyles={customStyles}
                 onRowClicked={userRole === ConstanceStrings.ADMIN ? handleRowClick : nothing}
-                paginationRowsPerPageOptions={[5, 10]}
+                paginationRowsPerPageOptions={[10, 20, 30]}
                 pointerOnHover
-            // expandableRows
-            // expandableRowsComponent={ExpandedComponent}
-            // dense
-            />
+                // expandableRows
+                // expandableRowsComponent={ExpandedComponent}
+                // dense
+                paginationPerPage={20}
+                defaultSortFieldId={4}
+            /> */}
+
+            {userRole === ConstanceStrings.ADMIN ?
+                    <DataTable
+                        columns={columns}
+                        data={filterInventoryData}
+                        pagination
+                        highlightOnHover
+                        // responsive
+                        striped
+                        customStyles={customStyles}
+                        onRowClicked={userRole === ConstanceStrings.ADMIN ? handleRowClick : nothing}
+                        paginationRowsPerPageOptions={[10, 20, 30]}
+                        pointerOnHover
+                        // expandableRows
+                        // expandableRowsComponent={ExpandedComponent}
+                        // dense
+                        paginationPerPage={20}
+                        defaultSortFieldId={2}
+                    />
+                : 
+                    <DataTable
+                        columns={columns}
+                        data={filterInventoryData}
+                        pagination
+                        // responsive
+                        striped
+                        customStyles={customStyles}
+                        onRowClicked={userRole === ConstanceStrings.ADMIN ? handleRowClick : nothing}
+                        paginationRowsPerPageOptions={[10, 20, 30]}
+                        // expandableRows
+                        // expandableRowsComponent={ExpandedComponent}
+                        // dense
+                        paginationPerPage={20}
+                        defaultSortFieldId={2}
+                    />}
 
         </div>
     )

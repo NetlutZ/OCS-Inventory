@@ -187,6 +187,7 @@ function Activity(props) {
       </div>
 
       <TablePagination
+        component='div'
         style={{ display: "flex", justifyContent: "center" }}
         count={dynamicDataArray.length}
         page={page}
@@ -211,6 +212,7 @@ function Activity(props) {
           time={time}
           activityText={activityText}
           activityCode={activityCode}
+          userRole={userRole}
         // itemOffset={itemOffset}
         // setItemOffset={(itemOffset) => setItemOffset(itemOffset)}
         >

@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import UserProfile from './pages/UserProfile';
 import SignUp from './pages/SignUp';
 import ChangePassword from './pages/ChangePassword';
+import UserBorrow from './pages/UserBorrow';
 function App() {
   return (
     <div className="App">
@@ -30,6 +31,7 @@ function App() {
             <Route path="/settings" exact element={<Settings />} />
             <Route path="/test" exact element={<Settings />} />
             <Route path="/profile" exact element={<UserProfile />} />
+            <Route path="/notreturn" exact element={<UserBorrow />} />
           </Routes>
         </div>
       </Router>

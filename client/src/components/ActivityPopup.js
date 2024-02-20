@@ -5,6 +5,8 @@ import axios from 'axios';
 import { set } from "date-fns";
 import { FcCancel } from "react-icons/fc";
 import { FcApproval } from "react-icons/fc";
+import DataTable from 'react-data-table-component';
+import * as ConstanceStrings from '../ConstanceString';
 
 function ActivityPopup(props) {
     const toggleModal = () => {
@@ -27,12 +29,12 @@ function ActivityPopup(props) {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/activity/${props.activityID}`);
+            const response = await axios.get(`${process.env.REACT_APP_API}/activity/${props.activityID}`);
             const deviceID = response.data.device;
             const listDeviceID = deviceID.split(',').map(id => parseInt(id.trim(), 10));
 
             const promises = listDeviceID.map(id =>
-                axios.get(`http://localhost:8080/device/${id}`)
+                axios.get(`${process.env.REACT_APP_API}/device/${id}`)
                     .then(response => response.data)
                     .catch(error => {
                         console.error('There was an error!', error);
@@ -60,11 +62,76 @@ function ActivityPopup(props) {
         return formattedDate;
     };
 
-    return (props.trigger) ? (
-        <div>
+    const customStyles = {
+        headRow: {
+            style: {
+                backgroundColor: '#F9FAFB',
+                color: 'black',
+            },
+        },
+        headCells: {
+            style: {
+                fontWeight: '600',
+                fontSize: '0.8rem',
+                paddingLeft: '8px',
+            },
+        },
+        cells: {
+            style: {
+                fontSize: '0.8rem',
+                paddingLeft: '8px',
+            },
+        },
+        rows: {
+            style: {
+                minHeight: '35px', // override the row height
+            },
+        },
+    };
 
+    const adminColumns = [
+        {
+            name: 'รูปภาพ',
+            selector: (row) => (
+                <img
+                    src={`${process.env.REACT_APP_API}/device/image/${row.image}`}
+                    alt="Image"
+                    style={{ width: 'auto', height: '50px' }}
+                />
+            ),
+            
+        },
+        { name: 'ชื่อ', selector: (row) => row.name },
+        { name: 'หมายเลขสินทรัพย์ถาวร', selector: (row)=>row.assetNumber },
+        {
+            name: 'สถานะ',
+            selector: (row) => row.rfidStatus === 'InStorage' ? <FcApproval /> : <FcCancel />,
+        },
+    ]
+
+    const userColumns = [
+        {
+            name: 'รูปภาพ',
+            selector: (row) => (
+                <img
+                    src={`${process.env.REACT_APP_API}/device/image/${row.image}`}
+                    alt="Image"
+                    style={{ width: 'auto', height: '50px' }}
+                />),
+        },
+        { name: 'ชื่อ', selector: (row)=>row.name },
+        {
+            name: 'สถานะ',
+            selector: (row) => row.rfidStatus === 'InStorage' ? <FcApproval /> : <FcCancel />,
+        },
+    ]
+    
+    const columns = props.userRole === ConstanceStrings.ADMIN ? adminColumns : userColumns;
+
+    return props.trigger ? (
+        <div className="modal-container">
             {props.trigger && (
-                <div className="modal2">
+                <div className="modal2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <div onClick={toggleModal} className="overlay"></div>
                     <div className="modal-content">
                         <div>
@@ -74,37 +141,24 @@ function ActivityPopup(props) {
                             <h3>{props.activityText}</h3>
                         </div>
 
-                        <table >
-                            <thead className='dashboard-table-header'>
-                                <tr>
-                                    <th>Image</th>
-                                    <th>Name</th>
-                                    <th>ID</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {tableData.map((row, index) => (
-                                    <tr className='dashboard-row' key={index}>
-                                        <td style={{ width: '10%' }}>{<img src={`http://localhost:8080/device/image/${row.image}`} alt="Image" style={{ width: 'auto', height: '50px' }} />}</td>
-                                        <td style={{ width: '10%' }}>{row.name}</td>
-                                        <td style={{ width: '10%' }}>{row.id}</td>
-                                        <td style={{ width: '10%' }}>{row.rfidStatus === 'InStorage' ? <FcApproval /> : <FcCancel />}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <DataTable
+                            columns={columns}
+                            data={tableData}
+                            pagination
+                            customStyles={customStyles}
+                            striped
+
+                        />
+
                         <button className="close-modal" onClick={() => props.setTrigger(false)}>
                             CLOSE
                         </button>
                     </div>
                 </div>
             )}
-
-
-
         </div>
-    ) : "";
+    ) : '';
+
 }
 
 export default ActivityPopup

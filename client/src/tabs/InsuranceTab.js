@@ -46,6 +46,19 @@ function InsuranceTab({ formData, setFormData, handleInputChange, handleButton, 
                         />
                     </div>
                     <div className='formfield'>
+                        <label htmlFor="purchaseDate">วันที่ซื้อ:</label>
+                        <DatePicker
+                            className='device-data-input'
+                            id="purchaseDate"
+                            selected={formData.purchaseDate === null ? '' :new Date(formData.purchaseDate) }
+                            onChange={(date) => handleDateChange(date, 'purchaseDate')}
+                            dateFormat="dd-MM-yyyy"
+                            placeholderText="Select a date"
+                            showIcon
+                            toggleCalendarOnIconClick
+                        />
+                    </div>
+                    <div className='formfield'>
                         <label htmlFor="policyExpirationDate">วันหมดอายุของกรรมธรรม์:</label>
                         <DatePicker
                             className='device-data-input'

@@ -3,7 +3,7 @@ import './Topbar.css';
 import { IoIosNotificationsOutline } from 'react-icons/io';
 import { FaRegUser } from 'react-icons/fa';
 import { CgProfile } from "react-icons/cg";
-import { MdLogout } from "react-icons/md";
+import { MdLogout, MdDevicesOther  } from "react-icons/md";
 import ocs from '../image/ocs kasetsart.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -45,6 +45,10 @@ function Topbar() {
 
   const toProfile = () => {
     navigate('/profile');
+  }
+
+  const toNotReturn = () => {
+    navigate('/notreturn');
   }
 
   return (
@@ -92,6 +96,7 @@ function Topbar() {
               <div className={`dropdown-user ${openMenu ? 'active' : 'inactive'}`}>
                 <ul>
                   <Dropdown text="Profile" icon={<CgProfile />} onClick={() => toProfile()}/>
+                  <Dropdown text="Your Borrow" icon={<MdDevicesOther />} onClick={() => toNotReturn()} />
                   <Dropdown text="Logout" icon={<MdLogout/>} onClick={() => removeSession()} />
                 </ul>
               </div>

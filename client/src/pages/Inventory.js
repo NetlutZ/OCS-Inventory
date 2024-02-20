@@ -8,6 +8,7 @@ import SortingTab from '../tabs/SortingTab';
 import StructureTab from '../tabs/StructureTab';
 import TechnicalDetailsTab from '../tabs/TechnicalDetailsTab';
 import OverviewTab from '../tabs/OverviewTab';
+import RFID from '../tabs/RFID';
 import './DeviceDetail.css';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -294,6 +295,9 @@ function Inventory() {
                             <div onClick={() => action(8)} className={`${tab === 8 ? 'tab active-tab' : 'tab'}`}>
                                 coding
                             </div>
+                            <div onClick={() => action(9)} className={`${tab === 9 ? 'tab active-tab' : 'tab'}`}>
+                                RFID
+                            </div>
                         </div>
                     ) : (
                         <div></div>
@@ -334,6 +338,10 @@ function Inventory() {
 
                     <div className={`${tab === 8 ? 'device-content active-content' : 'device-content'}`}>
                         <CodingTab formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} />
+                    </div>
+
+                    <div className={`${tab === 9 ? 'device-content active-content' : 'device-content'}`}>
+                        <RFID formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} handleDateChange={handleDateChange}/>
                     </div>
                 </div>
 

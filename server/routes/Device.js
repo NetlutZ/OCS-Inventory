@@ -24,7 +24,7 @@ const upload = multer({ storage })
 //AuthenRoleController.authenRole(ROLES_LIST.Admin)
 router.get('/', (req, res) => {
 
-    const { name, location, rfidStatus, purchaseDate, warrantyExpirationDate, rfid, userId } = req.query;
+    const { name, location, rfidStatus, purchaseDate, warrantyExpirationDate, rfid, userId, assetGroup } = req.query;
     const filters = {};
     if (name) {
         // filters.name = name.split(',').map(str => str.trim());
@@ -57,6 +57,9 @@ router.get('/', (req, res) => {
     }
     if (userId) {
         filters.userId = userId;
+    }
+    if (assetGroup) {
+        filters.assetGroup = assetGroup;
     }
 
     // console.log(filters)
@@ -302,7 +305,7 @@ router.get('/display/image', (req, res) => {
 });
 
 router.get('/check/loss', (req, res) => {
-    const sec = 1000 * 60; // 1 min
+    const sec = 1000 * 10; // 1 min
     const timeDiff = new Date - sec;
 
     Device.findAll({

@@ -48,6 +48,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         rfidStatus: {
             type: DataTypes.STRING,
+            defaultValue: 'InStorage',
         },
         lastScan: {
             type: DataTypes.DATE,

@@ -11,6 +11,12 @@
   flex-direction: row;
   margin-bottom: 2rem;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3), 0px -1px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.activity-item:hover {
+  transform: scale(1.02);
+  transition: all 0.3s ease-in-out;
 }
 
 .border-R  {

@@ -290,7 +290,7 @@ function GeneralTab({ formData, setFormData, handleInputChange, functionOptions,
             </div>
 
 
-            <div className="radio-container">
+            <div className="radio-container" style={{marginTop:'20px'}}>
                 <div className="custom-radio">
                     <input
                         type="radio"

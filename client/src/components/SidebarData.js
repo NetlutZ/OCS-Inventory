@@ -1,11 +1,10 @@
-import React from 'react'
+import {React, useState, useEffect} from 'react'
 import HomeIcon from '@mui/icons-material/Home';
 import { LuBox } from "react-icons/lu";
 import { LuHome } from "react-icons/lu";
 import { MdOutlineAccessTime } from "react-icons/md";
 import { MdOutlineAddBox } from "react-icons/md";
 import { CiSettings } from "react-icons/ci";
-
 
 export const SidebarData = [
     {
@@ -28,13 +27,13 @@ export const SidebarData = [
         icon:<MdOutlineAddBox/>,
         link:"/AddDevice"
     },
-    {
-        title:"Settings",
-        icon:<CiSettings/>,
-        link:"/Settings"
-    },
-    {
-        title:"Test",
-        link:"/Test"
-    },
+    // {
+    //     title:"Settings",
+    //     icon:<CiSettings/>,
+    //     link:"/Settings"
+    // },
+    // {
+    //     title:"Test",
+    //     link:"/Test"
+    // },
 ]
