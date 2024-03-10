@@ -14,6 +14,7 @@ import Swal from 'sweetalert2';
 import moment from 'moment';
 import Layout from './Layout';
 import * as ConstanceStrings from '../ConstanceString';
+import { useNavigate } from 'react-router-dom';
 
 function AddDevice() {
   axios.defaults.withCredentials = true;
@@ -106,13 +107,18 @@ function AddDevice() {
     location: '',                     // ที่ตั้ง
     type: '',                         // ประเภท
     running: '',                      // Running
-});
+  });
+  const navigate = useNavigate();
 
   const [userRole, setUserRole] = useState(null);
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_API}`)
       .then((res) => {
-        setUserRole(res.data.role);
+        if (res.data.loggedIn) {
+          setUserRole(res.data.role);
+        } else {
+          navigate('/')
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -200,7 +206,7 @@ function AddDevice() {
               formDataNewImage.append(key, formData[key])
             }
           }
-          if(formDataNewImage.get('rfidStatus') === ''){
+          if (formDataNewImage.get('rfidStatus') === '') {
             formDataNewImage.append('rfidStatus', 'InStorage')
           }
 
@@ -331,7 +337,7 @@ function AddDevice() {
     { id: 6, label: 'การเรียงลำดับ', component: <SortingTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} /> },
     { id: 7, label: 'อื่น ๆ', component: <OtherTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} /> },
     { id: 8, label: 'coding', component: <CodingTab formData={formData} setFormData={setFormData} handleButton={nextPage} handleInputChange={handleInputChange} functionOptions={functionOptions} /> },
-    { id: 9, label: 'RFID', component: <RFID formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} functionOptions={functionOptions} handleDateChange={handleDateChange} />}
+    { id: 9, label: 'RFID', component: <RFID formData={formData} setFormData={setFormData} handleButton={handleSubmit} handleInputChange={handleInputChange} functionOptions={functionOptions} handleDateChange={handleDateChange} /> }
 
   ]
 

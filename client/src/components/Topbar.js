@@ -34,9 +34,7 @@ function Topbar() {
     axios.get(`${process.env.REACT_APP_API}/logout`)
       .then((res) => {
         console.log(res)
-        if (res.data.Logout) {
           navigate('/')
-        }
       })
       .catch((err) => {
         console.log(err)

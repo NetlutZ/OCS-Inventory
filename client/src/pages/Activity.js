@@ -11,6 +11,7 @@ import format from 'date-fns/format';
 import Layout from './Layout';
 import TablePagination from '@mui/material/TablePagination';
 import * as ConstanceStrings from '../ConstanceString';
+import { useNavigate } from 'react-router-dom';
 
 function Activity(props) {
   axios.defaults.withCredentials = true;
@@ -35,12 +36,18 @@ function Activity(props) {
     setActivityCode(dynamicData.activityCode);
     setModal(true);
   };
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_API}`)
       .then((res) => {
-        setUserRole(res.data.role);
-        setUserId(res.data.userId);
+        if (res.data.loggedIn) {
+          setUserRole(res.data.role);
+          setUserId(res.data.userId);
+        } else {
+          navigate('/')
+        }
+
       })
       .catch((err) => {
         console.log(err);

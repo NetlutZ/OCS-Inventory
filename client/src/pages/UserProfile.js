@@ -1,4 +1,4 @@
-import {React, useEffect, useState} from 'react'
+import { React, useEffect, useState } from 'react'
 import Layout from './Layout';
 import './UserProfile.css';
 import { useNavigate } from 'react-router-dom';
@@ -14,13 +14,16 @@ function UserProfile() {
     useEffect(() => {
         axios.get(`${process.env.REACT_APP_API}`)
             .then((res) => {
-                console.log(res.data)
-                setUserData({
-                    username: res.data.username,
-                    name: res.data.name,
-                    email: res.data.email,
-                    password: <button onClick={toChangePassword}>Change Password</button>,
-                })
+                if (res.data.loggedIn) {
+                    setUserData({
+                        username: res.data.username,
+                        name: res.data.name,
+                        email: res.data.email,
+                        password: <button onClick={toChangePassword}>Change Password</button>,
+                    })
+                } else {
+                    navigate('/')
+                }
             })
             .catch((err) => {
                 console.log(err)

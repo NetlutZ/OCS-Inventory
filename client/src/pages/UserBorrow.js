@@ -4,19 +4,21 @@ import DataTable from 'react-data-table-component';
 import axios from 'axios';
 import * as ConstanceStrings from '../ConstanceString';
 import calendar from '../image/calendar.jpg';
+import { useNavigate } from 'react-router-dom';
 
 function UserBorrow() {
     axios.defaults.withCredentials = true;
     const [notReturn, setNotReturn] = useState([]);
     const [userId, setUserId] = useState(null);
-
+    const navigate = useNavigate();
     useEffect(() => {
         axios.get(`${process.env.REACT_APP_API}`)
             .then((res) => {
                 if (res.data.loggedIn) {
-                    console.log("login");
                     setUserId(res.data.userId)
-                }
+                }else {
+                    navigate('/')
+                  }
             })
             .catch((err) => {
                 console.log(err)

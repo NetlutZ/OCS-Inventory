@@ -15,6 +15,7 @@ import Swal from 'sweetalert2';
 import { set, format } from 'date-fns';
 import moment from 'moment';
 import Layout from './Layout';
+import { useNavigate } from 'react-router-dom';
 
 function Inventory() {
     const [formData, setFormData] = useState({
@@ -117,6 +118,21 @@ function Inventory() {
             setOpenTab(false);
         }
     }
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        axios.get(`${process.env.REACT_APP_API}`)
+          .then((res) => {
+            if (res.data.loggedIn) {
+
+            } else {
+              navigate('/')
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+          });
+      }, []);
 
     const handleDateChange = (date, name) => {
         const formattedDate = moment(date).format('YYYY-MM-DD');
